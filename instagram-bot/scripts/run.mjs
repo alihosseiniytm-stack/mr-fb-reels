@@ -175,6 +175,16 @@ await summarize(`- Uploaded to: ${videoUrl}`);
 if (process.env.PLATFORM === "fb") {
   const hook = process.env.MAKE_FB_WEBHOOK_URL;
   if (!hook) throw new Error("PLATFORM=fb needs the MAKE_FB_WEBHOOK_URL secret");
+  // GitHub Pages takes a minute or two to publish a freshly pushed file; Make downloads the video the moment it is
+  // told about it, so wait until the URL really serves the file (up to ~6 minutes) before calling the webhook.
+  let live = false;
+  for (let i = 0; i < 36 && !live; i++) {
+    const head = await fetch(videoUrl, { method: "HEAD" }).catch(() => null);
+    live = !!head && head.ok;
+    if (!live) await new Promise((r) => setTimeout(r, 10000));
+  }
+  await summarize(`- Video URL live: ${live}`);
+  if (!live) throw new Error("hosted video never became reachable: " + videoUrl);
   const res = await fetch(hook, {
     method: "POST",
     headers: { "content-type": "application/json" },
