@@ -1,0 +1,58 @@
+/* Teacher-whale mascot, pointer stick and speech bubble used by the reel template (whale-data.html). */
+
+.mrw-teacher { flex: 0 0 auto; position: relative; }
+.mrw-teacher svg { width: 100%; height: auto; overflow: visible; display: block; filter: drop-shadow(0 12px 22px rgba(0,0,0,0.35)); }
+.mrw-teacher[data-flip="1"] svg { transform: scaleX(-1); }
+
+.mrw-bob { animation: mrw-bob 3s ease-in-out infinite; }
+@keyframes mrw-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.mrw-tail { transform-origin: 224px 336px; animation: mrw-tail 1.5s ease-in-out infinite; }
+@keyframes mrw-tail {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-8deg); }
+}
+.mrw-arm2 { transform-origin: 246px 250px; animation: mrw-arm2 2.6s ease-in-out infinite; }
+@keyframes mrw-arm2 {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-7deg); }
+}
+.mrw-drop { animation: mrw-spout 2.2s ease-out infinite; opacity: 0; }
+.mrw-drop.d2 { animation-delay: 0.7s; }
+.mrw-drop.d3 { animation-delay: 1.4s; }
+@keyframes mrw-spout {
+  0%   { transform: translateY(6px) scale(0.5); opacity: 0; }
+  20%  { opacity: 0.95; }
+  100% { transform: translateY(-34px) scale(1.05); opacity: 0; }
+}
+/* The pointer: a wooden rod with a red tip, positioned by MRWhale.buildStick. */
+.mrw-stick {
+  position: absolute; height: 12px; border-radius: 6px; transform-origin: 0 50%;
+  background: linear-gradient(180deg, #d99a4e, #8a5a24);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.45); z-index: 5;
+  transition: transform 480ms cubic-bezier(.4,.1,.2,1), width 480ms cubic-bezier(.4,.1,.2,1), left 480ms ease, top 480ms ease;
+}
+.mrw-stick::after {
+  content: ""; position: absolute; right: -8px; top: 50%; width: 22px; height: 22px; margin-top: -11px;
+  border-radius: 50%; background: #ff4d3d; box-shadow: 0 0 14px 4px rgba(255,77,61,0.65);
+}
+
+.mrw-bubble {
+  position: relative; flex: 1 1 auto; min-width: 0; align-self: center;
+  background: #ffffff; color: #0b1428;
+  border-radius: 34px; padding: 26px 32px;
+  font-family: "Vazirmatn", "Noto Sans Arabic", Arial, sans-serif;
+  font-weight: 700; line-height: 1.4; text-align: center;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  opacity: 0; transition: opacity 180ms ease;
+}
+.mrw-bubble::before {
+  content: ""; position: absolute; top: 50%;
+  inset-inline-start: -13px; width: 30px; height: 30px; background: #ffffff;
+  transform: translateY(-50%) rotate(45deg); border-radius: 6px;
+}
+/* Bubble sitting under the board: tail points up toward the teacher's side. */
+.mrw-bubble.up::before { top: -13px; inset-inline-start: auto; inset-inline-end: 120px; transform: rotate(45deg); }
+.mrw-bubble > span { position: relative; z-index: 1; }

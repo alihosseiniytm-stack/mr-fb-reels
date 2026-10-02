@@ -1,0 +1,12 @@
+{
+  "name": "marketradar-ig-bot",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "run": "node scripts/run.mjs"
+  },
+  "dependencies": {
+    "edge-tts-universal": "^1.4.0",
+    "playwright": "^1.63.0"
+  }
+}

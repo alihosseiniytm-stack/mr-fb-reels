@@ -1,0 +1,87 @@
+name: Facebook Reels — English
+
+# Same teacher-whale reel as the Instagram bot, in the Facebook Reels layout (PLATFORM=fb: bigger board/whale, caption
+# ends with the site name instead of the Instagram "comment WHALE" trigger). The finished video is hosted on gh-pages and
+# handed to the Make scenario "MarketRadar Reels to Facebook EN" (secret MAKE_FB_WEBHOOK_URL), which uploads it to the
+# English Facebook Page. Nothing is published unless dry_run is false: scheduled runs follow the repository variable
+# FB_DRY_RUN (default "true" = generate only).
+
+on:
+  schedule:
+    # Two reels a day at the overlap of Europe afternoon / US morning / Indonesia evening (12:30 UTC)
+    # and Europe evening / US afternoon (17:30 UTC). Revisit with Facebook Insights after ~2 weeks.
+    - cron: "30 12 * * *"
+    - cron: "30 17 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (generate only, do not publish)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: facebook-bot-en
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+
+      - name: Install dependencies
+        working-directory: instagram-bot
+        run: npm install
+
+      - name: Install Chromium + system fonts + ffmpeg
+        working-directory: instagram-bot
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y fonts-noto-core ffmpeg
+          npx playwright install --with-deps chromium
+
+      - name: Determine dry-run flag
+        id: mode
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "dry_run=${{ inputs.dry_run }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "dry_run=${{ vars.FB_DRY_RUN || 'true' }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate and (maybe) publish reel
+        working-directory: instagram-bot
+        env:
+          PLATFORM: fb
+          DRY_RUN: ${{ steps.mode.outputs.dry_run }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          MAKE_FB_WEBHOOK_URL: ${{ secrets.MAKE_FB_WEBHOOK_URL }}
+        run: node scripts/run.mjs --lang=en --mode=data
+
+      - name: Upload generated video for review
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: facebook-en-${{ github.run_id }}
+          path: instagram-bot/out/*.mp4
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Save dedupe state
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          mkdir -p instagram-bot/state/en-fb
+          git add instagram-bot/state/en-fb
+          git diff --cached --quiet || git commit -m "Facebook EN bot: update state [skip ci]"
+          git pull --rebase origin "${GITHUB_REF_NAME}" || true
+          git push || true

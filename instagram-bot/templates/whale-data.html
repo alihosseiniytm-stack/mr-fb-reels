@@ -1,0 +1,263 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="./whale.css" />
+<style>
+  @font-face {
+    font-family: "Vazirmatn";
+    src: url("./fonts/Vazirmatn-Bold.ttf") format("truetype");
+    font-weight: 700;
+  }
+  @font-face {
+    font-family: "Vazirmatn";
+    src: url("./fonts/Vazirmatn-Regular.ttf") format("truetype");
+    font-weight: 400;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 1080px; height: 1920px; overflow: hidden;
+    background: #060a14;
+    font-family: "Vazirmatn", "Arial", sans-serif;
+  }
+  body[dir="rtl"] { direction: rtl; }
+
+  /* Instagram Reels covers the top ~180px (profile bar), the bottom ~380px (caption, audio,
+     progress bar) and the right ~130px (like/comment/share buttons). Everything that has to be
+     read stays inside that safe area: content starts at y=190 and ends well above y=1540, and the
+     lower blocks keep a 130px right margin (physical, so it holds in RTL too). */
+
+  /* Real, live screenshot of marketradarwhale.com — blurred, dimmed, and slowly
+     zooming (Ken Burns) so the product itself is visibly the backdrop, not just a
+     flat gradient, and the frame never sits still. */
+  .bg-clip { position: absolute; inset: 0; overflow: hidden; }
+  .bg-shot {
+    position: absolute; inset: -40px;
+    background-size: cover; background-position: center top;
+    filter: blur(8px) saturate(1.15) brightness(0.38);
+    animation: kenburns 26s ease-in-out infinite alternate;
+  }
+  @keyframes kenburns {
+    from { transform: scale(1.0) translate(0, 0); }
+    to   { transform: scale(1.14) translate(-1%, -1%); }
+  }
+  .bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(0,200,180,0.30), transparent 45%),
+      radial-gradient(circle at 85% 80%, rgba(0,120,255,0.26), transparent 50%),
+      linear-gradient(180deg, rgba(6,10,20,0.55) 0%, rgba(10,18,36,0.75) 100%);
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+  @keyframes drift {
+    from { background-position: 0% 0%, 100% 100%, 0 0; }
+    to   { background-position: 8% 4%, 92% 96%, 0 0; }
+  }
+  .grid {
+    position: absolute; inset: 0; opacity: 0.12;
+    background-image: linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .scan {
+    position: absolute; left: 0; right: 0; height: 260px; top: -260px;
+    background: linear-gradient(180deg, transparent, rgba(0,224,184,0.10), transparent);
+    animation: scan 7s linear infinite;
+  }
+  @keyframes scan { from { transform: translateY(0); } to { transform: translateY(2180px); } }
+
+  .wrap { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; }
+
+  .badge {
+    margin: 190px 70px 0 70px; align-self: flex-start;
+    display: flex; align-items: center; gap: 14px;
+    background: linear-gradient(90deg, #ff3b30, #ff8a00);
+    border-radius: 999px; padding: 14px 28px;
+    box-shadow: 0 0 0 0 rgba(255,59,48,0.6);
+    animation: pulse 1.6s ease-out infinite;
+    opacity: 0; transform: scale(0.9);
+  }
+  .badge.info { background: linear-gradient(90deg, #00b894, #0984e3); animation: none; }
+  .badge .live-dot { width: 14px; height: 14px; border-radius: 50%; background: #fff; }
+  .badge .badge-text { color: #fff; font-size: 28px; font-weight: 700; letter-spacing: 0.5px; }
+  @keyframes pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(255,59,48,0.55); }
+    70%  { box-shadow: 0 0 0 22px rgba(255,59,48,0); }
+    100% { box-shadow: 0 0 0 0 rgba(255,59,48,0); }
+  }
+
+  .top {
+    padding: 24px 70px 0 70px; display: flex; align-items: center; gap: 22px;
+    opacity: 0; transform: translateY(-20px);
+  }
+  .top .dot { width: 20px; height: 20px; border-radius: 50%; background: #00e0b8; box-shadow: 0 0 30px 6px rgba(0,224,184,0.8); }
+  .top .brand { color: #fff; font-size: 38px; font-weight: 700; letter-spacing: 1px; }
+  .top .date { color: rgba(255,255,255,0.6); font-size: 28px; margin-inline-start: auto; }
+  .title {
+    padding: 26px 70px 0 70px;
+    color: #fff; font-size: 66px; font-weight: 700; line-height: 1.2;
+    opacity: 0; transform: translateY(30px);
+    text-shadow: 0 4px 30px rgba(0,0,0,0.5);
+  }
+
+  /* The "classroom": a chalkboard holding the stat cards, and the teacher whale standing beside it.
+     Flex order follows the page direction, so the whale ends up on the outer side in both languages.
+     The right ~130px stays free of the whale/board (Instagram's like/comment buttons). */
+  .classroom {
+    position: relative; display: flex; align-items: flex-end; gap: 6px;
+    margin: 24px 130px 0 30px;
+  }
+  .board {
+    position: relative; flex: 0 0 590px; padding: 16px;
+    background: radial-gradient(circle at 30% 20%, #17493f, #0d2f29);
+    border: 12px solid #8a5a24; border-radius: 24px;
+    box-shadow: 0 14px 40px rgba(0,0,0,0.5), inset 0 0 40px rgba(0,0,0,0.35);
+  }
+  .stats { display: flex; flex-direction: column; gap: 9px; transition: opacity 500ms ease; }
+  .board.dim .stats { opacity: 0.12; }
+  .stat {
+    background: rgba(255,255,255,0.06);
+    border: 2px solid rgba(255,255,255,0.16);
+    border-radius: 18px;
+    padding: 10px 22px;
+    display: flex; flex-direction: column; gap: 0px;
+    opacity: 0; transform: translateY(30px);
+    min-width: 0;
+  }
+  .stat .label { color: #8ff0de; font-size: 22px; font-weight: 400; }
+  .stat .value { color: #fff; font-size: 36px; font-weight: 700; overflow-wrap: anywhere; line-height: 1.2; }
+  /* The card the teacher is pointing at right now. */
+  .stat.pointed {
+    border-color: #ffd84d; background: rgba(255,216,77,0.16);
+    box-shadow: 0 0 0 3px rgba(255,216,77,0.5), 0 0 26px rgba(255,216,77,0.45);
+  }
+  .board .outro {
+    position: absolute; inset: 0; padding: 20px;
+    display: flex; flex-direction: column; gap: 10px; align-items: center; justify-content: center; text-align: center;
+    opacity: 0; transition: opacity 600ms ease; pointer-events: none;
+  }
+  .outro .cta { color: #fff; font-size: 44px; font-weight: 700; line-height: 1.25; }
+  .outro .url { color: #ffd84d; font-size: 36px; font-weight: 700; }
+  .outro .note { color: rgba(255,255,255,0.65); font-size: 26px; }
+
+  .stage { padding: 26px 130px 0 30px; }
+  /* Facebook Reels (owner's call): only the bottom ~10% is left empty, the top ~14% stays free.
+     Board and whale are enlarged to fill y=270..~1700. */
+  body.fb .badge { margin-top: 272px; padding: 14px 30px; }
+  body.fb .badge .badge-text { font-size: 30px; }
+  body.fb .top { padding-top: 22px; }
+  body.fb .top .brand { font-size: 42px; }
+  body.fb .top .date { font-size: 30px; }
+  body.fb .title { padding-top: 18px; font-size: 72px; }
+  body.fb .classroom { margin-top: 30px; }
+  body.fb .board { flex-basis: 480px; padding: 18px; }
+  body.fb .stats { gap: 18px; }
+  body.fb .stat { padding: 26px 24px; }
+  body.fb .stat .label { font-size: 30px; }
+  body.fb .stat .value { font-size: 54px; }
+  body.fb .stage { padding-top: 34px; }
+  body.fb .mrw-bubble { padding: 28px 30px; }
+</style>
+</head>
+<body>
+  <div class="bg-clip"><div class="bg-shot" id="bgShot"></div></div>
+  <div class="bg"></div>
+  <div class="grid"></div>
+  <div class="scan"></div>
+  <div class="wrap">
+    <div class="badge" id="badge">
+      <div class="live-dot"></div>
+      <div class="badge-text" id="badgeText"></div>
+    </div>
+    <div class="top" id="top">
+      <div class="dot"></div>
+      <div class="brand" id="brand"></div>
+      <div class="date" id="date"></div>
+    </div>
+    <div class="title" id="title"></div>
+    <div class="classroom" id="classroom">
+      <div class="board" id="board">
+        <div class="stats" id="stats"></div>
+        <div class="outro" id="outro">
+          <div class="cta" id="cta"></div>
+          <div class="url" id="url"></div>
+          <div class="note" id="note"></div>
+        </div>
+      </div>
+    </div>
+    <div class="stage" id="stage"></div>
+  </div>
+<script src="./whale.js"></script>
+<script>
+  // window.__DATA__ is injected by the renderer before this script runs.
+  const D = window.__DATA__;
+  // The renderer trims the recording to start at this instant so the narration audio (which begins
+  // at 0) lines up with the whale's mouth and the subtitles.
+  window.__START__ = Date.now();
+  document.body.setAttribute("dir", D.dir);
+  if (D.platform === "fb") document.body.classList.add("fb");
+  if (D.bgImagePath) document.getElementById("bgShot").style.backgroundImage = `url("${D.bgImagePath}")`;
+  if (D.badgeStyle === "info") document.getElementById("badge").classList.add("info");
+  document.getElementById("badgeText").textContent = D.badge;
+  document.getElementById("brand").textContent = D.brand;
+  document.getElementById("date").textContent = D.date;
+  document.getElementById("title").textContent = D.title;
+  document.getElementById("cta").textContent = D.cta;
+  document.getElementById("url").textContent = D.url;
+  document.getElementById("note").textContent = D.note;
+
+  const statsEl = document.getElementById("stats");
+  D.stats.forEach((s) => {
+    const row = document.createElement("div");
+    row.className = "stat";
+    const l = document.createElement("div"); l.className = "label"; l.textContent = s.label;
+    const v = document.createElement("div"); v.className = "value"; v.textContent = s.value;
+    row.appendChild(l); row.appendChild(v);
+    statsEl.appendChild(row);
+  });
+
+  function show(el, delayMs) {
+    setTimeout(() => {
+      el.style.transition = "opacity 600ms ease, transform 600ms ease";
+      el.style.opacity = "1";
+      el.style.transform = el.classList.contains("badge") ? "scale(1)" : "translateY(0)";
+    }, delayMs);
+  }
+
+  show(document.getElementById("badge"), 60);
+  show(document.getElementById("top"), 300);
+  show(document.getElementById("title"), 600);
+  const cards = Array.from(statsEl.children);
+  // With a narration plan, each card appears only when the teacher gets to it (one by one, in the order
+  // the voice explains them); without one (TTS failed) they simply appear in sequence.
+  if (D.pointCues && D.pointCues.length) D.pointCues.forEach((c) => cards[c.stat] && show(cards[c.stat], c.revealMs));
+  else cards.forEach((card, i) => show(card, 700 + i * 300));
+
+  // Teacher whale beside the board (mirrored in RTL so the pointer arm reaches toward the board).
+  const classroom = document.getElementById("classroom");
+  classroom.setAttribute("dir", D.dir);
+  const teacher = MRWhale.buildTeacher(classroom, { width: D.platform === "fb" ? 430 : 340, flip: D.dir === "rtl" });
+  const stick = MRWhale.buildStick(classroom, teacher);
+  setTimeout(() => stick.rest(), 50);
+
+  // As the voice reaches each stat, the stick swings to that card and the card lights up.
+  (D.pointCues || []).forEach((c) => setTimeout(() => cards[c.stat] && stick.pointAt(cards[c.stat]), c.atMs));
+
+  // The call-to-action: when the voice reaches it, the board dims and the link takes its place.
+  const fallbackOutroDelay = 700 + cards.length * 300 + 1000;
+  setTimeout(() => {
+    stick.rest();
+    document.getElementById("board").classList.add("dim");
+    document.getElementById("outro").style.opacity = "1";
+  }, D.outroDelayMs || fallbackOutroDelay);
+
+  // The whale talks the whole narration: jaw driven by the real audio loudness, and the bubble under
+  // the board shows one short phrase at a time, timed to the voice.
+  MRWhale.speak(teacher, { envelope: D.mouthEnv && D.mouthEnv.values, stepMs: D.mouthEnv && D.mouthEnv.stepMs, durationMs: D.narrationMs || 0 });
+  const bubble = MRWhale.buildBubble(document.getElementById("stage"), { fontSize: D.platform === "fb" ? 46 : 38, up: true });
+  MRWhale.captions(bubble, D.subtitleChunks);
+
+  window.__READY__ = true;
+</script>
+</body>
+</html>
