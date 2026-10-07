@@ -10,6 +10,7 @@ import { planBoard, planLesson } from "./cues.mjs";
 import { uploadVideo } from "./upload-video.mjs";
 import { publishReel, envForLang } from "./publish-instagram.mjs";
 import { dataCaption, tourCaption } from "./caption.mjs";
+import { publishYouTube } from "./publish-youtube.mjs";
 
 // Target lengths per format — see instagram-bot/SETUP.md for why these differ: pure-numbers
 // reels lose to shorter videos on completion rate, explainer reels with real content to say
@@ -164,6 +165,13 @@ if (dryRun) {
   await summarize(
     `\n**DRY_RUN is on — nothing was uploaded or published.** Download the video artifact from this workflow run to review it.`
   );
+  process.exit(0);
+}
+
+// YouTube (YT_UPLOAD=true): upload the rendered file straight to the channel through the YouTube Data API.
+if (process.env.YT_UPLOAD === "true") {
+  const yt = await publishYouTube({ filePath: videoPath, caption, lang });
+  await summarize(`- YouTube: ${yt.url} (${yt.privacy})`);
   process.exit(0);
 }
 
