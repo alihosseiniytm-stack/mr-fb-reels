@@ -20,7 +20,7 @@ export async function publishYouTube({ filePath, caption, lang }) {
   const lines = caption.split("\n").filter((l) => l.trim());
   const title = (lines[0].replace(/#\S+/g, "").trim().slice(0, 88) + " #Shorts").slice(0, 100);
   const body = {
-    snippet: { title, tags: ["crypto","whale alert","solana","hyperliquid","whale tracker","crypto whales"], description: caption + "\n\n\u{1F40B} Live whale tracker, real data: https://marketradarwhale.com/\nSolana & Hyperliquid whales, leaderboard, swap and trade in one place.\n\n#Shorts", categoryId: "25", defaultLanguage: lang },
+    snippet: { title, tags: ["crypto","whale alert","solana","hyperliquid","whale tracker","crypto whales"], description: "\u{1F40B} Live whale tracker, real data: https://marketradarwhale.com/\n\n" + caption + "\n\nMarketRadar Whale — Solana & Hyperliquid whales, leaderboard, swap and trade in one place: https://marketradarwhale.com/\n\n#Shorts", categoryId: "25", defaultLanguage: lang },
     status: { privacyStatus: process.env.YT_PRIVACY || "public", selfDeclaredMadeForKids: false, containsSyntheticMedia: true },
   };
   const size = (await stat(filePath)).size;
