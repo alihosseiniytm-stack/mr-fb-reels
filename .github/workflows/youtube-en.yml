@@ -62,7 +62,7 @@ jobs:
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
-        run: node scripts/run.mjs --lang=en --mode=data
+        run: node scripts/run.mjs --lang=en --mode=${{ github.event.schedule == '45 17 * * *' && 'tour' || 'data' }}
 
       - name: Upload generated video for review
         if: always()
