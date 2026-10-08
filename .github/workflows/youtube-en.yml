@@ -54,7 +54,7 @@ jobs:
       - name: Generate and (maybe) publish reel
         working-directory: instagram-bot
         env:
-          PLATFORM: fb
+          PLATFORM: yt
           DRY_RUN: ${{ steps.mode.outputs.dry_run }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}

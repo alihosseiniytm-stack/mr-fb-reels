@@ -157,6 +157,34 @@
   body.fb .stat .value { font-size: 54px; }
   body.fb .stage { padding-top: 34px; }
   body.fb .mrw-bubble { padding: 28px 30px; }
+
+  /* YouTube Shorts (PLATFORM=yt): the app draws title, channel name and description over the bottom ~25% and the
+     buttons on the right, so the picture and the speech bubble stay above y~1440. The site name is ONE style
+     everywhere: a teal pill (the logo colour), shown under the brand from the start and again in the closing card. */
+  .top .site { display: none; }
+  body.yt .top { flex-wrap: wrap; }
+  body.yt .top .site {
+    display: inline-block; color: #06201c; background: #5fd0c0; font-size: 28px; font-weight: 700;
+    padding: 6px 20px; border-radius: 999px; letter-spacing: 0.3px; margin-inline-start: 4px;
+  }
+  body.yt .top .date { display: none; }
+  body.yt .outro .url {
+    color: #06201c; background: #5fd0c0; padding: 8px 22px; border-radius: 999px; font-size: 31px; white-space: nowrap;
+  }
+  body.yt .outro .cta { font-size: 40px; }
+  body.yt .outro .note { font-size: 24px; margin-top: 6px; }
+  body.yt .board.dim .stats { opacity: 0.04; }
+  body.yt .badge { margin-top: 150px; padding: 12px 26px; }
+  body.yt .badge .badge-text { font-size: 28px; }
+  body.yt .title { padding-top: 10px; font-size: 62px; }
+  body.yt .classroom { margin-top: 18px; margin-right: 110px; }
+  body.yt .board { flex-basis: 420px; padding: 14px; }
+  body.yt .stats { gap: 12px; }
+  body.yt .stat { padding: 16px 20px; }
+  body.yt .stat .label { font-size: 26px; }
+  body.yt .stat .value { font-size: 44px; }
+  body.yt .stage { padding: 14px 110px 0 30px; }
+  body.yt .mrw-bubble { padding: 20px 26px; }
 </style>
 </head>
 <body>
@@ -172,6 +200,7 @@
     <div class="top" id="top">
       <div class="dot"></div>
       <div class="brand" id="brand"></div>
+      <div class="site" id="site"></div>
       <div class="date" id="date"></div>
     </div>
     <div class="title" id="title"></div>
@@ -195,7 +224,8 @@
   // at 0) lines up with the whale's mouth and the subtitles.
   window.__START__ = Date.now();
   document.body.setAttribute("dir", D.dir);
-  if (D.platform === "fb") document.body.classList.add("fb");
+  if (D.platform === "fb" || D.platform === "yt") document.body.classList.add("fb");
+  if (D.platform === "yt") document.body.classList.add("yt");
   if (D.bgImagePath) document.getElementById("bgShot").style.backgroundImage = `url("${D.bgImagePath}")`;
   if (D.badgeStyle === "info") document.getElementById("badge").classList.add("info");
   document.getElementById("badgeText").textContent = D.badge;
@@ -204,6 +234,7 @@
   document.getElementById("title").textContent = D.title;
   document.getElementById("cta").textContent = D.cta;
   document.getElementById("url").textContent = D.url;
+  document.getElementById("site").textContent = D.url;
   document.getElementById("note").textContent = D.note;
 
   const statsEl = document.getElementById("stats");
@@ -254,7 +285,7 @@
   // The whale talks the whole narration: jaw driven by the real audio loudness, and the bubble under
   // the board shows one short phrase at a time, timed to the voice.
   MRWhale.speak(teacher, { envelope: D.mouthEnv && D.mouthEnv.values, stepMs: D.mouthEnv && D.mouthEnv.stepMs, durationMs: D.narrationMs || 0 });
-  const bubble = MRWhale.buildBubble(document.getElementById("stage"), { fontSize: D.platform === "fb" ? 46 : 38, up: true });
+  const bubble = MRWhale.buildBubble(document.getElementById("stage"), { fontSize: D.platform === "fb" ? 46 : (D.platform === "yt" ? 40 : 38), up: true });
   MRWhale.captions(bubble, D.subtitleChunks);
 
   window.__READY__ = true;
