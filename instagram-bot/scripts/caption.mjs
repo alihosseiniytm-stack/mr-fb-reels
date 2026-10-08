@@ -18,7 +18,7 @@ export function dataCaption(lang, pick) {
   const hashtags = lang === "fa" ? ["#کریپتو", "#نهنگ", "#ارز_دیجیتال", ...tags.map(fa)] : ["#crypto", "#whalealert", "#defi", ...tags];
   // Facebook has no "comment WHALE -> DM" bot, so there the call to action is the site name (people search it on Google).
   const site = lang === "fa" ? "\u{1F50E} توی گوگل سرچ کن: marketradarwhale.com" : "\u{1F50E} Search on Google: marketradarwhale.com";
-  const cta = (process.env.PLATFORM === "fb" || process.env.PLATFORM === "yt") ? site : CHALLENGE[lang];
+  const cta = (["fb","yt","tt"].includes(process.env.PLATFORM)) ? site : CHALLENGE[lang];
   return base + "\n\n" + cta + "\n\n" + hashtags.slice(0, 5).join(" ");
 }
 

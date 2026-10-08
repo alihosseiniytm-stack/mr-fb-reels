@@ -224,8 +224,8 @@
   // at 0) lines up with the whale's mouth and the subtitles.
   window.__START__ = Date.now();
   document.body.setAttribute("dir", D.dir);
-  if (D.platform === "fb" || D.platform === "yt") document.body.classList.add("fb");
-  if (D.platform === "yt") document.body.classList.add("yt");
+  if (D.platform === "fb" || D.platform === "yt" || D.platform === "tt") document.body.classList.add("fb");
+  if (D.platform === "yt" || D.platform === "tt") document.body.classList.add("yt");
   if (D.bgImagePath) document.getElementById("bgShot").style.backgroundImage = `url("${D.bgImagePath}")`;
   if (D.badgeStyle === "info") document.getElementById("badge").classList.add("info");
   document.getElementById("badgeText").textContent = D.badge;
@@ -285,7 +285,7 @@
   // The whale talks the whole narration: jaw driven by the real audio loudness, and the bubble under
   // the board shows one short phrase at a time, timed to the voice.
   MRWhale.speak(teacher, { envelope: D.mouthEnv && D.mouthEnv.values, stepMs: D.mouthEnv && D.mouthEnv.stepMs, durationMs: D.narrationMs || 0 });
-  const bubble = MRWhale.buildBubble(document.getElementById("stage"), { fontSize: D.platform === "fb" ? 46 : (D.platform === "yt" ? 40 : 38), up: true });
+  const bubble = MRWhale.buildBubble(document.getElementById("stage"), { fontSize: D.platform === "fb" ? 46 : ((D.platform === "yt" || D.platform === "tt") ? 40 : 38), up: true });
   MRWhale.captions(bubble, D.subtitleChunks);
 
   window.__READY__ = true;

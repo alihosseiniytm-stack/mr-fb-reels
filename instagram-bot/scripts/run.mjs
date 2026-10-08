@@ -178,6 +178,35 @@ if (process.env.YT_UPLOAD === "true") {
 const videoUrl = await uploadVideo({ filePath: videoPath, key });
 await summarize(`- Uploaded to: ${videoUrl}`);
 
+// TikTok (ZERNIO_UPLOAD=true): hand the hosted video + caption to the Zernio API (its approved TikTok app posts it publicly).
+if (process.env.ZERNIO_UPLOAD === "true") {
+  const key = process.env.ZERNIO_API_KEY, accountId = process.env.ZERNIO_TIKTOK_ACCOUNT_ID;
+  if (!key || !accountId) throw new Error("TikTok upload needs ZERNIO_API_KEY and ZERNIO_TIKTOK_ACCOUNT_ID");
+  let live = false;
+  for (let i = 0; i < 36 && !live; i++) {
+    const head = await fetch(videoUrl, { method: "HEAD" }).catch(() => null);
+    live = !!head && head.ok;
+    if (!live) await new Promise((r) => setTimeout(r, 10000));
+  }
+  await summarize(`- Video URL live: ${live}`);
+  if (!live) throw new Error("hosted video never became reachable: " + videoUrl);
+  const res = await fetch("https://zernio.com/api/v1/posts", {
+    method: "POST",
+    headers: { authorization: "Bearer " + key, "content-type": "application/json" },
+    body: JSON.stringify({
+      content: caption.slice(0, 2200),
+      mediaItems: [{ type: "video", url: videoUrl }],
+      platforms: [{ platform: "tiktok", accountId }],
+      tiktokSettings: { privacy_level: "PUBLIC_TO_EVERYONE", allow_comment: true, allow_duet: true, allow_stitch: true, content_preview_confirmed: true, express_consent_given: true },
+      publishNow: true,
+    }),
+  });
+  const txt = await res.text();
+  await summarize(`- TikTok (via Zernio): HTTP ${res.status} ${txt.slice(0, 400)}`);
+  if (!res.ok) throw new Error("Zernio rejected the TikTok post: HTTP " + res.status);
+  process.exit(0);
+}
+
 // Facebook (PLATFORM=fb): hand the hosted video + caption to the Make scenario "MarketRadar Reels to Facebook",
 // which downloads it and uploads it to the Facebook Page. The webhook URL is a GitHub secret.
 if (process.env.PLATFORM === "fb") {

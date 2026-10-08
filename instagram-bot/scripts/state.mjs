@@ -15,7 +15,7 @@ async function readJson(path, fallback) {
 const MAX_LOG_ENTRIES = 200;
 
 export async function loadState(lang) {
-  const dir = fileURLToPath(new URL(`../state/${lang}${process.env.PLATFORM === "fb" ? "-fb" : process.env.PLATFORM === "yt" ? "-yt" : ""}/`, import.meta.url));
+  const dir = fileURLToPath(new URL(`../state/${lang}${process.env.PLATFORM === "fb" ? "-fb" : process.env.PLATFORM === "yt" ? "-yt" : process.env.PLATFORM === "tt" ? "-tt" : ""}/`, import.meta.url));
   const usedPath = dir + "used-events.json";
   const historyPath = dir + "history.json";
   const postLogPath = dir + "post-log.json";
