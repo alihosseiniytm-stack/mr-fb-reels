@@ -15,9 +15,12 @@ export async function synthesizeNarration(text, lang, outPath) {
   try {
     const communicate = new Communicate(text, { voice: VOICES[lang] || VOICES.en });
     const chunks = [];
-    for await (const chunk of communicate.stream()) {
-      if (chunk.type === "audio" && chunk.data) chunks.push(Buffer.from(chunk.data));
-    }
+    // 2026-10-14: the stream sometimes never ends (run.mjs died with "unsettled top-level await", exit 13, every scheduled run). 30 s cap, then null = no narration.
+    let timer;
+    await Promise.race([
+      (async () => { for await (const chunk of communicate.stream()) { if (chunk.type === "audio" && chunk.data) chunks.push(Buffer.from(chunk.data)); } })(),
+      new Promise((_, rej) => { timer = setTimeout(() => rej(new Error("TTS timeout 30s")), 30000); }),
+    ]).finally(() => clearTimeout(timer));
     if (!chunks.length) return null;
     await writeFile(outPath, Buffer.concat(chunks));
     return { path: outPath, durationMs: probeDurationMs(outPath) };
