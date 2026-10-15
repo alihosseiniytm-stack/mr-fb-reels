@@ -34,21 +34,22 @@ async function installCursor(ctx) {
   });
 }
 async function glide(page, locator, opts = {}) {
-  const box = await locator.first().boundingBox();
+  const box = await locator.first().boundingBox({ timeout: 4000 }).catch(() => null);
   if (!box) return false;
   await page.mouse.move(box.x + box.width / 2, box.y + Math.min(box.height / 2, 24), { steps: 25 });
   return true;
 }
 async function click(page, locator) {
-  await locator.first().scrollIntoViewIfNeeded().catch(() => {});
+  await locator.first().scrollIntoViewIfNeeded({ timeout: 4000 }).catch(() => {});
   if (await glide(page, locator)) { await sleep(350); await page.mouse.down(); await page.mouse.up(); }
-  else await locator.first().click({ timeout: 8000 }).catch(() => {});
+  else await locator.first().click({ timeout: 4000 }).catch(() => {});
 }
 async function highlight(page, locator, ms = 1800) {
   const el = locator.first();
-  await el.scrollIntoViewIfNeeded().catch(() => {});
+  if (!(await el.waitFor({ state: "visible", timeout: 4000 }).then(() => true).catch(() => false))) return;
+  await el.scrollIntoViewIfNeeded({ timeout: 4000 }).catch(() => {});
   await page.evaluate(() => { const o = document.getElementById("__hl"); if (o) o.remove(); });
-  const h = await el.elementHandle().catch(() => null);
+  const h = await el.elementHandle({ timeout: 4000 }).catch(() => null);
   if (!h) return;
   await page.evaluate((e) => {
     const r = e.getBoundingClientRect();
@@ -112,13 +113,13 @@ async function step(text, action) {
 
 await step(T.open, async () => { await page.mouse.move(800, 300, { steps: 20 }); await page.evaluate(() => window.scrollBy({ top: 500, behavior: "smooth" })); await sleep(2500); await page.evaluate(() => window.scrollTo({ top: 0, behavior: "smooth" })); });
 await step(T.menu, async () => {
-  const btn = page.locator('.mrw-menu[data-mrw="whales"] > button, nav .mrw-menu > button').first();
-  await click(page, btn); await sleep(900);
-  await highlight(page, page.locator('.mrw-menu.open a[href$="/whales/"]'), 1200);
+  const btn = page.locator('nav .mrw-menu > button').first();
+  await click(page, btn); await btn.hover({ timeout: 3000 }).catch(() => {}); await sleep(900);
+  await highlight(page, page.locator('nav .mrw-menu a[href$="/whales/"]'), 1200);
 });
 await step(T.rank, async () => {
-  const link = page.locator('.mrw-menu.open a[href$="/whales/"]').first();
-  if (await link.count()) await click(page, link); else await page.goto(P("/whales/"), { waitUntil: "domcontentloaded" });
+  const link = page.locator('nav .mrw-menu a[href$="/whales/"]').first();
+  if (await link.isVisible().catch(() => false)) await click(page, link); else await page.goto(P("/whales/"), { waitUntil: "domcontentloaded" });
   await page.waitForLoadState("domcontentloaded");
   await sleep(1500);
   await highlight(page, page.locator("table tr").nth(1), 2200);
@@ -149,6 +150,7 @@ await step(T.guides, async () => {
   await page.goto(P("/"), { waitUntil: "domcontentloaded" }); await sleep(1500);
   const g = page.locator('.mrw-menu[data-mrw="guides"] > button');
   await click(page, g); await sleep(1500);
+  await g.hover({ timeout: 3000 }).catch(() => {}); await sleep(600);
   await highlight(page, page.locator('.mrw-menu[data-mrw="guides"] .mrw-cols'), 3000);
 });
 await step(T.end, async () => { await page.keyboard.press("Escape"); await sleep(1500); });
