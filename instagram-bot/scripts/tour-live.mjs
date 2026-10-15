@@ -87,20 +87,20 @@ const T = {
 }[LANG];
 
 // ---- run ----
-const browser = await chromium.launch({ headless: false, args: ["--no-sandbox", "--kiosk", "--window-size=1600,900", "--window-position=0,0", "--hide-scrollbars", "--disable-infobars", "--force-device-scale-factor=1"] });
-const ctx = await browser.newContext({ viewport: null, locale: LANG === "fa" ? "fa-IR" : "en-US" });
+const browser = await chromium.launch({ args: ["--no-sandbox"] });
+const ctx = await browser.newContext({ viewport: { width: 1600, height: 900 }, locale: LANG === "fa" ? "fa-IR" : "en-US" });
 await installCursor(ctx);
 const page = await ctx.newPage();
-const REC = OUT + "/rec.mkv";
-const grab = spawn("ffmpeg", ["-y", "-v", "error", "-f", "x11grab", "-framerate", "25", "-video_size", "1600x900", "-i", (process.env.DISPLAY || ":99") + ".0", "-c:v", "libx264", "-preset", "ultrafast", "-crf", "20", "-pix_fmt", "yuv420p", REC], { stdio: ["pipe", "inherit", "inherit"] });
-await sleep(1500);
 const t0 = Date.now();
 await page.goto(P("/"), { waitUntil: "networkidle", timeout: 60000 }).catch((e) => console.log("GOTO_WARN", String(e.message).slice(0, 80)));
 await page.addStyleTag({ content: "#mrwAiBtn,#mrwAiPanel{display:none!important}" }).catch(() => {});
 await page.getByText(/OK, got it|Dismiss|متوجه|باشه/).first().click({ timeout: 2500 }).catch(() => {}); // cookie banner
 await page.waitForTimeout(1200);
 { const len = await page.evaluate(() => (document.body ? document.body.innerText.length : 0)).catch(() => 0); console.log("HOME_TEXT_LEN", len); if (len < 200) { await page.goto(SITE + "/", { waitUntil: "networkidle", timeout: 60000 }).catch(() => {}); await page.waitForTimeout(1500); console.log("HOME_RETRY"); } }
-const startOffset = (Date.now() - t0) / 1000; // blank/loading time before this is trimmed
+const startOffset = 0; // the stream starts only now, when the page is ready
+mkdirSync(OUT + "/fr", { recursive: true });
+const frames = []; let streaming = true; const recStart = Date.now();
+const streamDone = (async () => { let i = 0; while (streaming) { const tt = Date.now(); try { const b = await page.screenshot({ type: "jpeg", quality: 72 }); const f = OUT + "/fr/" + String(i++).padStart(6, "0") + ".jpg"; writeFileSync(f, b); frames.push({ f, t: tt - recStart }); } catch (e) { await sleep(60); } } })();
 const steps = [];
 async function step(text, action) {
   lastRect = null;
@@ -146,9 +146,9 @@ await step(T.chart, async () => {
 });
 await step(T.end, async () => { await page.evaluate(() => window.scrollTo({ top: 0, behavior: "smooth" })); await sleep(2000); });
 
+streaming = false; await streamDone;
 await ctx.close(); await browser.close();
-try { grab.stdin.write("q"); } catch (e) {}
-await new Promise((r) => { grab.on("close", r); setTimeout(r, 8000); });
+
 
 
 // ---- sidebar layout: site on the left (1500 px), teacher whale + subtitle + pointer line on the right (420 px) -------------------------------------
@@ -186,7 +186,15 @@ for (let i = 0; i < steps.length; i++) overlays.push(await buildOverlay(steps[i]
 await browser2.close();
 
 // ---- assemble: trim the blank start, build the narration track aligned to the step timings, mux -------------------------------------
-const vid = OUT + "/rec.mkv";
+const vid = OUT + "/rec.mp4";
+{
+  const lines = [];
+  frames.forEach((fr, i) => { const next = i + 1 < frames.length ? frames[i + 1].t : fr.t + 120; lines.push("file '" + fr.f.replace(/^out\//, "") + "'", "duration " + Math.max(0.04, (next - fr.t) / 1000).toFixed(3)); });
+  if (frames.length) lines.push("file '" + frames[frames.length - 1].f.replace(/^out\//, "") + "'");
+  writeFileSync(OUT + "/frames.txt", lines.join("\n"));
+  console.log("FRAMES", frames.length, "over", frames.length ? (frames[frames.length - 1].t / 1000).toFixed(1) : 0, "s");
+  execFileSync("ffmpeg", ["-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", OUT + "/frames.txt", "-vf", "fps=25,format=yuv420p", "-c:v", "libx264", "-preset", "veryfast", "-crf", "22", vid], { stdio: "inherit" });
+}
 const args = ["-y", "-v", "error"];
 const parts = [];
 steps.forEach((s, i) => {
