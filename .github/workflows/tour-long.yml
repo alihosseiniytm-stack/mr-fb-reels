@@ -2,6 +2,8 @@ name: Long site tour video
 
 # 16:9 narrated tour of the site (3-8 min). Manual for now: upload=false builds the mp4 and keeps it as an artifact.
 on:
+  schedule:
+    - cron: "0 15 * * *"
   workflow_dispatch:
     inputs:
       lang:
@@ -38,15 +40,15 @@ jobs:
       - name: Build the tour
         working-directory: instagram-bot
         env:
-          TOUR_UPLOAD: ${{ inputs.upload }}
+          TOUR_UPLOAD: ${{ github.event_name == 'schedule' && (vars.TOUR_UPLOAD || 'true') || inputs.upload }}
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
           YT_PRIVACY: ${{ vars.YT_PRIVACY }}
-        run: xvfb-run -a -s "-screen 0 1600x900x24" node scripts/${{ inputs.script }}.mjs ${{ inputs.lang }}
+        run: node scripts/${{ inputs.script || 'tour-live' }}.mjs ${{ inputs.lang || 'en' }}
       - uses: actions/upload-artifact@v7
         with:
-          name: tour-${{ inputs.lang }}
+          name: tour-${{ inputs.lang || 'en' }}
           path: |
             instagram-bot/out/tour*.mp4
             instagram-bot/out/shot_*.png

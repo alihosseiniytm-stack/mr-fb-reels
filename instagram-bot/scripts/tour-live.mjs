@@ -86,6 +86,10 @@ const T = {
   },
 }[LANG];
 
+let WOD = null;
+try { const r = await fetch(SITE + "/whale-of-day", { signal: AbortSignal.timeout(15000) }); if (r.ok) { const j = await r.json(); if (j && j.coin) WOD = { coin: j.coin, long: Number(j.szi) > 0, usd: Number(j.value) || 0 }; } } catch (e) { console.log("WOD_ERR", String(e.message).slice(0, 60)); }
+const money = (n) => (n >= 1e6 ? (n / 1e6).toFixed(1) + (LANG === "fa" ? " میلیون دلار" : " million dollars") : Math.round(n / 1e3) + (LANG === "fa" ? " هزار دلار" : " thousand dollars"));
+if (WOD) { T.open = T.open + (LANG === "fa" ? ` امروز نهنگ روز یک پوزیشن ${WOD.long ? "لانگ" : "شورت"} روی ${WOD.coin} به ارزش ${money(WOD.usd)} باز کرده است.` : ` Today the whale of the day opened a ${WOD.long ? "long" : "short"} on ${WOD.coin} worth ${money(WOD.usd)}.`); }
 // ---- pre-generate ALL narration first (TTS can take 20-60 s per step on CI; that wait must not be recorded) ----
 const AUD = {};
 for (const k of Object.keys(T)) { AUD[T[k]] = await synthesizeNarration(T[k], LANG, OUT + "/nar_" + k + ".mp3"); console.log("NARRATION", k, AUD[T[k]] ? "ok" : "none"); }
@@ -222,7 +226,14 @@ const final = `${OUT}/tourlive-${LANG}-${Date.now()}.mp4`;
 console.log("FINAL", final, "startOffset", startOffset.toFixed(1));
 try { execFileSync("ffmpeg", ["-y", "-v", "error", "-i", final, "-vf", "fps=1/10,scale=480:-1,tile=4x3", "-frames:v", "1", OUT + "/sheet.jpg"], { stdio: "inherit" }); } catch (e) { console.log("SHEET_ERR", String(e.message).slice(0, 80)); }
 if (process.env.TOUR_UPLOAD === "true") {
-  const caption = (LANG === "fa" ? "تور زنده‌ی مارکت رادار وال: نهنگ‌ها، پروفایل، سیگنال و آموزش" : "Market Radar Whale live tour: whales, profiles, signals and guides") + "\n\n" + SITE + "/" + LANG + "/";
-  const r = await publishYouTube({ filePath: final, caption, lang: LANG, short: false, link: SITE + "/" + LANG + "/?utm_source=youtube&utm_medium=tour" });
+  const fmt = (sec) => { const m = Math.floor(sec / 60), s2 = Math.floor(sec % 60); return m + ":" + String(s2).padStart(2, "0"); };
+  const names = LANG === "fa" ? ["معرفی", "منوی نهنگ‌ها", "معامله‌های امروز نهنگ‌ها", "پروفایل نهنگ", "پوزیشن‌های باز", "نمودار ورود", "جمع‌بندی"] : ["Intro", "Whales menu", "What whales bought today", "Whale profile", "Open positions", "Entry chart", "Wrap-up"];
+  let cum = 0; const chapters = steps.map((s, i) => { const line = fmt(cum) + " " + (names[i] || "Part " + (i + 1)); cum += s.dur; return line; });
+  const day = new Date().toISOString().slice(0, 10);
+  const head = LANG === "fa"
+    ? (WOD ? "نهنگ روز: " + (WOD.long ? "لانگ " : "شورت ") + WOD.coin + " " + (WOD.usd / 1e6).toFixed(1) + "M$ | تور مارکت رادار وال (" + day + ")" : "تور زنده‌ی مارکت رادار وال: نهنگ‌ها، پروفایل و نمودار (" + day + ")")
+    : (WOD ? "Whale of the day: " + WOD.coin + " " + (WOD.long ? "long" : "short") + " $" + (WOD.usd / 1e6).toFixed(1) + "M | Market Radar Whale tour (" + day + ")" : "Market Radar Whale live tour: whales, profiles and charts (" + day + ")");
+  const caption = head + "\n\n" + (LANG === "fa" ? "فصل‌ها:" : "Chapters:") + "\n" + chapters.join("\n") + "\n\n" + SITE + "/" + (LANG === "en" ? "" : LANG + "/") + "whales/\n" + (LANG === "fa" ? "این آموزش است، توصیه‌ی مالی نیست." : "Education only, not financial advice.");
+  const r = await publishYouTube({ filePath: final, caption, lang: LANG, short: false, link: SITE + "/" + (LANG === "en" ? "" : LANG + "/") + "whale/?utm_source=youtube&utm_medium=tour" });
   console.log("UPLOADED", r.url, r.privacy);
 }
