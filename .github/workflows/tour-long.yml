@@ -7,6 +7,9 @@ on:
       lang:
         description: "Language (en or fa)"
         default: "en"
+      script:
+        description: "Script: tour-live or tour-long"
+        default: "tour-live"
       upload:
         description: "Upload to YouTube (public)"
         type: boolean
@@ -40,7 +43,7 @@ jobs:
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
           YT_PRIVACY: ${{ vars.YT_PRIVACY }}
-        run: node scripts/tour-long.mjs ${{ inputs.lang }}
+        run: node scripts/${{ inputs.script }}.mjs ${{ inputs.lang }}
       - uses: actions/upload-artifact@v7
         with:
           name: tour-${{ inputs.lang }}
