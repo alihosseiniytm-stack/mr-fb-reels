@@ -47,4 +47,6 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: tour-${{ inputs.lang }}
-          path: instagram-bot/out/tour*.mp4
+          path: |
+            instagram-bot/out/tour*.mp4
+            instagram-bot/out/shot_*.png

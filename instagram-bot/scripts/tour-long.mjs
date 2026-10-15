@@ -13,7 +13,7 @@ const W = 1920, H = 1080;
 
 const SECTIONS = {
   en: [
-    { path: "/en/", say: "Welcome to Market Radar Whale. This site follows the biggest crypto wallets, called whales, in real time. Everything you see is free, and the numbers come from public blockchain data. In the next minutes I will show you each section, one by one." },
+    { path: "/", say: "Welcome to Market Radar Whale. This site follows the biggest crypto wallets, called whales, in real time. Everything you see is free, and the numbers come from public blockchain data. In the next minutes I will show you each section, one by one." },
     { path: "/en/whales/", say: "This is the Whales page. It ranks the most profitable Hyperliquid traders of the month. For every wallet you can see its profit, its account value and its return on investment. Click any row to open the full profile." },
     { path: "/en/whales/top/", say: "Here are the top one thousand futures whales. You can switch between today, this week and this month. A whale that is profitable in all three periods is usually more interesting than one that had a single lucky day." },
     { path: "/en/whales/all/", say: "And this list shows ten thousand active traders sorted by monthly volume. Use it to discover wallets that are not in the top ranking yet, and open any profile to see their open positions right now." },

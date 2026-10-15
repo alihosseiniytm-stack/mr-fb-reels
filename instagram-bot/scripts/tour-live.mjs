@@ -9,7 +9,7 @@ import { publishYouTube } from "./publish-youtube.mjs";
 const LANG = process.argv[2] === "fa" ? "fa" : "en";
 const SITE = "https://marketradarwhale.com";
 const OUT = "out"; mkdirSync(OUT, { recursive: true });
-const P = (p) => SITE + "/" + LANG + p;
+const P = (p) => (LANG === "en" && p === "/" ? SITE + "/" : SITE + "/" + LANG + p); // English home is "/" (the /en/ path is a 404 with an empty body = white video)
 
 // ---- helpers -------------------------------------------------------------------------------------------------------------------
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -97,6 +97,7 @@ const t0 = Date.now();
 await page.goto(P("/"), { waitUntil: "networkidle", timeout: 60000 }).catch((e) => console.log("GOTO_WARN", String(e.message).slice(0, 80)));
 await page.addStyleTag({ content: "#mrwAiBtn,#mrwAiPanel{display:none!important}" }).catch(() => {});
 await page.waitForTimeout(1500);
+{ const len = await page.evaluate(() => (document.body ? document.body.innerText.length : 0)).catch(() => 0); console.log("HOME_TEXT_LEN", len); if (len < 200) { await page.goto(SITE + "/", { waitUntil: "networkidle", timeout: 60000 }).catch(() => {}); await page.waitForTimeout(1500); console.log("HOME_RETRY"); } }
 const startOffset = (Date.now() - t0) / 1000; // everything before this is blank/loading and is trimmed
 const steps = []; // {audio, dur}
 async function step(text, action) {
@@ -104,6 +105,7 @@ async function step(text, action) {
   const want = a ? a.durationMs / 1000 + 0.5 : 8;
   const s0 = Date.now();
   try { await action(); } catch (e) { console.log("STEP_WARN", steps.length, String(e.message).slice(0, 100)); }
+  try { await page.screenshot({ path: OUT + "/shot_" + steps.length + ".png" }); const len = await page.evaluate(() => (document.body ? document.body.innerText.length : 0)); console.log("STEP_TEXT_LEN", steps.length, len, page.url()); } catch (e) {}
   await clearHl(page);
   const spent = (Date.now() - s0) / 1000;
   if (spent < want) await sleep((want - spent) * 1000);
