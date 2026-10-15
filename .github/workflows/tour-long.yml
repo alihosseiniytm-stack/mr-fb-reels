@@ -50,3 +50,4 @@ jobs:
           path: |
             instagram-bot/out/tour*.mp4
             instagram-bot/out/shot_*.png
+            instagram-bot/out/sheet.jpg
