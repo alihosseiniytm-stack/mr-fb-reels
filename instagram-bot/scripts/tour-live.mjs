@@ -1,7 +1,7 @@
 // LIVE site tour (screen recording of real clicks): starts on the home page, opens menus, clicks into each section, highlights what is being said.
 // Usage: node scripts/tour-live.mjs [en|fa]   -> out/tourlive-<lang>-<ts>.mp4 ; TOUR_UPLOAD=true uploads (long video, not a Short).
 import { chromium } from "playwright";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { mkdirSync, writeFileSync, readdirSync, renameSync } from "node:fs";
 import { synthesizeNarration } from "./tts.mjs";
 import { publishYouTube } from "./publish-youtube.mjs";
@@ -44,6 +44,7 @@ async function click(page, locator) {
   if (await glide(page, locator)) { await sleep(350); await page.mouse.down(); await page.mouse.up(); }
   else await locator.first().click({ timeout: 4000 }).catch(() => {});
 }
+let lastRect = null;
 async function highlight(page, locator, ms = 1800) {
   const el = locator.first();
   if (!(await el.waitFor({ state: "visible", timeout: 4000 }).then(() => true).catch(() => false))) return;
@@ -51,6 +52,7 @@ async function highlight(page, locator, ms = 1800) {
   await page.evaluate(() => { const o = document.getElementById("__hl"); if (o) o.remove(); });
   const h = await el.elementHandle({ timeout: 4000 }).catch(() => null);
   if (!h) return;
+  lastRect = await page.evaluate((e) => { const q = e.getBoundingClientRect(); return { x: q.left, y: q.top, w: q.width, h: q.height }; }, h).catch(() => null);
   await page.evaluate((e) => {
     const r = e.getBoundingClientRect();
     const o = document.createElement("div");
@@ -85,10 +87,13 @@ const T = {
 }[LANG];
 
 // ---- run ----
-const browser = await chromium.launch({ args: ["--no-sandbox"] });
-const ctx = await browser.newContext({ viewport: { width: 1600, height: 900 }, locale: LANG === "fa" ? "fa-IR" : "en-US", recordVideo: { dir: OUT + "/rec", size: { width: 1600, height: 900 } } });
+const browser = await chromium.launch({ headless: false, args: ["--no-sandbox", "--kiosk", "--window-size=1600,900", "--window-position=0,0", "--hide-scrollbars", "--disable-infobars", "--force-device-scale-factor=1"] });
+const ctx = await browser.newContext({ viewport: null, locale: LANG === "fa" ? "fa-IR" : "en-US" });
 await installCursor(ctx);
 const page = await ctx.newPage();
+const REC = OUT + "/rec.mkv";
+const grab = spawn("ffmpeg", ["-y", "-v", "error", "-f", "x11grab", "-framerate", "25", "-video_size", "1600x900", "-i", (process.env.DISPLAY || ":99") + ".0", "-c:v", "libx264", "-preset", "ultrafast", "-crf", "20", "-pix_fmt", "yuv420p", REC], { stdio: ["pipe", "inherit", "inherit"] });
+await sleep(1500);
 const t0 = Date.now();
 await page.goto(P("/"), { waitUntil: "networkidle", timeout: 60000 }).catch((e) => console.log("GOTO_WARN", String(e.message).slice(0, 80)));
 await page.addStyleTag({ content: "#mrwAiBtn,#mrwAiPanel{display:none!important}" }).catch(() => {});
@@ -98,6 +103,7 @@ await page.waitForTimeout(1200);
 const startOffset = (Date.now() - t0) / 1000; // blank/loading time before this is trimmed
 const steps = [];
 async function step(text, action) {
+  lastRect = null;
   const a = await synthesizeNarration(text, LANG, OUT + "/step" + steps.length + ".mp3");
   const want = a ? a.durationMs / 1000 + 0.6 : 8;
   const s0 = Date.now();
@@ -106,7 +112,7 @@ async function step(text, action) {
   await clearHl(page);
   const spent = (Date.now() - s0) / 1000;
   if (spent < want) await sleep((want - spent) * 1000);
-  steps.push({ audio: a ? a.path : null, dur: Math.max(spent, want) });
+  steps.push({ audio: a ? a.path : null, dur: Math.max(spent, want), text, rect: lastRect });
   console.log("STEP_DONE", steps.length, "dur", Math.max(spent, want).toFixed(1), "audio", !!a);
 }
 
@@ -141,10 +147,44 @@ await step(T.chart, async () => {
 await step(T.end, async () => { await page.evaluate(() => window.scrollTo({ top: 0, behavior: "smooth" })); await sleep(2000); });
 
 await ctx.close(); await browser.close();
+try { grab.stdin.write("q"); } catch (e) {}
+await new Promise((r) => { grab.on("close", r); setTimeout(r, 8000); });
+
+
+// ---- sidebar layout: site on the left (1500 px), teacher whale + subtitle + pointer line on the right (420 px) -------------------------------------
+const SBW = 420, PW = 1500, PH = Math.round(PW * 900 / 1600), PY = Math.round((1080 - PH) / 2);
+async function whaleDataUri() {
+  try { const r = await fetch(SITE + "/icons/icon-192.png"); const b = Buffer.from(await r.arrayBuffer()); return "data:image/png;base64," + b.toString("base64"); } catch (e) { return ""; }
+}
+const WHALE = await whaleDataUri();
+async function buildOverlay(step, idx) {
+  const dir = LANG === "fa" ? "rtl" : "ltr";
+  let line = "";
+  if (step.rect) {
+    const ex = Math.round((step.rect.x + step.rect.w / 2) * PW / 1600), ey = Math.round(PY + (step.rect.y + Math.min(step.rect.h / 2, 120)) * PH / 900);
+    const sx = PW + 40, sy = 250;
+    const tx = Math.min(ex, PW - 8);
+    line = '<svg width="1920" height="1080" style="position:absolute;left:0;top:0"><defs><marker id="a" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 Z" fill="#35e6b8"/></marker></defs><line x1="' + sx + '" y1="' + sy + '" x2="' + tx + '" y2="' + ey + '" stroke="#35e6b8" stroke-width="5" stroke-dasharray="14 8" marker-end="url(#a)"/><circle cx="' + tx + '" cy="' + ey + '" r="9" fill="#35e6b8" opacity=".85"/></svg>';
+  }
+  const html = '<html><body style="margin:0;width:1920px;height:1080px;background:transparent;font-family:Segoe UI,Noto Sans,Noto Sans Arabic,sans-serif;position:relative">' +
+    '<div style="position:absolute;left:' + PW + 'px;top:0;width:' + SBW + 'px;height:1080px;background:linear-gradient(180deg,#0d151b,#070b0f);border-left:3px solid #35e6b8"></div>' +
+    '<img src="' + WHALE + '" style="position:absolute;left:' + (PW + 110) + 'px;top:90px;width:200px;height:200px"/>' +
+    '<div dir="' + dir + '" style="position:absolute;left:' + (PW + 24) + 'px;top:330px;width:' + (SBW - 48) + 'px;color:#eaf6f2;font-size:25px;line-height:1.5;background:#121e26;border:1px solid #1c2e38;border-radius:16px;padding:16px">' + step.text.replace(/</g, "&lt;") + '</div>' +
+    '<div style="position:absolute;left:' + (PW + 24) + 'px;top:1010px;width:' + (SBW - 48) + 'px;text-align:center;color:#35e6b8;font-size:24px;font-weight:700">marketradarwhale.com</div>' + line + '</body></html>';
+  const p = await browser2.newPage({ viewport: { width: 1920, height: 1080 } });
+  await p.setContent(html);
+  const f = OUT + "/ov" + idx + ".png";
+  await p.screenshot({ path: f, omitBackground: true });
+  await p.close();
+  return f;
+}
+const browser2 = await chromium.launch({ args: ["--no-sandbox"] });
+const overlays = [];
+for (let i = 0; i < steps.length; i++) overlays.push(await buildOverlay(steps[i], i));
+await browser2.close();
 
 // ---- assemble: trim the blank start, build the narration track aligned to the step timings, mux -------------------------------------
-const recDir = OUT + "/rec";
-const vid = readdirSync(recDir).filter((f) => f.endsWith(".webm")).map((f) => recDir + "/" + f).sort().pop();
+const vid = OUT + "/rec.mkv";
 const args = ["-y", "-v", "error"];
 const parts = [];
 steps.forEach((s, i) => {
@@ -155,7 +195,17 @@ const filt = parts.join(";") + ";" + steps.map((_, i) => `[a${i}]`).join("") + `
 const track = OUT + "/narration.m4a";
 execFileSync("ffmpeg", [...args, "-filter_complex", filt, "-map", "[aout]", "-c:a", "aac", "-b:a", "128k", track], { stdio: "inherit" });
 const final = `${OUT}/tourlive-${LANG}-${Date.now()}.mp4`;
-execFileSync("ffmpeg", ["-y", "-v", "error", "-ss", startOffset.toFixed(2), "-i", vid, "-i", track, "-map", "0:v", "-map", "1:a", "-vf", "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=0x070b0f,fps=25", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", "-shortest", final], { stdio: "inherit" });
+{
+  const inArgs = ["-y", "-v", "error", "-ss", startOffset.toFixed(2), "-i", vid, "-i", track];
+  overlays.forEach((o) => inArgs.push("-i", o));
+  let cum = 0; const chain = [];
+  chain.push(`[0:v]scale=${PW}:${PH},pad=1920:1080:0:${PY}:color=0x070b0f,fps=25[b0]`);
+  steps.forEach((s, i) => {
+    const s0 = cum.toFixed(2), e0 = (cum + s.dur + (i === steps.length - 1 ? 5 : 0)).toFixed(2); cum += s.dur;
+    chain.push(`[b${i}][${i + 2}:v]overlay=0:0:enable='between(t,${s0},${e0})'[b${i + 1}]`);
+  });
+  execFileSync("ffmpeg", [...inArgs, "-filter_complex", chain.join(";"), "-map", `[b${steps.length}]`, "-map", "1:a", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", "-shortest", final], { stdio: "inherit" });
+}
 console.log("FINAL", final, "startOffset", startOffset.toFixed(1));
 try { execFileSync("ffmpeg", ["-y", "-v", "error", "-i", final, "-vf", "fps=1/10,scale=480:-1,tile=4x3", "-frames:v", "1", OUT + "/sheet.jpg"], { stdio: "inherit" }); } catch (e) { console.log("SHEET_ERR", String(e.message).slice(0, 80)); }
 if (process.env.TOUR_UPLOAD === "true") {

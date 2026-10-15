@@ -33,7 +33,7 @@ jobs:
         working-directory: instagram-bot
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y fonts-noto-core ffmpeg espeak-ng
+          sudo apt-get install -y fonts-noto-core ffmpeg espeak-ng xvfb
           npx playwright install --with-deps chromium
       - name: Build the tour
         working-directory: instagram-bot
@@ -43,7 +43,7 @@ jobs:
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
           YT_PRIVACY: ${{ vars.YT_PRIVACY }}
-        run: node scripts/${{ inputs.script }}.mjs ${{ inputs.lang }}
+        run: xvfb-run -a -s "-screen 0 1600x900x24" node scripts/${{ inputs.script }}.mjs ${{ inputs.lang }}
       - uses: actions/upload-artifact@v7
         with:
           name: tour-${{ inputs.lang }}
