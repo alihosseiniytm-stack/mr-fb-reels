@@ -174,11 +174,13 @@ async function buildOverlay(step, idx) {
   const p = await browser2.newPage({ viewport: { width: 1920, height: 1080 } });
   await p.setContent(html);
   const f = OUT + "/ov" + idx + ".png";
-  await p.screenshot({ path: f, omitBackground: true });
+  await p.waitForTimeout(400);
+  try { await p.screenshot({ path: f, omitBackground: true, timeout: 20000 }); }
+  catch (e1) { console.log("OVERLAY_RETRY", String(e1.message).slice(0, 80)); const cdp = await p.context().newCDPSession(p); await cdp.send("Emulation.setDefaultBackgroundColorOverride", { color: { r: 0, g: 0, b: 0, a: 0 } }); const r = await cdp.send("Page.captureScreenshot", { format: "png", fromSurface: true, captureBeyondViewport: false }); writeFileSync(f, Buffer.from(r.data, "base64")); }
   await p.close();
   return f;
 }
-const browser2 = await chromium.launch({ args: ["--no-sandbox"] });
+const browser2 = await chromium.launch({ headless: true, args: ["--no-sandbox", "--disable-gpu"] });
 const overlays = [];
 for (let i = 0; i < steps.length; i++) overlays.push(await buildOverlay(steps[i], i));
 await browser2.close();
