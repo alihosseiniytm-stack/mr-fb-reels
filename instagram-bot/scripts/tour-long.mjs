@@ -76,6 +76,6 @@ execFileSync("ffmpeg", ["-y", "-v", "error", "-f", "concat", "-safe", "0", "-i",
 console.log("FINAL", final);
 if (process.env.TOUR_UPLOAD === "true") {
   const caption = (LANG === "fa" ? "تور کامل مارکت رادار وال: نهنگ‌ها، سیگنال و آموزش" : "Market Radar Whale full tour: whales, live signals and guides") + "\n\n" + sections.map((s, i) => `${i + 1}. ${SITE}${s.path}`).join("\n");
-  const r = await publishYouTube({ filePath: final, caption, lang: LANG, link: SITE + "/" + LANG + "/?utm_source=youtube&utm_medium=tour" });
+  const r = await publishYouTube({ filePath: final, caption, lang: LANG, short: false, link: SITE + "/" + LANG + "/?utm_source=youtube&utm_medium=tour" });
   console.log("UPLOADED", r.url, r.privacy);
 }

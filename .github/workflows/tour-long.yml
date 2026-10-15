@@ -1,0 +1,47 @@
+name: Long site tour video
+
+# 16:9 narrated tour of the site (3-8 min). Manual for now: upload=false builds the mp4 and keeps it as an artifact.
+on:
+  workflow_dispatch:
+    inputs:
+      lang:
+        description: "Language (en or fa)"
+        default: "en"
+      upload:
+        description: "Upload to YouTube (public)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  tour:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+      - name: Install dependencies
+        working-directory: instagram-bot
+        run: npm install
+      - name: Install Chromium + fonts + ffmpeg + espeak
+        working-directory: instagram-bot
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y fonts-noto-core ffmpeg espeak-ng
+          npx playwright install --with-deps chromium
+      - name: Build the tour
+        working-directory: instagram-bot
+        env:
+          TOUR_UPLOAD: ${{ inputs.upload }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          YT_PRIVACY: ${{ vars.YT_PRIVACY }}
+        run: node scripts/tour-long.mjs ${{ inputs.lang }}
+      - uses: actions/upload-artifact@v7
+        with:
+          name: tour-${{ inputs.lang }}
+          path: instagram-bot/out/tour-*.mp4

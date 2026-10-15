@@ -19,9 +19,9 @@ export async function publishYouTube({ filePath, caption, lang, link, short = tr
   const L = link || "https://marketradarwhale.com/";
   const token = await accessToken();
   const lines = caption.split("\n").filter((l) => l.trim());
-  const title = (lines[0].replace(/#\S+/g, "").trim().slice(0, 88) + " #Shorts").slice(0, 100);
+  const title = (lines[0].replace(/#\S+/g, "").trim().slice(0, 88) + (short ? " #Shorts" : "")).slice(0, 100);
   const body = {
-    snippet: { title, tags: ["crypto","whale alert","solana","hyperliquid","whale tracker","crypto whales"], description: "\u{1F449} See this whale live (free): " + L + "\n\n" + caption + "\n\n\u{1F40B} MarketRadar Whale: Solana & Hyperliquid whales, top 1000 leaderboard, copy-trade ideas. https://marketradarwhale.com/\n\n#Shorts", categoryId: "25", defaultLanguage: lang },
+    snippet: { title, tags: ["crypto","whale alert","solana","hyperliquid","whale tracker","crypto whales"], description: "\u{1F449} See this whale live (free): " + L + "\n\n" + caption + "\n\n\u{1F40B} MarketRadar Whale: Solana & Hyperliquid whales, top 1000 leaderboard, copy-trade ideas. https://marketradarwhale.com/\n\n" + (short ? "#Shorts" : "#crypto #whales #MarketRadarWhale"), categoryId: "25", defaultLanguage: lang },
     status: { privacyStatus: process.env.YT_PRIVACY || "public", selfDeclaredMadeForKids: false, containsSyntheticMedia: true },
   };
   const size = (await stat(filePath)).size;
@@ -35,5 +35,5 @@ export async function publishYouTube({ filePath, caption, lang, link, short = tr
   const put = await fetch(url, { method: "PUT", headers: { "content-type": "video/mp4", "content-length": String(size) }, body: await readFile(filePath) });
   const out = await put.json().catch(() => ({}));
   if (!put.ok || !out.id) throw new Error("YouTube upload failed: " + put.status + " " + JSON.stringify(out).slice(0, 300));
-  return { id: out.id, url: "https://youtube.com/shorts/" + out.id, privacy: out.status?.privacyStatus };
+  return { id: out.id, url: (short ? "https://youtube.com/shorts/" : "https://youtube.com/watch?v=") + out.id, privacy: out.status?.privacyStatus };
 }
