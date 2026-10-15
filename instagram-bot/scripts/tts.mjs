@@ -11,7 +11,7 @@ const VOICES = {
 
 // Returns null on any failure so callers can fall back to a silent, caption-only video
 // instead of breaking the whole run over a flaky third-party TTS call.
-export async function synthesizeNarration(text, lang, outPath) {
+async function edgeTts(text, lang, outPath) {
   try {
     const communicate = new Communicate(text, { voice: VOICES[lang] || VOICES.en });
     const chunks = [];
@@ -19,7 +19,7 @@ export async function synthesizeNarration(text, lang, outPath) {
     let timer;
     await Promise.race([
       (async () => { for await (const chunk of communicate.stream()) { if (chunk.type === "audio" && chunk.data) chunks.push(Buffer.from(chunk.data)); } })(),
-      new Promise((_, rej) => { timer = setTimeout(() => rej(new Error("TTS timeout 30s")), 30000); }),
+      new Promise((_, rej) => { timer = setTimeout(() => rej(new Error("TTS timeout 20s")), 20000); }),
     ]).finally(() => clearTimeout(timer));
     if (!chunks.length) return null;
     await writeFile(outPath, Buffer.concat(chunks));
@@ -78,4 +78,40 @@ export function probeDurationMs(path) {
     path,
   ]).toString().trim();
   return Math.round(parseFloat(out) * 1000);
+}
+
+// 2026-10-15 (owner: "videos have no sound"): Edge TTS times out on GitHub's datacenter IPs, which made every video silent.
+// Chain: Edge TTS (2 tries) -> Google Translate TTS (free, chunks of <= 190 chars) -> espeak-ng (offline, installed by the workflow). null only if all fail.
+async function googleTts(text, lang, outPath) {
+  try {
+    const tl = lang === "fa" ? "fa" : "en";
+    const sentences = String(text).replace(/\s+/g, " ").match(/[^.!?\u061F]+[.!?\u061F]?/g) || [String(text)];
+    const chunks = [];
+    for (const s of sentences) { let cur = s.trim(); while (cur.length > 190) { const cut = cur.lastIndexOf(" ", 190); chunks.push(cur.slice(0, cut > 40 ? cut : 190)); cur = cur.slice(cut > 40 ? cut : 190).trim(); } if (cur) chunks.push(cur); }
+    const bufs = [];
+    for (const c of chunks) {
+      const url = "https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=" + tl + "&q=" + encodeURIComponent(c);
+      const res = await fetch(url, { headers: { "user-agent": "Mozilla/5.0", referer: "https://translate.google.com/" }, signal: AbortSignal.timeout(15000) });
+      if (!res.ok) throw new Error("google tts " + res.status);
+      bufs.push(Buffer.from(await res.arrayBuffer()));
+    }
+    if (!bufs.length) return null;
+    await writeFile(outPath, Buffer.concat(bufs));
+    return { path: outPath, durationMs: probeDurationMs(outPath) };
+  } catch (e) { console.log("GOOGLE_TTS_ERR", e && e.message); return null; }
+}
+function espeakTts(text, lang, outPath) {
+  try {
+    const wav = outPath + ".wav";
+    execFileSync("espeak-ng", ["-v", lang === "fa" ? "fa" : "en-us", "-s", "150", "-w", wav, String(text)], { timeout: 60000 });
+    execFileSync("ffmpeg", ["-y", "-v", "error", "-i", wav, "-ar", "24000", "-ac", "1", "-b:a", "96k", outPath], { timeout: 60000 });
+    return { path: outPath, durationMs: probeDurationMs(outPath) };
+  } catch (e) { console.log("ESPEAK_ERR", e && e.message); return null; }
+}
+export async function synthesizeNarration(text, lang, outPath) {
+  for (let i = 0; i < 2; i++) { const r = await edgeTts(text, lang, outPath); if (r) { console.log("TTS_PROVIDER edge"); return r; } }
+  let r = await googleTts(text, lang, outPath); if (r) { console.log("TTS_PROVIDER google"); return r; }
+  r = espeakTts(text, lang, outPath); if (r) { console.log("TTS_PROVIDER espeak"); return r; }
+  console.log("TTS_PROVIDER none");
+  return null;
 }

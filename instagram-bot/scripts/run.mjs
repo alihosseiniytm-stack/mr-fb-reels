@@ -170,7 +170,8 @@ if (dryRun) {
 
 // YouTube (YT_UPLOAD=true): upload the rendered file straight to the channel through the YouTube Data API.
 if (process.env.YT_UPLOAD === "true") {
-  const yt = await publishYouTube({ filePath: videoPath, caption, lang });
+  const ytLink = "https://marketradarwhale.com/" + (lang === "fa" ? "fa" : "en") + (typeof pick !== "undefined" && pick && pick.source === "sol" ? "/whales/solana/" : "/whales/top/") + "?utm_source=youtube&utm_medium=shorts";
+  const yt = await publishYouTube({ filePath: videoPath, caption, lang, link: ytLink });
   await summarize(`- YouTube: ${yt.url} (${yt.privacy})`);
   process.exit(0);
 }
