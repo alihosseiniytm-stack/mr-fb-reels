@@ -86,6 +86,9 @@ const T = {
   },
 }[LANG];
 
+// ---- pre-generate ALL narration first (TTS can take 20-60 s per step on CI; that wait must not be recorded) ----
+const AUD = {};
+for (const k of Object.keys(T)) { AUD[T[k]] = await synthesizeNarration(T[k], LANG, OUT + "/nar_" + k + ".mp3"); console.log("NARRATION", k, AUD[T[k]] ? "ok" : "none"); }
 // ---- run ----
 const browser = await chromium.launch({ args: ["--no-sandbox"] });
 const ctx = await browser.newContext({ viewport: { width: 1600, height: 900 }, locale: LANG === "fa" ? "fa-IR" : "en-US" });
@@ -104,7 +107,7 @@ const streamDone = (async () => { let i = 0; while (streaming) { const tt = Date
 const steps = [];
 async function step(text, action) {
   lastRect = null;
-  const a = await synthesizeNarration(text, LANG, OUT + "/step" + steps.length + ".mp3");
+  const a = AUD[text];
   const want = a ? a.durationMs / 1000 + 0.6 : 8;
   const s0 = Date.now();
   try { await action(); } catch (e) { console.log("STEP_WARN", steps.length, String(e.message).slice(0, 100)); }
