@@ -15,7 +15,7 @@ async function accessToken() {
   return j.access_token;
 }
 
-export async function publishYouTube({ filePath, caption, lang, link }) {
+export async function publishYouTube({ filePath, caption, lang, link, short = true }) {
   const L = link || "https://marketradarwhale.com/";
   const token = await accessToken();
   const lines = caption.split("\n").filter((l) => l.trim());
