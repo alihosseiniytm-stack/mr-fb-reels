@@ -31,7 +31,7 @@ export function tourCaption(lang, section) {
   const base =
     lang === "fa"
       ? `یک نگاه سریع به ${section.label.fa} در مارکت رادار. ${section.blurb.fa}`
-      : `A quick look at ${section.label.en} on MarketRadar. ${section.blurb.en}`;
+      : `A quick look at ${section.label.en} on MarketRadar Whale. ${section.blurb.en}`;
   const hashtags = lang === "fa" ? ["#کریپتو", "#ارز_دیجیتال", "#مارکت_رادار"] : ["#crypto", "#defi", "#marketradar"];
   return base + "\n\n" + hashtags.join(" ");
 }

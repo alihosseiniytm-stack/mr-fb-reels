@@ -11,7 +11,14 @@ const VOICES = {
 
 // Returns null on any failure so callers can fall back to a silent, caption-only video
 // instead of breaking the whole run over a flaky third-party TTS call.
+function spoken(text, lang) {
+  let s = String(text);
+  s = s.replace(/marketradarwhale\.com/gi, lang === "fa" ? "مارکت رادار وال دات کام" : "Market Radar Whale dot com");
+  s = s.replace(/Market\s*Radar(\s*Whale)?/gi, lang === "fa" ? "مارکت رادار وال" : "Market Radar Whale");
+  return s;
+}
 async function edgeTts(text, lang, outPath) {
+  text = spoken(text, lang);
   try {
     const communicate = new Communicate(text, { voice: VOICES[lang] || VOICES.en });
     const chunks = [];
@@ -84,6 +91,7 @@ export function probeDurationMs(path) {
 // Chain: Edge TTS (2 tries) -> Google Translate TTS (free, chunks of <= 190 chars) -> espeak-ng (offline, installed by the workflow). null only if all fail.
 async function googleTts(text, lang, outPath) {
   try {
+    text = spoken(text, lang);
     const tl = lang === "fa" ? "fa" : "en";
     const sentences = String(text).replace(/\s+/g, " ").match(/[^.!?\u061F]+[.!?\u061F]?/g) || [String(text)];
     const chunks = [];
@@ -102,6 +110,7 @@ async function googleTts(text, lang, outPath) {
 }
 function espeakTts(text, lang, outPath) {
   try {
+    text = spoken(text, lang);
     const wav = outPath + ".wav";
     execFileSync("espeak-ng", ["-v", lang === "fa" ? "fa" : "en-us", "-s", "150", "-w", wav, String(text)], { timeout: 60000 });
     execFileSync("ffmpeg", ["-y", "-v", "error", "-i", wav, "-ar", "24000", "-ac", "1", "-b:a", "96k", outPath], { timeout: 60000 });

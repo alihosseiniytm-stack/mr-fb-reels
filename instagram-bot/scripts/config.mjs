@@ -7,7 +7,7 @@ export const LANGS = {
     code: "en",
     dir: "ltr",
     name: "MarketRadar EN",
-    brand: "MarketRadar",
+    brand: "MarketRadar Whale",
     site: SITE,
     hashtags: ["#crypto", "#whalealert", "#hyperliquid"],
     hashtagsSol: ["#crypto", "#solana", "#whalewatch"],
@@ -16,7 +16,7 @@ export const LANGS = {
     code: "fa",
     dir: "rtl",
     name: "MarketRadar FA",
-    brand: "مارکت‌ رادار",
+    brand: "مارکت رادار وال",
     site: SITE,
     hashtags: ["#کریپتو", "#ارز_دیجیتال", "#نهنگ"],
     hashtagsSol: ["#کریپتو", "#سولانا", "#ارز_دیجیتال"],
@@ -41,7 +41,7 @@ export const SECTIONS = [
       fa: "هر حرکت کیف‌پول‌های بزرگ، به‌صورت زنده.",
     },
     intro: {
-      en: "Here's the live whale tracker on MarketRadar.",
+      en: "Here's the live whale tracker on MarketRadar Whale.",
       fa: "این ردیاب زندهٔ نهنگ‌هاست توی مارکت رادار.",
     },
     points: [
@@ -84,7 +84,7 @@ export const SECTIONS = [
       fa: "سواپ و انتقال بین چندین شبکه، در یک صفحه.",
     },
     intro: {
-      en: "This is swap and bridge on MarketRadar.",
+      en: "This is swap and bridge on MarketRadar Whale.",
       fa: "این بخش سواپ و بریج مارکت راداره.",
     },
     points: [
@@ -127,7 +127,7 @@ export const SECTIONS = [
       fa: "چارت لحظه‌ای و ابزار معاملهٔ آنچین.",
     },
     intro: {
-      en: "This is live trading on MarketRadar.",
+      en: "This is live trading on MarketRadar Whale.",
       fa: "این بخش معاملهٔ زندهٔ مارکت راداره.",
     },
     points: [
@@ -170,7 +170,7 @@ export const SECTIONS = [
       fa: "ببین کدام نهنگ‌های ردیابی‌شده واقعاً برنده‌اند.",
     },
     intro: {
-      en: "This is the whale leaderboard on MarketRadar.",
+      en: "This is the whale leaderboard on MarketRadar Whale.",
       fa: "این جدول برترین نهنگ‌های مارکت راداره.",
     },
     points: [
