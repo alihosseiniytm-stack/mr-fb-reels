@@ -87,7 +87,7 @@ const T = {
 }[LANG];
 
 let WOD = null;
-try { const r = await fetch(SITE + "/whale-of-day", { signal: AbortSignal.timeout(15000) }); if (r.ok) { const j = await r.json(); if (j && j.coin) WOD = { coin: j.coin, long: Number(j.szi) > 0, usd: Number(j.value) || 0 }; } } catch (e) { console.log("WOD_ERR", String(e.message).slice(0, 60)); }
+try { const r = await fetch(SITE + "/whale-of-day", { signal: AbortSignal.timeout(15000) }); if (r.ok) { const j = await r.json(); if (j && j.coin) WOD = { address: j.address || "", coin: j.coin, long: Number(j.szi) > 0, usd: Number(j.value) || 0 }; } } catch (e) { console.log("WOD_ERR", String(e.message).slice(0, 60)); }
 const money = (n) => (n >= 1e6 ? (n / 1e6).toFixed(1) + (LANG === "fa" ? " میلیون دلار" : " million dollars") : Math.round(n / 1e3) + (LANG === "fa" ? " هزار دلار" : " thousand dollars"));
 if (WOD) { T.open = T.open + (LANG === "fa" ? ` امروز نهنگ روز یک پوزیشن ${WOD.long ? "لانگ" : "شورت"} روی ${WOD.coin} به ارزش ${money(WOD.usd)} باز کرده است.` : ` Today the whale of the day opened a ${WOD.long ? "long" : "short"} on ${WOD.coin} worth ${money(WOD.usd)}.`); }
 // ---- pre-generate ALL narration first (TTS can take 20-60 s per step on CI; that wait must not be recorded) ----
@@ -109,17 +109,19 @@ mkdirSync(OUT + "/fr", { recursive: true });
 const frames = []; let streaming = true; const recStart = Date.now();
 const streamDone = (async () => { let i = 0; while (streaming) { const tt = Date.now(); try { const b = await page.screenshot({ type: "jpeg", quality: 72 }); const f = OUT + "/fr/" + String(i++).padStart(6, "0") + ".jpg"; writeFileSync(f, b); frames.push({ f, t: tt - recStart }); } catch (e) { await sleep(60); } } })();
 const steps = [];
+const GOOD_MIN = 1500; // a real page of this site has far more text than this; a 404/blank page has ~0
+const usable = async (pg) => (await pg.evaluate(() => (document.body ? document.body.innerText.length : 0)).catch(() => 0)) >= GOOD_MIN;
 async function step(text, action) {
-  lastRect = null;
+  lastRect = null; let stepLen = -1;
   const a = AUD[text];
   const want = a ? a.durationMs / 1000 + 0.6 : 8;
   const s0 = Date.now();
   try { await action(); } catch (e) { console.log("STEP_WARN", steps.length, String(e.message).slice(0, 100)); }
-  try { await page.screenshot({ path: OUT + "/shot_" + steps.length + ".png" }); const len = await page.evaluate(() => (document.body ? document.body.innerText.length : 0)); console.log("STEP_TEXT_LEN", steps.length, len, page.url()); } catch (e) {}
+  try { await page.screenshot({ path: OUT + "/shot_" + steps.length + ".png" }); const len = await page.evaluate(() => (document.body ? document.body.innerText.length : 0)); stepLen = len; console.log("STEP_TEXT_LEN", steps.length, len, page.url()); } catch (e) {}
   await clearHl(page);
   const spent = (Date.now() - s0) / 1000;
   if (spent < want) await sleep((want - spent) * 1000);
-  steps.push({ audio: a ? a.path : null, dur: Math.max(spent, want), text, rect: lastRect });
+  steps.push({ audio: a ? a.path : null, dur: Math.max(spent, want), text, rect: lastRect, len: stepLen });
   console.log("STEP_DONE", steps.length, "dur", Math.max(spent, want).toFixed(1), "audio", !!a);
 }
 
@@ -133,12 +135,14 @@ await step(T.menu, async () => {
   await highlight(page, link, 1500);
   if (await link.isVisible().catch(() => false)) await click(page, link); else await page.goto(P("/whale-buys-today/"), { waitUntil: "domcontentloaded" });
   await page.waitForLoadState("domcontentloaded"); await sleep(1500);
+  // this page is rendered from D1: when the account read cap is exhausted it answers 404 (white video). Use another page that works.
+  if (!(await usable(page))) for (const alt of ["/whale-long-short/", "/whales/"]) { console.log("FALLBACK_PAGE", alt); await page.goto(P(alt), { waitUntil: "domcontentloaded" }).catch(() => {}); await sleep(1500); if (await usable(page)) break; }
 });
 // 3) the page of whale trades by coin; point at the first whale and open it (rank 1)
 await step(T.buys, async () => {
   await highlight(page, page.locator("table").first(), 2500);
   const w = page.locator('a[href*="/whale/0x"]').first();
-  if (await w.count()) { await click(page, w); } else { await page.goto(P("/whales/"), { waitUntil: "domcontentloaded" }); }
+  if (await w.count()) { await click(page, w); } else if (WOD && WOD.address) { console.log("FALLBACK_PROFILE", WOD.address.slice(0, 10)); await page.goto(P("/whale/" + WOD.address + "/"), { waitUntil: "domcontentloaded" }); } else { await page.goto(P("/whales/"), { waitUntil: "domcontentloaded" }); }
   await page.waitForLoadState("domcontentloaded"); await sleep(2000);
 });
 // 4) profile overview
@@ -155,6 +159,10 @@ await step(T.end, async () => { await page.evaluate(() => window.scrollTo({ top:
 
 streaming = false; await streamDone;
 await ctx.close(); await browser.close();
+{ // QUALITY GATE: never publish a video that contains a blank / 404 page (owner rule 2026-10-21)
+  const bad = steps.map((s2, i) => ({ i: i + 1, len: s2.len })).filter((x) => !(x.len >= GOOD_MIN));
+  if (bad.length) { console.log("TOUR_ABORT blank/404 step(s):", JSON.stringify(bad), "- not rendering, not uploading"); process.exit(3); }
+}
 
 
 
