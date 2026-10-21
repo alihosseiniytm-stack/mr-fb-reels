@@ -109,7 +109,7 @@ mkdirSync(OUT + "/fr", { recursive: true });
 const frames = []; let streaming = true; const recStart = Date.now();
 const streamDone = (async () => { let i = 0; while (streaming) { const tt = Date.now(); try { const b = await page.screenshot({ type: "jpeg", quality: 72 }); const f = OUT + "/fr/" + String(i++).padStart(6, "0") + ".jpg"; writeFileSync(f, b); frames.push({ f, t: tt - recStart }); } catch (e) { await sleep(60); } } })();
 const steps = [];
-const GOOD_MIN = 1500; // a real page of this site has far more text than this; a 404/blank page has ~0
+const GOOD_MIN = 600; // a real page of this site has far more text than this; a 404/blank page has ~0
 const usable = async (pg) => (await pg.evaluate(() => (document.body ? document.body.innerText.length : 0)).catch(() => 0)) >= GOOD_MIN;
 async function step(text, action) {
   lastRect = null; let stepLen = -1;
