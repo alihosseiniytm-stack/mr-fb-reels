@@ -1,0 +1,82 @@
+name: YouTube v2 (weekday lessons + whale-story Shorts)
+
+# T50-08 / T50-01. Cron lines are COMMENTED OUT on purpose (owner reviews the samples first). To turn on: uncomment the cron lines AND set
+# instagram-bot/v2/schedule.json "enabled": true. Every upload first passes instagram-bot/v2/similarity-gate.mjs; too similar = not uploaded.
+on:
+  # schedule:
+  #   - cron: "0 14 * * *"    # one long video per day (type chosen by weekday in schedule.json)
+  #   - cron: "30 9,18 * * *" # Shorts (shortsPerDay)
+  workflow_dispatch:
+    inputs:
+      kind:
+        description: "short or long"
+        default: "long"
+      day:
+        description: "sun mon tue wed thu fri sat (blank = today)"
+        default: ""
+      privacy:
+        description: "private / unlisted / public (public only after owner approval)"
+        default: "private"
+      upload:
+        description: "Upload after the gate passes"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: yt-v2
+  cancel-in-progress: false
+
+jobs:
+  make:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+      - name: Install
+        working-directory: instagram-bot
+        run: |
+          npm install
+          sudo apt-get update -y
+          sudo apt-get install -y fonts-noto-core ffmpeg espeak-ng
+          npx playwright install --with-deps chromium
+      - name: Render
+        working-directory: instagram-bot
+        run: node v2/make.mjs --kind=${{ inputs.kind }} --out=out ${{ inputs.day != '' && format('--day={0}', inputs.day) || '' }}
+      - name: Similarity gate
+        working-directory: instagram-bot
+        run: |
+          for m in out/*.meta.json; do node v2/similarity-gate.mjs --check=$m; done
+      - name: Upload to YouTube
+        if: ${{ inputs.upload }}
+        working-directory: instagram-bot
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+        run: |
+          for m in out/*.meta.json; do b=${m%.meta.json}; node v2/upload.mjs --meta=$m --video=$b.mp4 --thumbA=$b-thumbA.png --thumbB=$b-thumbB.png --privacy=${{ inputs.privacy }}; done
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: yt-v2-${{ github.run_id }}
+          path: |
+            instagram-bot/out/*.mp4
+            instagram-bot/out/*.png
+            instagram-bot/out/*.meta.json
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Save upload log + gate log
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add instagram-bot/v2/uploads-log.json instagram-bot/v2/gate-log.jsonl || true
+          git diff --cached --quiet || git commit -m "yt-v2: update upload/gate log [skip ci]"
+          git pull --rebase origin "${GITHUB_REF_NAME}" || true
+          git push || true

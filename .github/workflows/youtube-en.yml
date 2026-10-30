@@ -6,7 +6,7 @@ name: YouTube Shorts — English
 on:
   schedule:
     - cron: "45 12 * * *"
-    - cron: "45 17 * * *"
+    # DISABLED 2026-10-30 (T50-08, owner: no repetitive site-intro videos): - cron: "45 17 * * *"
   workflow_dispatch:
     inputs:
       dry_run:

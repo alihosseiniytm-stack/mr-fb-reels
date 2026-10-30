@@ -1,0 +1,17 @@
+{
+  "_comment": "10 weeks of topics. Rule: a topic never repeats inside 8 weeks. whale_week / replay / recap topics are live data (picked each week, recorded in uploads-log.json so the same wallet+coin is not reused within 8 weeks). Candle/indicator/coin/safety are fixed lists below. Week 1 starts on startMonday.",
+  "startMonday": "2026-11-02",
+  "weeks": [
+    { "candle": {"key":"hammer"}, "indicator": {"coin":"BTC","key":"rsi"}, "whale_week": {}, "coin": {"coin":"SOL"}, "replay": {}, "safety": {"key":"seed_phrase"}, "recap": {} },
+    { "candle": {"key":"shooting_star"}, "indicator": {"coin":"ETH","key":"moving_average"}, "whale_week": {}, "coin": {"coin":"ETH"}, "replay": {}, "safety": {"key":"fake_support"}, "recap": {} },
+    { "candle": {"key":"doji"}, "indicator": {"coin":"BTC","key":"macd"}, "whale_week": {}, "coin": {"coin":"BTC"}, "replay": {}, "safety": {"key":"phishing_links"}, "recap": {} },
+    { "candle": {"key":"bull_engulfing"}, "indicator": {"coin":"SOL","key":"bollinger"}, "whale_week": {}, "coin": {"coin":"HYPE"}, "replay": {}, "safety": {"key":"rug_pull"}, "recap": {} },
+    { "candle": {"key":"bear_engulfing"}, "indicator": {"coin":"BTC","key":"volume"}, "whale_week": {}, "coin": {"coin":"XRP"}, "replay": {}, "safety": {"key":"leverage_danger"}, "recap": {} },
+    { "candle": {"key":"morning_star"}, "indicator": {"coin":"ETH","key":"funding_rate"}, "whale_week": {}, "coin": {"coin":"DOGE"}, "replay": {}, "safety": {"key":"fake_airdrop"}, "recap": {} },
+    { "candle": {"key":"evening_star"}, "indicator": {"coin":"SOL","key":"open_interest"}, "whale_week": {}, "coin": {"coin":"LINK"}, "replay": {}, "safety": {"key":"exchange_safety"}, "recap": {} },
+    { "candle": {"key":"harami"}, "indicator": {"coin":"BTC","key":"support_resistance"}, "whale_week": {}, "coin": {"coin":"AVAX"}, "replay": {}, "safety": {"key":"fomo_and_stop_loss"}, "recap": {} },
+    { "candle": {"key":"three_white_soldiers"}, "indicator": {"coin":"ETH","key":"vwap"}, "whale_week": {}, "coin": {"coin":"BNB"}, "replay": {}, "safety": {"key":"two_factor_auth"}, "recap": {} },
+    { "candle": {"key":"tweezer_bottom"}, "indicator": {"coin":"SOL","key":"fibonacci"}, "whale_week": {}, "coin": {"coin":"TON"}, "replay": {}, "safety": {"key":"social_engineering"}, "recap": {} }
+  ],
+  "status": "Week 1 topics have finished lesson scripts (v2/lessons.mjs). Weeks 2-10 are planned titles only: lesson scripts (candle shapes, indicator texts, coin facts, safety scripts) must be written before the cron is turned on for that week."
+}

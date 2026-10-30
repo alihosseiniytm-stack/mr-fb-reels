@@ -1,0 +1,11 @@
+{
+  "_comment": "T50-01/T50-08. One lesson TYPE per weekday. Change a value on the right to switch a day (e.g. wed: 'candle' brings back the second candle lesson). Valid long types: candle, indicator, whale_week, coin, replay, safety, recap. enabled=false means the cron must not publish (owner approves samples first).",
+  "enabled": false,
+  "language": "en",
+  "longByWeekday": { "sat": "candle", "sun": "indicator", "mon": "whale_week", "tue": "coin", "wed": "replay", "thu": "safety", "fri": "recap" },
+  "longPerWeek": 7,
+  "shortsPerDay": 2,
+  "shortsRule": "one real whale story each (different coin each time), 6 rotating layouts, new hook text, 5 s result hook first",
+  "thresholds": { "titleJaccard": 0.6, "scriptJaccard": 0.45, "thumbMinHashDistance": 10, "compareLastUploads": 14 },
+  "thumbnailAB": ["A: big number + headline", "B: different wording + accent colour"]
+}

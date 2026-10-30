@@ -1,0 +1,17 @@
+name: YouTube v2 weekly count check
+
+# Fails (GitHub emails the owner) if the last 7 days produced fewer than 7 long videos + shortsPerDay*7 Shorts. Does nothing while schedule.json enabled=false.
+on:
+  schedule:
+    - cron: "0 20 * * 0"
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+      - run: node instagram-bot/v2/weekly-check.mjs

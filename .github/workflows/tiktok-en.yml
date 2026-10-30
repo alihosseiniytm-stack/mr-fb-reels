@@ -6,7 +6,7 @@ name: TikTok — English
 on:
   schedule:
     - cron: "15 14 * * *"
-    - cron: "15 19 * * *"
+    # DISABLED 2026-10-30 (T50-08): - cron: "15 19 * * *"
   workflow_dispatch:
     inputs:
       dry_run:
