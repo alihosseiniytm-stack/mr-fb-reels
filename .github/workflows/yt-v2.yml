@@ -52,6 +52,10 @@ jobs:
         working-directory: instagram-bot
         run: |
           for m in out/*.meta.json; do node v2/similarity-gate.mjs --check=$m; done
+      - name: YouTube standards gate (YOUTUBE_STANDARDS.md; FAIL = not uploaded)
+        working-directory: instagram-bot
+        run: |
+          for m in out/*.meta.json; do n=$(basename $m .meta.json); node v2/standards-check.mjs out $n; done
       - name: Upload to YouTube
         if: ${{ inputs.upload }}
         working-directory: instagram-bot

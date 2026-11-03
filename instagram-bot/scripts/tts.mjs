@@ -118,7 +118,7 @@ function espeakTts(text, lang, outPath) {
   } catch (e) { console.log("ESPEAK_ERR", e && e.message); return null; }
 }
 export async function synthesizeNarration(text, lang, outPath) {
-  for (let i = 0; i < 2; i++) { const r = await edgeTts(text, lang, outPath); if (r) { console.log("TTS_PROVIDER edge"); return r; } }
+  for (let i = 0; i < (process.env.TTS_SKIP_EDGE ? 0 : 2); i++) { const r = await edgeTts(text, lang, outPath); if (r) { console.log("TTS_PROVIDER edge"); return r; } }
   let r = await googleTts(text, lang, outPath); if (r) { console.log("TTS_PROVIDER google"); return r; }
   r = espeakTts(text, lang, outPath); if (r) { console.log("TTS_PROVIDER espeak"); return r; }
   console.log("TTS_PROVIDER none");

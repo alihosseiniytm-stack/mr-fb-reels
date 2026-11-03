@@ -7,11 +7,14 @@ name: Facebook Reels — English
 # FB_DRY_RUN (default "true" = generate only).
 
 on:
-  schedule:
+  # PAUSED 2026-11-03 (T10-50, lane2-video): the Make webhook answers "HTTP 400 Queue is full" since 11-02 = the Make scenario
+  # "MarketRadar Reels to Facebook EN" stopped taking posts (owner: open Make, clear the queue / turn the scenario on / check ops).
+  # Turn on again by removing the # on the schedule + cron lines after one green workflow_dispatch run with dry_run=false.
+  # schedule:
     # Two reels a day at the overlap of Europe afternoon / US morning / Indonesia evening (12:30 UTC)
     # and Europe evening / US afternoon (17:30 UTC). Revisit with Facebook Insights after ~2 weeks.
-    - cron: "30 12 * * *"
-    - cron: "30 17 * * *"
+    # - cron: "30 12 * * *"
+    # - cron: "30 17 * * *"
   workflow_dispatch:
     inputs:
       dry_run:

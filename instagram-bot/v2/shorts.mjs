@@ -76,3 +76,29 @@ export async function buildShort(story, idx) {
   const title = `${s.up ? "+" : "-"}${s.pnlAbs}% ${s.coin} ${s.side}: whale ${s.up ? "winning" : "losing"} ${s.sizeCard}`;
   return { scenes, text, title, layout: lay, story: s };
 }
+
+// ---------- v3 (T50-08 owner review 11:25Z): one picture state per spoken sentence, safe-zone layout V3, X-style chart ----------
+import { sentences } from "./v3.mjs";
+export async function buildShortV3(story, idx) {
+  const v = await buildShort(story, idx), s = story, full = v.scenes[1].scene;
+  const xc0 = { candles: full.chart.candles, entry: s.entry, now: s.now, side: s.side, lev: s.lev, liq: s.liq, title: s.coin + " · 15 min candles · live data" };
+  const steps = []; let beat = 1, show = 3;
+  v.scenes.forEach((sc, si) => sentences(sc.say).forEach((say) => {
+    if (/wallet|million|thousand|billion|holds|put |worth/i.test(say)) beat = Math.max(beat, 2);
+    if (/leverage|got in|entry|entered/i.test(say)) beat = Math.max(beat, 3);
+    if (/liquidation/i.test(say)) show = 4; // the liq line appears when it is spoken about
+    const cta = /market radar whale|telegram|follow whales|search/i.test(say);
+    steps.push({ say, si, chapter: ["Result", "The trade", "Entry and risk"][si], scene: { ...full, layout: "V3", beat, xc: { ...xc0, show }, ...(cta ? { kicker: "FREE · LIVE WHALE ALERTS", headline: "marketradarwhale.com" } : {}) } });
+  }));
+  return { ...v, title: titleV3(s, idx), scenes: steps, presplit: true, layout: "V3" };
+}
+// v3 title rotation (similarity gate: titles of neighbouring Shorts must share < 60% of words)
+export function titleV3(s, idx) {
+  const sg = (s.up ? "+" : "-") + s.pnlAbs + "%";
+  const T = [
+    `${sg} ${s.coin} ${s.side}: whale ${s.up ? "winning" : "losing"} ${s.sizeCard}`,
+    `${s.sizeCard} ${s.coin} bet ${s.up ? "pays off" : "goes wrong"} (${sg}) - real wallet`,
+    `Real trade check: who opened this ${s.coin} ${s.sideWord}? ${sg} now`,
+  ];
+  return T[idx % T.length];
+}

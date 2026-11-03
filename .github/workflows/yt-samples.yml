@@ -1,0 +1,76 @@
+name: YouTube samples (render + standards check, no upload)
+
+# T50-08 (owner 11-03: never render on the laptop or mr-hub). Renders sample videos on GitHub's runner, runs every gate
+# (similarity, YOUTUBE_STANDARDS.md check, sync strip) and stores the videos + 3 small frame grabs each as an artifact.
+# Nothing is uploaded to YouTube. Each job prints ONE summary line per video (pass/fail + numbers) to keep logs short.
+on:
+  workflow_dispatch:
+    inputs:
+      videos:
+        description: "space separated kind-day list"
+        default: "short-mon short-wed long-wed long-sat"
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      list: ${{ steps.m.outputs.list }}
+    steps:
+      - id: m
+        run: echo "list=$(echo '${{ inputs.videos }}' | jq -Rc 'split(" ") | map(select(length > 0))')" >> "$GITHUB_OUTPUT"
+  render:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        v: ${{ fromJson(needs.plan.outputs.list) }}
+    env:
+      TTS_SKIP_EDGE: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+      - name: Install
+        working-directory: instagram-bot
+        run: |
+          npm install --silent
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-noto-core ffmpeg espeak-ng > /dev/null
+          npx playwright install --with-deps chromium > /dev/null
+      - name: Render
+        working-directory: instagram-bot
+        run: |
+          K=${MV%%-*}; D=${MV#*-}
+          node v2/make.mjs --kind=$K --day=$D --out=out > out-render.log 2>&1 || { tail -30 out-render.log; exit 1; }
+          tail -1 out-render.log
+        env:
+          MV: ${{ matrix.v }}
+      - name: Gates (standards + similarity + sync strip)
+        working-directory: instagram-bot
+        run: |
+          set +e
+          node v2/standards-check.mjs out ${{ matrix.v }}; S=$?
+          node v2/similarity-gate.mjs --check=out/${{ matrix.v }}.meta.json > out/sim.txt 2>&1; G=$?; tail -2 out/sim.txt
+          node v2/v3check.mjs out ${{ matrix.v }} | grep -c PASS | sed 's/^/v3check PASS lines: /'
+          grep FAIL out/${{ matrix.v }}-gate.txt
+          for p in 0.2 0.5 0.8; do T=$(ffprobe -v error -show_entries format=duration -of csv=p=0 out/${{ matrix.v }}.mp4 | awk -v p=$p '{printf "%.2f", $1*p}'); ffmpeg -v error -y -ss $T -i out/${{ matrix.v }}.mp4 -frames:v 1 -vf scale=480:-1 -q:v 4 out/${{ matrix.v }}-frame$p.jpg; done
+          head -1 out/${{ matrix.v }}-standards.txt >> "$GITHUB_STEP_SUMMARY"
+          exit $(( S || G ))
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: sample-${{ matrix.v }}
+          path: |
+            instagram-bot/out/*.mp4
+            instagram-bot/out/*.png
+            instagram-bot/out/*.jpg
+            instagram-bot/out/*.txt
+            instagram-bot/out/*.meta.json
+          if-no-files-found: ignore
+          retention-days: 14

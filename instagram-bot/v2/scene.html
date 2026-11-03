@@ -29,11 +29,21 @@ li:before{content:'';position:absolute;left:0;top:.25em;width:30px;height:30px;b
 .hide{opacity:0;transform:translateY(18px)}
 .show{opacity:1;transform:none}
 .v{flex:1}.sp{flex:1}
+#root.v3s{padding:110px 170px 532px 44px;gap:22px}
+#root.v3l{padding:44px 330px 150px 48px}
+.v3s .h{font-size:72px}.v3s .big{font-size:150px}.v3s .v{min-width:0;overflow:hidden}.v3s .card{padding:16px 24px}.v3s .card span{font-size:46px}.v3s .card b{font-size:26px}
+.slot{flex:0 0 220px;height:340px}
+/* one sentence = one visual: the spoken number / key words as a big yellow callout (T50-08). Long: free right column above the mascot. Shorts: top band, inside the safe zone */
+.kw{position:absolute;z-index:6;background:#fbbf24;color:#0b1220;font-weight:900;border-radius:22px;box-shadow:0 8px 30px rgba(0,0,0,.45);line-height:1.08;word-break:break-word}
+.v3l .kw{top:44px;right:22px;width:286px;padding:18px 20px;font-size:44px}
+.v3s .kw{position:static;align-self:flex-start;max-width:100%;padding:10px 22px;font-size:50px;margin-bottom:10px}
+.v3s .v .big{font-size:110px}
 </style></head><body><div id="root"></div>
 <script>
 const S=window.__SCENE__,B=S.beat==null?99:S.beat;
 const root=document.getElementById('root');
 if(S.w>S.h)root.classList.add('land');
+if(S.v3)root.classList.add(S.w>S.h?'v3l':'v3s');
 const beatCls=k=>k<=B?'show':'hide';
 function whaleSvg(sz,mood){
  const mouth=mood==='sad'?'M128 100 Q150 90 172 100':mood==='wow'?'M140 96 Q150 112 160 96 Q150 90 140 96':'M128 96 Q150 118 172 96';
@@ -72,10 +82,11 @@ const bigH=S.big?'<div class="'+beatCls(1)+'"><div class="big '+(S.big.tone||'')
 const head='<div class="kicker">'+(S.kicker||'')+'</div>'+(S.headline?'<div class="h">'+S.headline+'</div>':'');
 const bubble=S.say?'<div class="bubble '+beatCls(1)+'">'+S.say+'</div>':'';
 const foot='<div class="foot"><span>marketradarwhale.com</span><span>'+(S.date||'')+'</span></div>';
-const wh=(sz,pos,mood)=>'<div class="whale" style="'+pos+'">'+whaleSvg(sz,mood||S.mood)+'</div>';
+const wh=(sz,pos,mood)=>S.v3?'':'<div class="whale" style="'+pos+'">'+whaleSvg(sz,mood||S.mood)+'</div>';
 let html='';
 if(S.w<=S.h){
- if(L==='A')html=head+bigH+chartBox()+'<ul>'+bul+'</ul>'+foot+wh(260,'right:30px;bottom:150px');
+ if(L==='V3')html=head+'<div class="row" style="height:340px"><div class="v" style="display:flex;flex-direction:column;justify-content:center">'+bigH+'</div><div class="slot"></div></div>'+chartBox()+'<div class="grid2">'+cards.join('')+'</div>';
+ else if(L==='A')html=head+bigH+chartBox()+'<ul>'+bul+'</ul>'+foot+wh(260,'right:30px;bottom:150px');
  else if(L==='B')html=head+chartBox('flex:1.5')+bigH+'<div class="grid2">'+cards.join('')+'</div>'+foot+wh(220,'right:30px;top:40px');
  else if(L==='C')html=head+'<div class="row" style="align-items:center"><div>'+whaleSvg(300,S.mood)+'</div>'+bubble+'</div>'+chartBox()+'<div class="grid2">'+cards.slice(0,2).join('')+'</div>'+foot;
  else if(L==='D')html=head+'<div class="grid2">'+cards.join('')+'</div>'+chartBox('flex:1.4')+bigH+foot+wh(200,'right:20px;bottom:120px','wow');
@@ -89,8 +100,11 @@ if(S.w<=S.h){
  else if(L==='steps')html=head+'<div class="row" style="flex:1;min-height:0"><div style="flex:1"><ul>'+bul+'</ul></div><div style="flex:1.4;display:flex">'+chartBox('flex:1')+'</div></div>'+foot+wh(190,'left:60px;bottom:90px');
  else html='<div class="sp"></div>'+head+'<ul>'+bul+'</ul>'+bubble+'<div class="sp"></div>'+foot+wh(440,'right:90px;bottom:100px','wow');
 }
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"})[c]);
+if(S.v3&&S.kw)html+='<div class="kw" id="kw">'+esc(S.kw).replace(/ · /g,S.w>S.h?"<br>":" · ")+'</div>';
 root.innerHTML=html;
+{const k=document.getElementById("kw"),v=document.querySelector(".v3s .v");if(k&&v)v.insertBefore(k,v.firstChild);else if(k&&S.w<=S.h){k.style.position="static";root.insertBefore(k,root.children[2]||null);}}
 const cb=document.getElementById('cb');
-if(cb&&S.chart){const r=cb.getBoundingClientRect();cb.innerHTML=chart(S.chart,Math.round(r.width),Math.round(r.height));}
+if(cb&&S.chart&&!S.xc){const r=cb.getBoundingClientRect();cb.innerHTML=chart(S.chart,Math.round(r.width),Math.round(r.height));}
 window.__READY__=true;
 </script></body></html>
