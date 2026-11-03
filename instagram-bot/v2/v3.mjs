@@ -218,7 +218,7 @@ export async function renderVideo3({ kind, scenes, outPath, work, presplit = fal
     "-filter_complex", `[0:v]fps=30,format=yuv420p[b];[1:v]fps=30,format=rgba[m];[b][m]overlay=${mxy[0]}:${mxy[1]}:eof_action=repeat[o];[o]ass=subs.ass:fontsdir=fonts,format=yuv420p[v];[2:a]${lnf}[a]`,
     "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-profile:v", "high", "-pix_fmt", "yuv420p", "-preset", "veryfast", "-b:v", "8M", "-maxrate", "10M", "-bufsize", "16M",
     "-r", "30", "-fps_mode", "cfr", "-g", "15", "-keyint_min", "15", "-sc_threshold", "0", "-bf", "2", "-flags", "+cgop",
-    "-c:a", "aac", "-profile:a", "aac_low", "-b:a", "192k", "-ar", "48000", "-ac", "2", "-movflags", "+faststart", outPath.replace(/\\/g, "/")], work);
+    "-c:a", "aac", "-profile:a", "aac_low", "-b:a", "192k", "-ar", "48000", "-ac", "2", "-t", total.toFixed(3), "-movflags", "+faststart", outPath.replace(/\\/g, "/")], work);
   // chapters: one per source scene (merged when shorter than 10 s; YouTube needs >= 3, first at 0:00)
   const chapters = [];
   for (const st of steps) { if (!chapters.length || chapters[chapters.length - 1].si !== st.si) chapters.push({ si: st.si, start: st.start, title: String(st.chapter || "Part").replace(/\s+/g, " ") }); }
