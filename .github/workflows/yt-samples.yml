@@ -51,6 +51,9 @@ jobs:
           tail -1 out-render.log
         env:
           MV: ${{ matrix.v }}
+          # v5 stock photos: empty secrets = keyless Openverse (CC0/PD) + Wikimedia Commons only
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
       - name: Gates (standards + similarity + sync strip)
         working-directory: instagram-bot
         run: |
@@ -60,7 +63,16 @@ jobs:
           node v2/v3check.mjs out ${{ matrix.v }} | grep -c PASS | sed 's/^/v3check PASS lines: /'
           grep FAIL out/${{ matrix.v }}-gate.txt
           for p in 0.2 0.5 0.8; do T=$(ffprobe -v error -show_entries format=duration -of csv=p=0 out/${{ matrix.v }}.mp4 | awk -v p=$p '{printf "%.2f", $1*p}'); ffmpeg -v error -y -ss $T -i out/${{ matrix.v }}.mp4 -frames:v 1 -vf scale=480:-1 -q:v 4 out/${{ matrix.v }}-frame$p.jpg; done
+          V=out/${{ matrix.v }}.mp4; D=$(ffprobe -v error -show_entries format=duration -of csv=p=0 $V)
+          # motion check: two frames 0.4 s apart in the middle of the video must differ (Ken Burns zoom/drift)
+          A=$(awk -v d=$D 'BEGIN{printf "%.2f", d*0.35}'); B=$(awk -v d=$D 'BEGIN{printf "%.2f", d*0.35+0.4}')
+          ffmpeg -v error -y -ss $A -i $V -frames:v 1 -vf scale=480:-1 -q:v 4 out/${{ matrix.v }}-motionA.jpg
+          ffmpeg -v error -y -ss $B -i $V -frames:v 1 -vf scale=480:-1 -q:v 4 out/${{ matrix.v }}-motionB.jpg
+          M=$(ffmpeg -hide_banner -i out/${{ matrix.v }}-motionA.jpg -i out/${{ matrix.v }}-motionB.jpg -lavfi psnr -f null - 2>&1 | grep -o 'average:[0-9.inf]*')
+          P=$(ffprobe -v error -show_entries stream=codec_name,profile,width,height,r_frame_rate,sample_rate -of csv=p=0 $V | tr '\n' ' ')
+          echo "PROBE ${{ matrix.v }}: ${D}s $P | motion psnr $M | photos $(node -e 'const m=require("./out/${{ matrix.v }}.meta.json");console.log(m.photoSteps+"/"+m.steps.length)')" | tee -a out/${{ matrix.v }}-probe.txt
           head -1 out/${{ matrix.v }}-standards.txt >> "$GITHUB_STEP_SUMMARY"
+          cat out/${{ matrix.v }}-probe.txt >> "$GITHUB_STEP_SUMMARY"
           exit $(( S || G ))
       - uses: actions/upload-artifact@v7
         if: always()
@@ -72,5 +84,6 @@ jobs:
             instagram-bot/out/*.jpg
             instagram-bot/out/*.txt
             instagram-bot/out/*.meta.json
+            instagram-bot/out/*-credits.json
           if-no-files-found: ignore
           retention-days: 14

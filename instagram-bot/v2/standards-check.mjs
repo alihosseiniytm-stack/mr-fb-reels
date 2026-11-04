@@ -6,6 +6,7 @@ import { readFileSync, existsSync, statSync, openSync, readSync, closeSync, writ
 import { execFileSync, spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 import { spokenNumbers } from "./visual.mjs";
+import { ALLOWED } from "./stock.mjs";
 
 const [dir0, name] = process.argv.slice(2), dir = resolve(dir0 || "."), mp4 = `${dir}/${name}.mp4`;
 const meta = JSON.parse(readFileSync(`${dir}/${name}.meta.json`, "utf8"));
@@ -78,7 +79,21 @@ const tMiss = tn.filter((n) => !body.includes(n));
 ok("c", tMiss.length === 0, `title numbers are in the video (${tn.join(",") || "none"}${tMiss.length ? "; missing " + tMiss.join(",") : ""})`);
 ok("d", /not financial advice/i.test(desc) && (short || /not financial advice/i.test(text)), `"not financial advice" in description${short ? "" : " + narration"}`);
 ok("d", !/\b(buy now|sell now|you should (buy|sell)|guaranteed (profit|return))/i.test(text + " " + title), `no investment instructions`);
-ok("b", /synthetic voice/i.test(desc) && /animated mascot/i.test(desc), `AI disclosure line in description (synthetic voice, animated mascot)`);
+const doc = meta.style === "doc";
+ok("b", /synthetic voice/i.test(desc) && (doc ? /licensed stock photos/i.test(desc) : /animated mascot/i.test(desc)), `AI disclosure line in description (synthetic voice, ${doc ? "stock photos" : "animated mascot"})`);
+// ---------- (h) v5 documentary style: real licensed photos, no mascot, credits for every photo ----------
+if (doc) {
+  const ph = steps.filter((s) => s.visual === "photo");
+  const cf = `${dir}/${name}-credits.json`, credits = existsSync(cf) ? JSON.parse(readFileSync(cf, "utf8")) : [];
+  ok("h", !meta.mascot, `doc style: no mascot overlay`);
+  const badLic = ph.filter((s) => !ALLOWED.test(String(s.license || "")) || !/^https:\/\//.test(String(s.page || "")));
+  ok("h", badLic.length === 0, `every photo has an allowed license + source URL (bad ${badLic.length}${badLic[0] ? ": " + badLic[0].license + " " + badLic[0].page : ""})`);
+  ok("h", credits.length === ph.length && ph.every((s) => credits.some((c) => c.page === s.page)), `credits file lists every photo (${credits.length}/${ph.length})`);
+  const byMiss = credits.filter((c) => /by/i.test(c.license) && !desc.includes(c.page));
+  ok("h", byMiss.length === 0, `CC BY photos credited in the description (missing ${byMiss.length})`);
+  ok("h", short ? ph.length >= 2 : ph.length >= 0.25 * steps.length, `photo steps ${ph.length}/${steps.length} (${short ? "Short >= 2" : "long >= 25%"})`);
+  ok("h", /\bstock\b/i.test(desc) && !/news photo/i.test(credits.map((c) => c.query).join(" ")), `description names stock pictures; no news queries`);
+}
 const up = readFileSync(new URL("./upload.mjs", import.meta.url), "utf8");
 ok("b", /containsSyntheticMedia:\s*(true|false)/.test(up) && /selfDeclaredMadeForKids:\s*false/.test(up), `upload sets status.containsSyntheticMedia + madeForKids`);
 const VENUE = /\b(hyperliquid|binance|bybit|okx|coinbase|kraken|bitget|kucoin|mexc|gate\.io)\b/i;

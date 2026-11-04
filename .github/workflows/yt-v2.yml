@@ -47,6 +47,9 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Render
         working-directory: instagram-bot
+        env:
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
         run: node v2/make.mjs --kind=${{ inputs.kind }} --out=out ${{ inputs.day != '' && format('--day={0}', inputs.day) || '' }}
       - name: Similarity gate
         working-directory: instagram-bot

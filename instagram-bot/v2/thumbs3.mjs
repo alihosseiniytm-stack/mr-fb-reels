@@ -20,7 +20,7 @@ const arrowSvg = (up, col, w = 220) => `<svg width="${w}" height="${w}" viewBox=
 function html(d, mascotUri) {
   const col = d.up ? UP : DN, [w1, w2, w3] = d.words;
   const chart = (W, H, fs = 1.3) => xChartSvg({ candles: d.candles, entry: d.entry, now: d.now, side: d.side, lev: d.lev, W, H, fs, show: 3 });
-  const m = (h, style) => `<img src="${mascotUri}" style="position:absolute;height:${h}px;${style}">`;
+  const m = (h, style) => !mascotUri ? "" : `<img src="${mascotUri}" style="position:absolute;height:${h}px;${style}">`;
   const A = (w, style) => `<div style="position:absolute;${style}">${arrowSvg(d.up, col, w)}</div>`;
   const W = (t, size, color, extra = "") => `<div style="font-size:${size}px;line-height:.95;font-weight:900;color:${color};-webkit-text-stroke:3px #05080c;text-shadow:0 6px 0 #05080c;${extra}">${t}</div>`;
   const L = {
@@ -52,7 +52,7 @@ async function mascotUri(browser, work) {
 }
 export async function renderThumb3(d, outPath, work) {
   const browser = await chromium.launch(LAUNCH);
-  const uri = await mascotUri(browser, work || outPath + ".work");
+  const uri = d.noMascot ? null : await mascotUri(browser, work || outPath + ".work"); // v5 doc style: no mascot
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
   await page.setContent(html(d, uri), { waitUntil: "load" });
   await page.evaluate(() => document.fonts.ready);
