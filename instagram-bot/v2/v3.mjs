@@ -157,9 +157,9 @@ function motionClip(i, st, size, work, f0, f1) {
   const zmax = photo ? 1.1 : 1.04, dz = (zmax - 1).toFixed(3), D = i % 4 < 2 ? 1 : -1;
   const z = i % 2 === 0 ? `1+${dz}*on/${N}` : `${zmax}-${dz}*on/${N}`;
   const x = `(iw-iw/zoom)*(0.5+${D}*(on/${N}-0.5)*0.8)`, y = `(ih-ih/zoom)*(0.5+${-D}*(on/${N}-0.5)*0.5)`;
-  const fc = `[0:v]scale=${2 * W}:${2 * H}:force_original_aspect_ratio=increase,crop=${2 * W}:${2 * H},setsar=1,format=yuv420p,zoompan=z='${z}':x='${x}':y='${y}':d=${N}:s=${W}x${H}:fps=30${photo ? "[b];[b][1:v]overlay=0:0:format=auto" : ""},format=yuv420p[v]`;
+  const fc = `[0:v]scale=${2 * W}:${2 * H}:force_original_aspect_ratio=increase:out_range=tv,crop=${2 * W}:${2 * H},setsar=1,format=yuv420p,zoompan=z='${z}':x='${x}':y='${y}':d=${N}:s=${W}x${H}:fps=30${photo ? "[b];[b][1:v]overlay=0:0:format=auto" : ""},format=yuv420p[v]`;
   run("ffmpeg", ["-y", "-v", "error", "-i", photo ? st.photo : st.png, ...(photo ? ["-i", st.png] : []), "-filter_complex", fc, "-map", "[v]", "-frames:v", String(N),
-    "-c:v", "libx264", "-preset", "ultrafast", "-crf", "14", "-pix_fmt", "yuv420p", "-r", "30", `${work}/c${i}.mp4`]);
+    "-c:v", "libx264", "-preset", "ultrafast", "-crf", "14", "-pix_fmt", "yuv420p", "-color_range", "tv", "-r", "30", `${work}/c${i}.mp4`]);
   return `${work}/c${i}.mp4`;
 }
 
@@ -269,10 +269,10 @@ export async function renderVideo3({ kind, scenes, outPath, work, presplit = fal
   const lnf = `loudnorm=${LN}:measured_I=${lj.input_i}:measured_TP=${lj.input_tp}:measured_LRA=${lj.input_lra}:measured_thresh=${lj.input_thresh}:offset=${lj.target_offset}:linear=true,aresample=48000`;
   // video: H.264 High, yuv420p, constant 30 fps, closed GOP of half the frame rate, 8 Mbps (YouTube 1080p SDR recommendation), moov atom first
   run("ffmpeg", ["-y", "-v", "error", "-threads", "2",
-    ...(doc ? ["-f", "concat", "-safe", "0", "-i", "v.txt", "-i", "mix.wav", "-filter_complex", `[0:v]fps=30,format=yuv420p,ass=subs.ass:fontsdir=fonts,format=yuv420p[v];[1:a]${lnf}[a]`]
+    ...(doc ? ["-f", "concat", "-safe", "0", "-i", "v.txt", "-i", "mix.wav", "-filter_complex", `[0:v]fps=30,scale=out_range=tv,format=yuv420p,ass=subs.ass:fontsdir=fonts,format=yuv420p[v];[1:a]${lnf}[a]`]
       : ["-f", "concat", "-safe", "0", "-i", "v.txt", "-f", "concat", "-safe", "0", "-i", "m.txt", "-i", "mix.wav",
     "-filter_complex", `[0:v]fps=30,format=yuv420p[b];[1:v]fps=30,format=rgba[m];[b][m]overlay=${mxy[0]}:${mxy[1]}:eof_action=repeat[o];[o]ass=subs.ass:fontsdir=fonts,format=yuv420p[v];[2:a]${lnf}[a]`]),
-    "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-profile:v", "high", "-pix_fmt", "yuv420p", "-preset", "veryfast", "-b:v", "8M", "-maxrate", "10M", "-bufsize", "16M",
+    "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-profile:v", "high", "-pix_fmt", "yuv420p", "-color_range", "tv", "-preset", "veryfast", "-b:v", "8M", "-maxrate", "10M", "-bufsize", "16M",
     "-r", "30", "-fps_mode", "cfr", "-g", "15", "-keyint_min", "15", "-sc_threshold", "0", "-bf", "2", "-flags", "+cgop",
     "-c:a", "aac", "-profile:a", "aac_low", "-b:a", "192k", "-ar", "48000", "-ac", "2", "-t", total.toFixed(3), "-movflags", "+faststart", outPath.replace(/\\/g, "/")], work);
   // chapters: one per source scene (merged when shorter than 10 s; YouTube needs >= 3, first at 0:00)
