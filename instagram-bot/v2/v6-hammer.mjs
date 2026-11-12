@@ -2,31 +2,24 @@
 // The real example is found in REAL Bitcoin daily candles at render time (public candle feed, lib.getCandles), never invented.
 import { getCandles } from "./lib.mjs";
 
-// textbook rule used on screen: lower wick >= 2x body, tiny upper wick, after a fall; confirmation = next candle closes higher
-export function isHammer(k) {
-  const [, o, h, l, c] = k, body = Math.abs(c - o), range = h - l, lower = Math.min(o, c) - l, upper = h - Math.max(o, c);
-  return range > 0 && body >= range * 0.04 && lower >= 2 * body && upper <= Math.max(body * 0.5, range * 0.08);
-}
-export function findHammer(ks, after = 5, big = 1.2) {
-  for (let i = ks.length - 1 - after; i >= 8; i--) {
-    if (!isHammer(ks[i])) continue;
-    const fell = ks[i - 1][4] < ks[i - 6][4], confirmed = ks[i + 1][4] > ks[i][4];
-    const avg = ks.slice(i - 8, i).reduce((x, k) => x + k[2] - k[3], 0) / 8; // a clear hammer: bigger than the recent candles
-    if (fell && confirmed && ks[i][2] - ks[i][3] >= big * avg) return i;
-  }
+// STRICT rule lives in v6-patterns.mjs (D186 fix): the circled candle must truly be a hammer; the shot-list gate re-checks the proof.
+import { PATTERNS, findPattern, patternProof } from "./v6-patterns.mjs";
+export { isHammer } from "./v6-patterns.mjs";
+export function findHammer(ks, after = 5) {
+  for (let i = findPattern("hammer", ks, after); i >= 0; i = findPattern("hammer", ks.slice(0, i + after), after)) if (ks[i + 1][4] > ks[i][4]) return i; // confirmed
   return -1;
 }
 export async function hammerData(after = 5) {
   const cache = {};
-  for (const [iv, bars, big] of [["1d", 400, 1.2], ["4h", 600, 1.2], ["1d", 400, 0], ["4h", 600, 0]]) { // clearest hammer first
-    const all = cache[iv] || (cache[iv] = await getCandles("BTC", iv, bars)), i = findHammer(all, after, big);
+  for (const [iv, bars] of [["1d", 400], ["4h", 600], ["1h", 1000]]) {
+    const all = cache[iv] || (cache[iv] = await getCandles("BTC", iv, bars)), i = findHammer(all, after);
     if (i < 0) continue;
     const a = Math.max(0, i - 10), candles = all.slice(a, i + after + 1), hi = i - a, H = all[i], A = all[i + after];
     const d = new Date(H[0]);
-    return { iv, candles, hi, after, H, A, month: d.toLocaleString("en-US", { month: "long", timeZone: "UTC" }), day: d.getUTCDate(),
+    return { iv, candles, hi, after, H, A, hammer: patternProof("hammer", all, i), month: d.toLocaleString("en-US", { month: "long", timeZone: "UTC" }), day: d.getUTCDate(),
       low: Math.round(H[3]), close: Math.round(H[4]), pct: +((A[4] / H[4] - 1) * 100).toFixed(1) };
   }
-  throw new Error("no confirmed hammer in the last 400 daily / 600 4h BTC candles");
+  throw new Error("no strict confirmed hammer in the last 400 daily / 600 4h / 1000 1h BTC candles");
 }
 const n = (x) => Math.round(x).toLocaleString("en-US");
 
@@ -34,7 +27,7 @@ export function hammerLesson(kind, D) {
   const MON = D.month.slice(0, 3).toUpperCase(), unit = D.iv === "1d" ? "days" : "candles", up = D.pct >= 0;
   const step = (chapter, say, kw, tags, type, draw, args, sub) => ({ chapter, say, kw, tags, visual: { type, draw, args }, sub });
   const ex = [
-    step("Real example", `Here is a real Bitcoin candle from ${D.month} ${D.day}.`, `${MON} ${D.day}: REAL BITCOIN`, ["bitcoin", "candle"], "chart", "real", { mark: "none", label: `BITCOIN · ${D.iv === "1d" ? "DAILY" : "4H"} CANDLES` }),
+    step("Real example", `Here is a real Bitcoin candle from ${D.month} ${D.day}.`, `${MON} ${D.day}: REAL BITCOIN`, ["bitcoin", "candle"], "chart", "real", { mark: "none", label: `BITCOIN · ${({ "1d": "DAILY", "4h": "4H", "1h": "1H" })[D.iv]} CANDLES` }),
     step("Real example", `It fell to ${n(D.low)} dollars.`, `LOW $${n(D.low)}`, ["fell"], "chart", "real", { mark: "low", label: "THE LOW" }),
     step("Real example", `Then it closed at ${n(D.close)} dollars.`, `CLOSE $${n(D.close)}`, ["closed"], "chart", "real", { mark: "close", label: "THE CLOSE" }),
     step("Real example", "Small body on top, long lower wick: a real hammer.", "A REAL HAMMER", ["hammer", "wick"], "chart", "real", { mark: "shape", label: "THE SHAPE" }),

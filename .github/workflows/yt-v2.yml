@@ -54,7 +54,7 @@ jobs:
       - name: v6 shot-list gate test (a bad shot list must FAIL)
         if: ${{ inputs.style != 'v5' }}
         working-directory: instagram-bot
-        run: node --test v2/test/shotlist-gate.test.mjs
+        run: node --test v2/test/*.test.mjs
       - name: Render v6 (own drawings, one picture per sentence)
         if: ${{ inputs.style != 'v5' }}
         working-directory: instagram-bot

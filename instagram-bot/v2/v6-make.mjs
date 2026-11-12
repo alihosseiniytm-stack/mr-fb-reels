@@ -23,7 +23,7 @@ await mkdir(out, { recursive: true });
 const name = `${kind}-${topic}`, work = `${out}/.work-${name}`;
 const data = await tp.data();
 const L = tp.lesson(kind, data);
-const pre = checkShots({ style: "v6", steps: L.steps }, { timed: false });
+const pre = checkShots({ style: "v6", steps: L.steps, data: { hammer: data.hammer } }, { timed: false });
 if (!pre.pass) { console.log("shot plan FAIL\n" + pre.fails.join("\n")); process.exit(3); }
 
 if (framesOnly) {
@@ -37,7 +37,7 @@ const mp4 = `${out}/${name}.mp4`;
 const r = await renderV6({ kind, steps: L.steps, data, lesson: tp.label, outPath: mp4, work });
 const text = L.steps.map((s) => s.say).join(" ");
 const description = `${L.title}\n\nSee live whale moves (free): ${SITE}/en/whales/\nTelegram whale alerts bot: ${BOT}\n\n` +
-  `Data: real Bitcoin ${data.iv === "1d" ? "daily" : "4-hour"} candles from a public market data feed (${data.month} ${data.day}: low $${data.low.toLocaleString("en-US")}, close $${data.close.toLocaleString("en-US")}), ${dateLabel()}. ` +
+  `Data: real Bitcoin ${({ "1d": "daily", "4h": "4-hour", "1h": "1-hour" })[data.iv]} candles from a public market data feed (${data.month} ${data.day}: low $${data.low.toLocaleString("en-US")}, close $${data.close.toLocaleString("en-US")}), ${dateLabel()}. ` +
   `Education only, not financial advice. Every picture is drawn by our own code (no stock photos, no AI images); the narrator is a synthetic voice.` + (r.chapters ? "\n\nChapters:\n" + r.chapters : "");
 // thumbnails A/B (long): own drawing, 1280x720
 let thumbHashA = null;
@@ -55,7 +55,7 @@ if (kind === "long") {
 }
 frameAt(mp4, 2, `${out}/.f.png`);
 const meta = { kind, day: topic, topic, title: L.title, text, description, durationS: Math.round(r.durationMs / 100) / 10, style: "v6", steps: r.steps, chapters: r.chapters,
-  data: { iv: data.iv, date: `${data.month} ${data.day}`, low: data.low, close: data.close, pct: data.pct, after: data.after }, thumbHashA, frameHash: imageHash(`${out}/.f.png`), created: new Date().toISOString() };
+  data: { iv: data.iv, date: `${data.month} ${data.day}`, low: data.low, close: data.close, pct: data.pct, after: data.after, hammer: data.hammer }, thumbHashA, frameHash: imageHash(`${out}/.f.png`), created: new Date().toISOString() };
 await writeFile(`${out}/${name}.meta.json`, JSON.stringify(meta, null, 1));
 // shot-list table (sentence -> keyword -> picture) for the owner/vizier review
 const md = [`# ${L.title} (${kind}, v6) - shot list`, "", "| # | time | sentence | on screen | picture (type: drawing) | tags |", "|---|---|---|---|---|---|",

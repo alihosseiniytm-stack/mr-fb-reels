@@ -6,7 +6,10 @@ import { hammerLesson } from "../v6-hammer.mjs";
 
 const D = { iv: "1d", month: "October", day: 11, low: 104712, close: 112300, pct: 6.2, after: 5 };
 const timed = (steps, len = 4) => steps.map((s, i) => ({ ...s, start: i * len, end: (i + 1) * len, key: "k" + i }));
-const meta = (steps) => ({ style: "v6", steps: timed(steps) });
+import { patternProof } from "../v6-patterns.mjs";
+import { fall } from "./patterns.test.mjs";
+const PROOF = patternProof("hammer", [...fall(), [0, 85, 85.7, 81, 85.6]], 8);
+const meta = (steps) => ({ style: "v6", steps: timed(steps), data: { hammer: PROOF } });
 
 for (const kind of ["short", "long"]) {
   test(`real ${kind} hammer lesson passes`, () => {
@@ -33,4 +36,4 @@ test("plan: a sentence too long to say in 6 s FAILS before render", () => {
   const s = base(); s[8] = { ...s[8], say: "Real example: on November 8, Bitcoin fell to 75,640 dollars.", kw: "NOV 8: LOW $75,640", tags: ["bitcoin"] };
   const r = checkShots({ style: "v6", steps: s }, { timed: false }); assert.equal(r.pass, false); assert.ok(r.fails.some((f) => /too long to say/.test(f)), r.fails.join("\n"));
 });
-test("plan: real lessons fit 6 s per sentence", () => { for (const k of ["short", "long"]) { const r = checkShots({ style: "v6", steps: hammerLesson(k, D).steps }, { timed: false }); assert.equal(r.pass, true, r.fails.join("\n")); } });
+test("plan: real lessons fit 6 s per sentence", () => { for (const k of ["short", "long"]) { const r = checkShots({ style: "v6", steps: hammerLesson(k, D).steps, data: { hammer: PROOF } }, { timed: false }); assert.equal(r.pass, true, r.fails.join("\n")); } });

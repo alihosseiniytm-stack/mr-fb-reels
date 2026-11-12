@@ -5,10 +5,14 @@
 //         (2) TAG MATCH: >= 1 tag word appears in the sentence AND the on-screen keyword shares a word/number with the sentence
 //         (3) every spoken number is on screen  (4) no shot longer than 6.0 s, none shorter than 1.0 s
 //         (5) no repeated picture (unique drawing spec + unique PNG hash)  (6) style "v6"
+//         (7) PATTERN PROOF (D186): a real-chart shot that circles a pattern (mark "shape") needs data.proof (or data.hammer) whose
+//             circled candle passes the strict v6-patterns.mjs rule (e.g. hammer: lower wick >= 2x body, small upper wick, after a fall)
+//         (8) MASCOT TAGS (D189/D190): every sentence has mascot {pose, emotion, outfit} from the v6-mascot.mjs lists
 // Exit 0 = PASS, 3 = FAIL (the workflow then does not upload).
 import { readFileSync, writeFileSync } from "node:fs";
 import { KNOWN } from "./v6-draw.mjs";
 import { spokenNumbers } from "./visual.mjs";
+import { checkProof } from "./v6-patterns.mjs";
 
 export const MAX_SHOT_S = 6.0, MIN_SHOT_S = 1.0;
 // speech time estimate used BEFORE render (calibrated on the runner TTS 2026-11-12, run 43258602718: "Real example: on November 8,
@@ -38,8 +42,10 @@ export function checkShots(meta, { timed = true } = {}) {
   if (steps.length < 5) fails.push(`only ${steps.length} steps`);
   const specs = new Map(), keys = new Map();
   let maxLen = 0;
+  const proofErr = steps.some((s) => s.visual && s.visual.type === "chart" && (s.visual.args || {}).mark === "shape") ? checkProof((meta.data || {}).proof || (meta.data || {}).hammer) : "";
   steps.forEach((s, i) => {
     const v = s.visual || {};
+    if (proofErr && v.type === "chart" && (v.args || {}).mark === "shape") bad(i, "pattern proof: " + proofErr);
     if (!s.say || !String(s.say).trim()) bad(i, "no sentence");
     if (!KNOWN[v.type]) bad(i, `visual type "${v.type}" is not a v6 type`);
     else if (!KNOWN[v.type].includes(v.draw) && !(v.type === "card" && KNOWN.card.includes((v.args || {}).icon))) bad(i, `unknown ${v.type} drawing "${v.draw}"`);
