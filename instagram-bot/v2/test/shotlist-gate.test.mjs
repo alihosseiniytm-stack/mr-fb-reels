@@ -29,3 +29,8 @@ test("shot longer than 6 s FAILS", () => { const m = meta(base()); m.steps[1].en
 test("stock photo / AI frame FAILS", () => { const s = base(); s[2].visual = { type: "photo", draw: "x" }; fails(meta(s), /not a v6 type/); });
 test("unknown drawing FAILS", () => { const s = base(); s[2].visual = { type: "diagram", draw: "random" }; fails(meta(s), /unknown diagram/); });
 test("non-v6 style FAILS", () => { const m = meta(base()); m.style = "doc"; fails(m, /style/); });
+test("plan: a sentence too long to say in 6 s FAILS before render", () => {
+  const s = base(); s[8] = { ...s[8], say: "Real example: on November 8, Bitcoin fell to 75,640 dollars.", kw: "NOV 8: LOW $75,640", tags: ["bitcoin"] };
+  const r = checkShots({ style: "v6", steps: s }, { timed: false }); assert.equal(r.pass, false); assert.ok(r.fails.some((f) => /too long to say/.test(f)), r.fails.join("\n"));
+});
+test("plan: real lessons fit 6 s per sentence", () => { for (const k of ["short", "long"]) { const r = checkShots({ style: "v6", steps: hammerLesson(k, D).steps }, { timed: false }); assert.equal(r.pass, true, r.fails.join("\n")); } });

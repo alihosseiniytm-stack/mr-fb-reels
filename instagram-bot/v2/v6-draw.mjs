@@ -161,11 +161,12 @@ export function realChart({ candles, hi, mark = "low", label = "", after = 0 }) 
   const y = lin(lo - pad, hiP + pad, 880, 200), n = ks.length, dx = 760 / n, w = Math.max(10, dx * 0.62);
   let s = `<rect x="40" y="110" width="920" height="850" rx="18" fill="${C.white}" stroke="${C.ink}" stroke-width="5"/>`;
   s += ks.map((k, i) => candle(70 + dx * (i + 0.5), k[1], k[2], k[3], k[4], y, w, { fade: mark === "after" && i < hi })).join("");
-  const hx = 70 + dx * (hi + 0.5), pill = (yy, t, col) => `<rect x="60" y="${yy - 44}" width="${t.length * 24 + 30}" height="58" rx="12" fill="${C.white}" stroke="${col}" stroke-width="5"/>` + T(75, yy, t, 40, col, "start"), H = ks[hi];
+  const hx = 70 + dx * (hi + 0.5), pill = (yy, t, col, px = 60) => `<rect x="${px}" y="${yy - 44}" width="${t.length * 28 + 34}" height="58" rx="12" fill="${C.white}" stroke="${col}" stroke-width="5"/>` + T(px + 17, yy, t, 40, col, "start"), H = ks[hi];
   s += `<ellipse cx="${hx}" cy="${(y(H[2]) + y(H[3])) / 2}" rx="${Math.max(44, dx * 1.4)}" ry="${(y(H[3]) - y(H[2])) / 2 + 40}" fill="none" stroke="${C.yellow}" stroke-width="12"/>`;
   const fmt = (p) => "$" + Math.round(p).toLocaleString("en-US");
   if (mark === "low") s += `<line x1="70" y1="${y(H[3])}" x2="930" y2="${y(H[3])}" stroke="${C.red}" stroke-width="6" stroke-dasharray="18 12"/>` + pill(y(H[3]) + 70, "LOW " + fmt(H[3]), C.red);
   if (mark === "close") s += `<line x1="70" y1="${y(H[4])}" x2="930" y2="${y(H[4])}" stroke="${C.green}" stroke-width="6" stroke-dasharray="18 12"/>` + pill(y(H[4]) - 30, "CLOSE " + fmt(H[4]), C.green);
+  if (mark === "shape") s += pill(Math.max(180, y(H[2]) - 70), "HAMMER", C.ink, Math.min(hx - 100, 740)) + arrow(Math.min(hx, 820), Math.max(196, y(H[2]) - 56), hx, y(H[2]) - 10, C.ink, 8);
   if (mark === "after") { const j = Math.min(n - 1, hi + after), J = ks[j]; s += arrow(hx + 30, y(H[4]), 70 + dx * (j + 0.5), y(J[4]), J[4] >= H[4] ? C.green : C.red, 12); }
   return s + T(60, 80, label, 40, C.ink, "start");
 }

@@ -34,8 +34,10 @@ export function hammerLesson(kind, D) {
   const MON = D.month.slice(0, 3).toUpperCase(), unit = D.iv === "1d" ? "days" : "candles", up = D.pct >= 0;
   const step = (chapter, say, kw, tags, type, draw, args, sub) => ({ chapter, say, kw, tags, visual: { type, draw, args }, sub });
   const ex = [
-    step("Real example", `Real example: on ${D.month} ${D.day}, Bitcoin fell to ${n(D.low)} dollars.`, `${MON} ${D.day}: LOW $${n(D.low)}`, ["bitcoin", "fell"], "chart", "real", { mark: "low", label: `BITCOIN · ${D.iv === "1d" ? "DAILY" : "4H"} CANDLES` }),
-    step("Real example", `But it closed at ${n(D.close)} dollars. That is a hammer.`, `CLOSE $${n(D.close)}`, ["closed", "hammer"], "chart", "real", { mark: "close", label: "SAME CANDLE: THE CLOSE" }),
+    step("Real example", `Here is a real Bitcoin candle from ${D.month} ${D.day}.`, `${MON} ${D.day}: REAL BITCOIN`, ["bitcoin", "candle"], "chart", "real", { mark: "none", label: `BITCOIN · ${D.iv === "1d" ? "DAILY" : "4H"} CANDLES` }),
+    step("Real example", `It fell to ${n(D.low)} dollars.`, `LOW $${n(D.low)}`, ["fell"], "chart", "real", { mark: "low", label: "THE LOW" }),
+    step("Real example", `Then it closed at ${n(D.close)} dollars.`, `CLOSE $${n(D.close)}`, ["closed"], "chart", "real", { mark: "close", label: "THE CLOSE" }),
+    step("Real example", "Small body on top, long lower wick: a real hammer.", "A REAL HAMMER", ["hammer", "wick"], "chart", "real", { mark: "shape", label: "THE SHAPE" }),
     step("Real example", `${D.after} ${unit} later, Bitcoin was ${Math.abs(D.pct)} percent ${up ? "higher" : "lower"}.`, `${up ? "+" : "-"}${Math.abs(D.pct)}% IN ${D.after} ${unit.toUpperCase()}`, ["bitcoin", up ? "higher" : "lower"], "chart", "real", { mark: "after", label: `${D.after} ${unit.toUpperCase()} LATER` }),
   ];
   if (kind === "short") return {

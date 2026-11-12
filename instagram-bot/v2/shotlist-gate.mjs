@@ -11,6 +11,21 @@ import { KNOWN } from "./v6-draw.mjs";
 import { spokenNumbers } from "./visual.mjs";
 
 export const MAX_SHOT_S = 6.0, MIN_SHOT_S = 1.0;
+// speech time estimate used BEFORE render (calibrated on the runner TTS 2026-11-12, run 43258602718: "Real example: on November 8,
+// Bitcoin fell to 75,640 dollars." = 7.15 s): 0.40 s per plain word, 0.45 s per read-out number word, 0.35 s per pause (, : . inside)
+const n999 = (n) => (n >= 100 ? 2 : 0) + (n % 100 === 0 ? 0 : n % 100 < 20 || n % 10 === 0 ? 1 : 2);
+export function speechParts(say) {
+  let plain = 0, num = 0;
+  for (const w of String(say).split(/\s+/).filter(Boolean)) {
+    const m = w.replace(/[^0-9.,]/g, "");
+    if (!/\d/.test(m)) { plain++; continue; }
+    const [ip, dp] = m.replace(/,/g, "").replace(/\.$/, "").split("."), v = +ip || 0;
+    num += (v === 0 ? 1 : (v >= 1e6 ? n999(Math.floor(v / 1e6) % 1000) + 1 : 0) + (v >= 1000 ? n999(Math.floor(v / 1000) % 1000) + 1 : 0) + (v % 1000 ? n999(v % 1000) : 0)) + (dp ? 1 + dp.length : 0);
+  }
+  const pauses = (String(say).trim().replace(/[.!?]+$/, "").match(/[,:;](\s|$)|[.!?]\s/g) || []).length;
+  return { plain, num, pauses };
+}
+export const estSeconds = (say) => { const p = speechParts(say); return +(0.4 * p.plain + 0.45 * p.num + 0.35 * p.pauses + 0.3).toFixed(2); };
 const stem = (w) => w.toLowerCase().replace(/[^a-z0-9]/g, "").replace(/(ing|ed|s)$/, "").replace(/e$/, "");
 const words = (s) => String(s).toLowerCase().replace(/[^a-z0-9 ]+/g, " ").split(/\s+/).filter(Boolean).map(stem);
 const STOP = new Set(["a", "an", "the", "of", "on", "in", "to", "and", "or", "is", "it", "not", "no", "for", "at", "by"].map(stem));
@@ -41,6 +56,7 @@ export function checkShots(meta, { timed = true } = {}) {
     if (miss.length) bad(i, `spoken number(s) ${miss.join(",")} not on screen`);
     const spec = JSON.stringify([v.type, v.draw, v.args || {}, s.kw]);
     if (specs.has(spec)) bad(i, `same picture as step ${specs.get(spec) + 1}`); else specs.set(spec, i);
+    if (!timed && estSeconds(s.say) > MAX_SHOT_S) bad(i, `too long to say: ~${estSeconds(s.say)}s estimated > ${MAX_SHOT_S}s (split the sentence)`);
     if (timed) {
       const len = +(s.end - s.start).toFixed(2);
       maxLen = Math.max(maxLen, len);
