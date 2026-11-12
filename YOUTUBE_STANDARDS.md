@@ -22,3 +22,9 @@ Not checked by script (manual, YouTube Studio only): end-screen elements (Data A
 Daily cron stays OFF until the owner approves the v6 sample in `samples/v6/` (D178; v5 doc and v4 animated samples are superseded once he says yes). Render: `yt-v2.yml` input style=v6 (default), kind=short|long|both, topic=hammer.
 
 - REFERENCE STYLE (owner pick 2026-11-04): read REFERENCE_STYLE_relic_explains.md - every picture matches the spoken words, new picture every 3-6 s. Do not reopen the YouTube video.
+
+## j. v6 mascot + pattern proof + R65 (t50-08-v6b, 2026-11-12, owner D186-D190, D195)
+- Every sentence carries mascot tags {pose, emotion, outfit} (v2/v6-mascot.mjs lists); the shot-list gate FAILS a sentence without them.
+- The puppet face (head, hair, glasses) is fixed; only brows/eyes/mouth, pose, outfit and prop change. Mouth follows the voice loudness (3 steps), blink every 3-6 s. Placed outside the picture panel and inside the Shorts safe zone (Short x 40-292, y 1100-1408; long x 1590-1878, y 700-1052).
+- A real-chart shot that circles a pattern needs a code proof (v2/v6-patterns.mjs strict rule) in the meta data; a candle that is not truly the pattern FAILS.
+- R65: every workflow that posts a video (YouTube, Facebook, TikTok, Instagram/Buffer) must run v2/shotlist-gate.mjs before its first post step; v2/video-style-gate.mjs (CI video-style-gate.yml) FAILS otherwise.

@@ -43,3 +43,9 @@ Education (candles, indicators, risk), whale stories (whale = recurring characte
 - [V official] developers.cloudflare.com/workers-ai/platform/pricing (16:20Z): free 10,000 neurons/day; flux-1-schnell = 4.80 neurons per 512x512 tile + 9.60 per step (~58 neurons for a 1024x1024 4-step image = ~170 free images/day). NOT tested: this task's budget is 0 Cloudflare requests and the brief puts code-drawn SVG first; plan B (100% code-drawn) is what v6 uses. HF/Gemini image APIs not tested (need keys) [U].
 - [V measured] live BTC candles 2026-11-12: 8 daily hammers in 400 days, none both after a fall AND confirmed by the next close -> the lesson falls back to 4h candles (Nov 8 hammer, low $75,640, close $75,907, 5 candles later -1.4%). Kept as is (honest), the voice says "lower".
 - [E] Why code-drawn beats an image model here: exact shapes (a model draws wrong candles/wicks), same style every time, 0 cost, no keys, renders on the GitHub runner.
+
+## v6b additions (t50-08-v6b, 2026-11-12, owner D186-D190, D195/D196)
+- Recurring character = our own woman analyst (option B, design/mascot/mascot_options_v1.svg), code-drawn layered puppet; sheet samples/v6/mascot_sheet.png (12 poses x 4 outfits, mouth 0/1/2, blink, 4 props). [V] built + tested 2026-11-12.
+- Pose by meaning of the sentence (rule list in v6-mascot.mjs RULES; lesson can override with step.mascot). Outfit fixed per video, rotates by topic.
+- Real chart: the circled candle must pass the strict pattern rule (v6-patterns.mjs); same rule is on screen in words. [V] tests 73/73.
+- Applies to EVERY posted video (D195): YouTube long + Shorts, data Shorts, TikTok, Facebook, Instagram Reels; R65 gate enforces it in CI.
