@@ -116,7 +116,7 @@ export async function mascotSprites(browser, w, dir) {
 
 // ---------- captions ----------
 const assTime = (t) => { t = Math.max(0, t); const h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = t % 60; return `${h}:${String(m).padStart(2, "0")}:${s.toFixed(2).padStart(5, "0")}`; };
-function assFile(steps, size, cap, kind, doc = false) {
+export function assFile(steps, size, cap, kind, doc = false) {
   const head = `[Script Info]\nScriptType: v4.00+\nPlayResX: ${size.w}\nPlayResY: ${size.h}\nWrapStyle: 0\nScaledBorderAndShadow: yes\n\n[V4+ Styles]\nFormat: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding\nStyle: Cap,Vazirmatn,${cap.size},&H00FFFFFF,&H000000FF,&H00000000,&H96000000,-1,0,0,0,100,100,0,0,1,${kind === "short" ? 7 : 5},3,2,${cap.marginL},${cap.marginR},${cap.marginV},1\n\n[Events]\nFormat: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n`;
   const lines = [], maxChars = kind === "short" ? (doc ? 16 : 18) : 34;
   for (const st of steps) {
@@ -152,7 +152,7 @@ async function photoOverlay(browser, scene, size, path, fontUri) {
   return short && (q.right > SAFE.short.right + 1 || q.bottom > SAFE.short.bottom + 1) ? [`photo text ${q.right}x${q.bottom}`] : [];
 }
 // one step = one clip: picture scaled 2x (smooth sub-pixel motion), slow zoom in/out + drift alternating per step, photo text on top
-function motionClip(i, st, size, work, f0, f1) {
+export function motionClip(i, st, size, work, f0, f1) {
   const N = Math.max(1, f1 - f0), W = size.w, H = size.h, photo = st.visual === "photo";
   const zmax = photo ? 1.1 : 1.04, dz = (zmax - 1).toFixed(3), D = i % 4 < 2 ? 1 : -1;
   const z = i % 2 === 0 ? `1+${dz}*on/${N}` : `${zmax}-${dz}*on/${N}`;

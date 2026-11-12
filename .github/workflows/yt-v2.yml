@@ -8,8 +8,14 @@ on:
   #   - cron: "30 9,18 * * *" # Shorts (shortsPerDay)
   workflow_dispatch:
     inputs:
+      style:
+        description: "v6 (one style, own drawings; owner D178) or v5 (old doc style)"
+        default: "v6"
+      topic:
+        description: "v6 lesson topic (hammer)"
+        default: "hammer"
       kind:
-        description: "short or long"
+        description: "short, long (v6 also: both)"
         default: "long"
       day:
         description: "sun mon tue wed thu fri sat (blank = today)"
@@ -45,7 +51,23 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y fonts-noto-core ffmpeg espeak-ng
           npx playwright install --with-deps chromium
-      - name: Render
+      - name: v6 shot-list gate test (a bad shot list must FAIL)
+        if: ${{ inputs.style != 'v5' }}
+        working-directory: instagram-bot
+        run: node --test v2/test/shotlist-gate.test.mjs
+      - name: Render v6 (own drawings, one picture per sentence)
+        if: ${{ inputs.style != 'v5' }}
+        working-directory: instagram-bot
+        run: |
+          K="${{ inputs.kind }}"; [ -z "$K" ] && K=short; [ "$K" = "both" ] && K="short long"
+          for k in $K; do node v2/v6-make.mjs --kind=$k --topic=${{ inputs.topic || 'hammer' }} --out=out; done
+      - name: v6 shot-list gate (every sentence = matching tagged picture, no shot > 6 s, no repeats; FAIL = not uploaded)
+        if: ${{ inputs.style != 'v5' }}
+        working-directory: instagram-bot
+        run: |
+          for m in out/*.meta.json; do node v2/shotlist-gate.mjs $m; done
+      - name: Render v5
+        if: ${{ inputs.style == 'v5' }}
         working-directory: instagram-bot
         env:
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
@@ -76,6 +98,9 @@ jobs:
             instagram-bot/out/*.mp4
             instagram-bot/out/*.png
             instagram-bot/out/*.meta.json
+            instagram-bot/out/*.md
+            instagram-bot/out/*.txt
+            instagram-bot/out/*-credits.json
           if-no-files-found: ignore
           retention-days: 14
       - name: Save upload log + gate log

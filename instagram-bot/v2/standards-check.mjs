@@ -79,8 +79,16 @@ const tMiss = tn.filter((n) => !body.includes(n));
 ok("c", tMiss.length === 0, `title numbers are in the video (${tn.join(",") || "none"}${tMiss.length ? "; missing " + tMiss.join(",") : ""})`);
 ok("d", /not financial advice/i.test(desc) && (short || /not financial advice/i.test(text)), `"not financial advice" in description${short ? "" : " + narration"}`);
 ok("d", !/\b(buy now|sell now|you should (buy|sell)|guaranteed (profit|return))/i.test(text + " " + title), `no investment instructions`);
-const doc = meta.style === "doc";
-ok("b", /synthetic voice/i.test(desc) && (doc ? /licensed stock photos/i.test(desc) : /animated mascot/i.test(desc)), `AI disclosure line in description (synthetic voice, ${doc ? "stock photos" : "animated mascot"})`);
+const doc = meta.style === "doc", v6 = meta.style === "v6";
+ok("b", /synthetic voice/i.test(desc) && (v6 ? /drawn by our own code/i.test(desc) : doc ? /licensed stock photos/i.test(desc) : /animated mascot/i.test(desc)), `AI disclosure line in description (synthetic voice, ${v6 ? "own drawings" : doc ? "stock photos" : "animated mascot"})`);
+// ---------- (i) v6 one style (owner D178 2026-11-12): own code-drawn pictures only, shot list gate rules (v2/shotlist-gate.mjs) ----------
+if (v6) {
+  const { checkShots } = await import("./shotlist-gate.mjs");
+  const g = checkShots(meta);
+  ok("i", g.pass, `shot list: ${g.ok}/${g.n} sentences with a matching tagged picture, max shot ${g.maxLen}s <= 6${g.fails[0] ? "; " + g.fails[0] : ""}`);
+  ok("i", steps.every((s) => s.visual && s.visual.type !== "photo") && !meta.mascot, `v6: no stock photos, no AI frames, no mascot overlay`);
+  ok("i", !/stock photo/i.test(desc.replace(/no stock photos/i, "")), `description does not claim stock photos`);
+}
 // ---------- (h) v5 documentary style: real licensed photos, no mascot, credits for every photo ----------
 if (doc) {
   const ph = steps.filter((s) => s.visual === "photo");
