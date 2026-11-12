@@ -125,6 +125,29 @@ export function whale(x, y, s = 1) {
 }
 const screen = (x, y, w, h, inner) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="22" fill="${C.navy2}" stroke="${C.ink}" stroke-width="${SW}"/><g>${inner}</g>`;
 
+// textbook pattern picture (generic candle lessons, v6-candles.mjs): 4 trend candles + the pattern; focus = trend | shape | next
+const TB = (o, h, l, c) => [0, o, h, l, c];
+export const TEXTBOOK = {
+  shooting_star: { up: true, ks: [TB(101, 105.6, 100.9, 101.6)], next: TB(101.4, 101.6, 98.5, 98.8) },
+  doji: { up: false, ks: [TB(85, 87, 83, 85.1)], next: TB(85.1, 87.6, 84.9, 87.3) },
+  bull_engulfing: { up: false, ks: [TB(86.5, 86.7, 85.4, 85.6), TB(85.4, 88.4, 85.2, 88.2)], next: TB(88.2, 90, 88, 89.7) },
+  bear_engulfing: { up: true, ks: [TB(99.5, 100.7, 99.3, 100.5), TB(100.7, 100.8, 97.6, 97.8)], next: TB(97.8, 98, 96, 96.3) },
+  harami: { up: false, ks: [TB(87, 87.2, 82.8, 83), TB(84, 85.3, 83.8, 85)], next: TB(85, 87.4, 84.8, 87.1) },
+  tweezer_bottom: { up: false, ks: [TB(86.5, 86.7, 84, 84.6), TB(84.6, 86.8, 84.05, 86.5)], next: TB(86.5, 88.4, 86.3, 88.1) },
+  morning_star: { up: false, ks: [TB(86.5, 86.8, 82.8, 83), TB(82.8, 83.2, 82.2, 82.6), TB(82.8, 86.2, 82.6, 86)], next: TB(86, 88, 85.8, 87.7) },
+  evening_star: { up: true, ks: [TB(99.5, 103.2, 99.3, 103), TB(103.2, 103.8, 102.9, 103.4), TB(103.2, 103.4, 99.8, 100)], next: TB(100, 100.2, 97.9, 98.2) },
+  three_white_soldiers: { up: false, ks: [TB(86, 88.2, 85.8, 88), TB(88, 90.3, 87.8, 90), TB(90, 92.2, 89.8, 92)], next: TB(92, 93.5, 91.7, 93.2) },
+};
+DRAW.pattern = ({ key, focus = "shape" }) => {
+  const P = TEXTBOOK[key], tr = [...Array(4)].map((_, j) => { const c = P.up ? 92 + 2 * j : 94 - 2 * j, o = P.up ? c - 1.6 : c + 1.6; return TB(o, Math.max(o, c) + 0.4, Math.min(o, c) - 0.4, c); });
+  const ks = [...tr, ...P.ks, ...(focus === "next" ? [P.next] : [])], lo = Math.min(...ks.map((k) => k[3])), hi = Math.max(...ks.map((k) => k[2]));
+  const y = lin(lo - 1, hi + 1, 860, 180), dx = 820 / ks.length, w = Math.min(110, dx * 0.6);
+  let s = ks.map((k, i) => candle(90 + dx * (i + 0.5), k[1], k[2], k[3], k[4], y, w, { fade: focus === "shape" && i < 4 })).join("");
+  if (focus === "shape") { const a = 90 + dx * 4, b = 90 + dx * (4 + P.ks.length), gH = Math.max(...P.ks.map((k) => k[2])), gL = Math.min(...P.ks.map((k) => k[3])); s += `<rect x="${a}" y="${y(gH) - 30}" width="${b - a}" height="${y(gL) - y(gH) + 60}" rx="30" fill="none" stroke="${C.yellow}" stroke-width="12"/>`; }
+  if (focus === "trend") s += arrow(90 + dx * 0.5, y(tr[0][4]) + (P.up ? 60 : -60), 90 + dx * 3.5, y(tr[3][4]) + (P.up ? 60 : -60), P.up ? C.green : C.red, 14);
+  if (focus === "next") s += arrow(90 + dx * (ks.length - 1.5), 140, 90 + dx * (ks.length - 0.5), 200, C.ink, 10);
+  return s;
+};
 const SCENE = {
   // trader surprised in front of a screen with one candle
   hook() {
@@ -156,17 +179,19 @@ const SCENE = {
 
 // ---------- real chart (our own data, v6 style) ----------
 // candles [[t,o,h,l,c,v]], hi = index of the candle to circle, mark = "low" | "close" | "after"
-export function realChart({ candles, hi, mark = "low", label = "", after = 0 }) {
+export function realChart({ candles, hi, mark = "low", label = "", after = 0, name = "HAMMER", n: pn = 1 }) {
   const ks = candles, lo = Math.min(...ks.map((k) => k[3])), hiP = Math.max(...ks.map((k) => k[2])), pad = (hiP - lo) * 0.08;
   const y = lin(lo - pad, hiP + pad, 880, 200), n = ks.length, dx = 760 / n, w = Math.max(10, dx * 0.62);
   let s = `<rect x="40" y="110" width="920" height="850" rx="18" fill="${C.white}" stroke="${C.ink}" stroke-width="5"/>`;
   s += ks.map((k, i) => candle(70 + dx * (i + 0.5), k[1], k[2], k[3], k[4], y, w, { fade: mark === "after" && i < hi })).join("");
   const hx = 70 + dx * (hi + 0.5), pill = (yy, t, col, px = 60) => `<rect x="${px}" y="${yy - 44}" width="${t.length * 28 + 34}" height="58" rx="12" fill="${C.white}" stroke="${col}" stroke-width="5"/>` + T(px + 17, yy, t, 40, col, "start"), H = ks[hi];
-  s += `<ellipse cx="${hx}" cy="${(y(H[2]) + y(H[3])) / 2}" rx="${Math.max(44, dx * 1.4)}" ry="${(y(H[3]) - y(H[2])) / 2 + 40}" fill="none" stroke="${C.yellow}" stroke-width="12"/>`;
+  const G = ks.slice(hi - pn + 1, hi + 1), gH = Math.max(...G.map((k) => k[2])), gL = Math.min(...G.map((k) => k[3]));
+  s += `<ellipse cx="${hx - (dx * (pn - 1)) / 2}" cy="${(y(gH) + y(gL)) / 2}" rx="${Math.max(44, dx * (0.9 + 0.5 * pn))}" ry="${(y(gL) - y(gH)) / 2 + 40}" fill="none" stroke="${C.yellow}" stroke-width="12"/>`;
   const fmt = (p) => "$" + Math.round(p).toLocaleString("en-US");
   if (mark === "low") s += `<line x1="70" y1="${y(H[3])}" x2="930" y2="${y(H[3])}" stroke="${C.red}" stroke-width="6" stroke-dasharray="18 12"/>` + pill(y(H[3]) + 70, "LOW " + fmt(H[3]), C.red);
+  if (mark === "high") s += `<line x1="70" y1="${y(H[2])}" x2="930" y2="${y(H[2])}" stroke="${C.green}" stroke-width="6" stroke-dasharray="18 12"/>` + pill(y(H[2]) - 30, "HIGH " + fmt(H[2]), C.green);
   if (mark === "close") s += `<line x1="70" y1="${y(H[4])}" x2="930" y2="${y(H[4])}" stroke="${C.green}" stroke-width="6" stroke-dasharray="18 12"/>` + pill(y(H[4]) - 30, "CLOSE " + fmt(H[4]), C.green);
-  if (mark === "shape") s += pill(Math.max(180, y(H[2]) - 70), "HAMMER", C.ink, Math.min(hx - 100, 740)) + arrow(Math.min(hx, 820), Math.max(196, y(H[2]) - 56), hx, y(H[2]) - 10, C.ink, 8);
+  if (mark === "shape") s += pill(Math.max(180, y(gH) - 70), name, C.ink, Math.max(50, Math.min(hx - 100, 950 - name.length * 28 - 34))) + arrow(Math.min(hx, 820), Math.max(196, y(H[2]) - 56), hx, y(H[2]) - 10, C.ink, 8);
   if (mark === "after") { const j = Math.min(n - 1, hi + after), J = ks[j]; s += arrow(hx + 30, y(H[4]), 70 + dx * (j + 0.5), y(J[4]), J[4] >= H[4] ? C.green : C.red, 12); }
   return s + T(60, 80, label, 40, C.ink, "start");
 }
@@ -190,7 +215,7 @@ export function drawPicture(v, data) {
   if (v.type === "diagram") return DRAW[v.draw](v.args || {});
   if (v.type === "scene") return SCENE[v.draw](v.args || {});
   // real chart: before the reveal only candles up to the hammer are shown; "after" adds the next data.after candles
-  if (v.type === "chart") { const a = v.args || {}, end = data.hi + (a.mark === "after" ? data.after : 0) + 1; return realChart({ ...a, candles: data.candles.slice(0, end), hi: data.hi, after: data.after }); }
+  if (v.type === "chart") { const a = v.args || {}, end = data.hi + (a.mark === "after" ? data.after : 0) + 1; return realChart({ ...a, candles: data.candles.slice(0, end), hi: data.hi, after: data.after, n: data.n || 1, name: a.name || data.name || "HAMMER" }); }
   throw new Error("v6: unknown picture " + JSON.stringify(v));
 }
 export const KNOWN = { diagram: Object.keys(DRAW), scene: Object.keys(SCENE), chart: ["real"], card: Object.keys(ICON), end: ["end"] };

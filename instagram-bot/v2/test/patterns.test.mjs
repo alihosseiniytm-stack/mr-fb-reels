@@ -46,3 +46,14 @@ test("hammer video without proof FAILS the gate", () => {
   const r = checkShots({ style: "v6", steps: timed(hammerLesson("short", D).steps) });
   assert.equal(r.pass, false); assert.ok(r.fails.some((f) => /no pattern proof/.test(f)));
 });
+import { patternLesson, CANDLE_KEYS } from "../v6-candles.mjs";
+for (const key of CANDLE_KEYS) test(`v6 ${key} lesson (short + long) passes the plan gate with a TRUE pattern, FAILS with a look-alike`, () => {
+  for (const kind of ["short", "long"]) {
+    const D = { key, coinName: "Bitcoin", iv: "1d", month: "May", day: 6, low: 80711, high: 82000, close: 81401, pct: -2.1, after: 5 };
+    const [good, badKs] = CASES[key], steps = () => tagMascot(patternLesson(kind, D).steps, key);
+    const ok = checkShots({ style: "v6", steps: steps(), data: { proof: patternProof(key, good, good.length - 1) } }, { timed: false });
+    assert.equal(ok.pass, true, kind + " " + ok.fails.join("\n"));
+    const no = checkShots({ style: "v6", steps: steps(), data: { proof: patternProof(key, badKs, badKs.length - 1) } }, { timed: false });
+    assert.equal(no.pass, false);
+  }
+});

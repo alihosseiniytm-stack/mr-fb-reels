@@ -9,6 +9,7 @@ import { chromium } from "playwright";
 import { SITE, BOT, dateLabel, imageHash, frameAt, cleanup } from "./lib.mjs";
 import { renderV6, drawFrames, svgToPng } from "./v6.mjs";
 import { hammerData, hammerLesson } from "./v6-hammer.mjs";
+import { CANDLE_KEYS, patternData, patternLesson } from "./v6-candles.mjs";
 import { C, T, candle } from "./v6-draw.mjs";
 import { checkShots } from "./shotlist-gate.mjs";
 import { tagMascot } from "./v6-mascot.mjs";
@@ -17,7 +18,8 @@ import { readFileSync } from "node:fs";
 const here = (p) => fileURLToPath(new URL(p, import.meta.url));
 const arg = (n, d) => { const h = process.argv.find((a) => a.startsWith("--" + n + "=")); return h ? h.split("=")[1] : d; };
 const kind = arg("kind", "short"), topic = arg("topic", "hammer"), out = resolve(arg("out", here("../out"))), framesOnly = process.argv.includes("--frames-only");
-const TOPICS = { hammer: { data: hammerData, lesson: hammerLesson, label: "CANDLE SCHOOL" } };
+const TOPICS = { hammer: { data: hammerData, lesson: hammerLesson, label: "CANDLE SCHOOL" },
+  ...Object.fromEntries(CANDLE_KEYS.map((k) => [k, { data: () => patternData(k), lesson: patternLesson, label: "CANDLE SCHOOL" }])) };
 const tp = TOPICS[topic];
 if (!tp) throw new Error("unknown v6 topic " + topic);
 await mkdir(out, { recursive: true });
@@ -25,7 +27,7 @@ const name = `${kind}-${topic}`, work = `${out}/.work-${name}`;
 const data = await tp.data();
 const L = tp.lesson(kind, data);
 tagMascot(L.steps, topic);
-const pre = checkShots({ style: "v6", steps: L.steps, data: { hammer: data.hammer } }, { timed: false });
+const pre = checkShots({ style: "v6", steps: L.steps, data: { hammer: data.hammer, proof: data.proof } }, { timed: false });
 if (!pre.pass) { console.log("shot plan FAIL\n" + pre.fails.join("\n")); process.exit(3); }
 
 if (framesOnly) {
@@ -39,7 +41,7 @@ const mp4 = `${out}/${name}.mp4`;
 const r = await renderV6({ kind, steps: L.steps, data, lesson: tp.label, outPath: mp4, work });
 const text = L.steps.map((s) => s.say).join(" ");
 const description = `${L.title}\n\nSee live whale moves (free): ${SITE}/en/whales/\nTelegram whale alerts bot: ${BOT}\n\n` +
-  `Data: real Bitcoin ${({ "1d": "daily", "4h": "4-hour", "1h": "1-hour" })[data.iv]} candles from a public market data feed (${data.month} ${data.day}: low $${data.low.toLocaleString("en-US")}, close $${data.close.toLocaleString("en-US")}), ${dateLabel()}. ` +
+  `Data: real ${data.coinName || "Bitcoin"} ${({ "1d": "daily", "4h": "4-hour", "1h": "1-hour" })[data.iv]} candles from a public market data feed (${data.month} ${data.day}: low $${data.low.toLocaleString("en-US")}, close $${data.close.toLocaleString("en-US")}), ${dateLabel()}. ` +
   `Education only, not financial advice. Every picture is drawn by our own code (no stock photos, no AI images); the narrator is a synthetic voice.` + (r.chapters ? "\n\nChapters:\n" + r.chapters : "");
 // thumbnails A/B (long): own drawing, 1280x720
 let thumbHashA = null;
@@ -47,9 +49,9 @@ if (kind === "long") {
   const browser = await chromium.launch(process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {}), page = await browser.newPage();
   const font = "data:font/ttf;base64," + readFileSync(here("../templates/fonts/Vazirmatn-Bold.ttf")).toString("base64");
   const y = (p) => 640 - p * 5.4;
-  for (const [ab, l1, l2, acc] of [["A", "HAMMER", "CANDLE", C.yellow], ["B", "WICK ≥ 2×", "BODY", C.green]]) {
+  for (const [ab, l1, l2, acc] of (topic === "hammer" ? [["A", "HAMMER", "CANDLE", C.yellow], ["B", "WICK ≥ 2×", "BODY", C.green]] : [["A", data.name.split(" ")[0], data.name.split(" ").slice(1).join(" ") || "CANDLE", C.yellow], ["B", data.name.split(" ")[0], "PATTERN", C.green]])) {
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"><rect width="1280" height="720" fill="${C.navy}"/><rect x="40" y="40" width="460" height="640" rx="30" fill="${C.cream}" stroke="${C.ink}" stroke-width="8"/>` +
-      candle(270, 76, 86, 18, 84, y, 150) + T(560, 300, l1, 150, acc, "start") + T(560, 450, l2, 150, C.white, "start") + T(560, 560, "Real Bitcoin example", 52, C.cream, "start") + `</svg>`;
+      candle(270, 76, 86, 18, 84, y, 150) + T(560, 300, l1, 150, acc, "start") + T(560, 450, l2, 150, C.white, "start") + T(560, 560, "Real " + (data.coinName || "Bitcoin") + " example", 52, C.cream, "start") + `</svg>`;
     await svgToPng(page, svg, 1280, 720, `${out}/${name}-thumb${ab}.png`, font);
   }
   await browser.close();
@@ -57,7 +59,7 @@ if (kind === "long") {
 }
 frameAt(mp4, 2, `${out}/.f.png`);
 const meta = { kind, day: topic, topic, title: L.title, text, description, durationS: Math.round(r.durationMs / 100) / 10, style: "v6", mascot: r.mascot, steps: r.steps, chapters: r.chapters,
-  data: { iv: data.iv, date: `${data.month} ${data.day}`, low: data.low, close: data.close, pct: data.pct, after: data.after, hammer: data.hammer }, thumbHashA, frameHash: imageHash(`${out}/.f.png`), created: new Date().toISOString() };
+  data: { iv: data.iv, date: `${data.month} ${data.day}`, low: data.low, close: data.close, pct: data.pct, after: data.after, hammer: data.hammer, proof: data.proof, coin: data.coin || "BTC" }, thumbHashA, frameHash: imageHash(`${out}/.f.png`), created: new Date().toISOString() };
 await writeFile(`${out}/${name}.meta.json`, JSON.stringify(meta, null, 1));
 // shot-list table (sentence -> keyword -> picture) for the owner/vizier review
 const md = [`# ${L.title} (${kind}, v6) - shot list`, "", "| # | time | sentence | on screen | picture (type: drawing) | tags | mascot (pose/emotion/outfit) |", "|---|---|---|---|---|---|---|",

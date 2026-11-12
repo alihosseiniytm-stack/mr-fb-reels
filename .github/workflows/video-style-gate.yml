@@ -1,0 +1,19 @@
+name: R65 video style gate (every posting workflow runs the v6 shot-list gate first)
+# owner D195 2026-11-12: wherever a video is posted it must be v6. RED here = some workflow can post a non-v6 video.
+on:
+  push:
+    paths: [".github/workflows/**", "instagram-bot/v2/**"]
+  workflow_dispatch:
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with: { node-version: 22 }
+      - name: R65 gate tests
+        working-directory: instagram-bot
+        run: node --test v2/test/video-style-gate.test.mjs
+      - name: R65 gate on all workflows
+        working-directory: instagram-bot
+        run: node v2/video-style-gate.mjs ../.github/workflows
