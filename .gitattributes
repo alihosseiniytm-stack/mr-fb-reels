@@ -2,3 +2,4 @@
 *.ttf binary
 *.png binary
 *.mp4 binary
+instagram-bot/v2/gate-log.jsonl merge=union

@@ -1,1 +1,24 @@
-[]
+[
+ {
+  "kind": "long",
+  "v2": true,
+  "date": "2026-11-12T23:20:00Z",
+  "url": "https://youtube.com/watch?v=EmIV_7Y9wVM",
+  "title": "The Tweezer Bottom Pattern for Beginners: Shape, Meaning and a Real Bitcoin Example",
+  "topic": "tweezer_bottom",
+  "privacy": "private",
+  "test": true,
+  "note": "v6c test upload, entry added by hand (run 43322722894 log commit hit a gate-log rebase conflict)"
+ },
+ {
+  "kind": "short",
+  "v2": true,
+  "date": "2026-11-12T23:20:00Z",
+  "url": "https://youtube.com/shorts/npLbygPjAns",
+  "title": "Tweezer Bottom Candle Pattern Explained: A Real Bitcoin Example",
+  "topic": "tweezer_bottom",
+  "privacy": "private",
+  "test": true,
+  "note": "v6c test upload, entry added by hand"
+ }
+]
