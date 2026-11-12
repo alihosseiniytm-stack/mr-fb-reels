@@ -49,3 +49,7 @@ Education (candles, indicators, risk), whale stories (whale = recurring characte
 - Pose by meaning of the sentence (rule list in v6-mascot.mjs RULES; lesson can override with step.mascot). Outfit fixed per video, rotates by topic.
 - Real chart: the circled candle must pass the strict pattern rule (v6-patterns.mjs); same rule is on screen in words. [V] tests 73/73.
 - Applies to EVERY posted video (D195): YouTube long + Shorts, data Shorts, TikTok, Facebook, Instagram Reels; R65 gate enforces it in CI.
+
+## v6c additions (t50-08-v6c, 2026-11-12)
+- Strip review of run 43315493450: hook/clue scenes showed a hammer in a shooting-star lesson (picture did not match the voice). Rule: a scene showing "this pattern" draws the lesson's own pattern (scene args.key, v6-draw.mjs miniPattern).
+- Non-candle types (indicator, whale_week, coin, replay, safety, recap) still need v6 lessons, same pattern as v6-candles.mjs; then add their keys to READY in v6-pick.mjs.

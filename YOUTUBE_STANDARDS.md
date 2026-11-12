@@ -28,3 +28,9 @@ Daily cron stays OFF until the owner approves the v6 sample in `samples/v6/` (D1
 - The puppet face (head, hair, glasses) is fixed; only brows/eyes/mouth, pose, outfit and prop change. Mouth follows the voice loudness (3 steps), blink every 3-6 s. Placed outside the picture panel and inside the Shorts safe zone (Short x 40-292, y 1100-1408; long x 1590-1878, y 700-1052).
 - A real-chart shot that circles a pattern needs a code proof (v2/v6-patterns.mjs strict rule) in the meta data; a candle that is not truly the pattern FAILS.
 - R65: every workflow that posts a video (YouTube, Facebook, TikTok, Instagram/Buffer) must run v2/shotlist-gate.mjs before its first post step; v2/video-style-gate.mjs (CI video-style-gate.yml) FAILS otherwise.
+
+## k. v6 everywhere + daily plan (t50-08-v6c, 2026-11-12, owner D195/D199)
+- Every posting workflow (yt-v2, youtube-en, tiktok-en, facebook-en, ig-reels) renders with v2/v6-make.mjs and runs v2/shotlist-gate.mjs BEFORE its post line (R65 gate). Old reel workflows only as *.yml.v5.disabled.
+- Topic of the day = v2/v6-pick.mjs (weekday type from schedule.json; type without a v6 lesson -> ready v6 candle topic, never the old style; no topic twice in 8 weeks of public uploads).
+- Hours (UTC): long 15:00, Shorts 21:00 (yt-v2) + 23:00 (youtube-en, other topic), TikTok 21:30. Max 3 YouTube uploads/day.
+- Test uploads are private/unlisted, logged test:true, never block the similarity gate.
