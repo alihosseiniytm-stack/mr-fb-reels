@@ -86,7 +86,7 @@ if (v6) {
   const { checkShots } = await import("./shotlist-gate.mjs");
   const g = checkShots(meta);
   ok("i", g.pass, `shot list: ${g.ok}/${g.n} sentences with a matching tagged picture, max shot ${g.maxLen}s <= 6${g.fails[0] ? "; " + g.fails[0] : ""}`);
-  ok("i", steps.every((s) => s.visual && s.visual.type !== "photo") && !meta.mascot, `v6: no stock photos, no AI frames, no mascot overlay`);
+  ok("i", steps.every((s) => s.visual && s.visual.type !== "photo" && s.mascot && s.mascot.pose) && !!meta.mascot, `v6: no stock photos, no AI frames, option-B mascot puppet tagged on every sentence (D189/D190)`);
   ok("i", !/stock photo/i.test(desc.replace(/no stock photos/i, "")), `description does not claim stock photos`);
 }
 // ---------- (h) v5 documentary style: real licensed photos, no mascot, credits for every photo ----------

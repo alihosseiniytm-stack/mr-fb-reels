@@ -42,7 +42,7 @@ const r = await renderV6({ kind, steps: L.steps, data, lesson: tp.label, outPath
 const text = L.steps.map((s) => s.say).join(" ");
 const description = `${L.title}\n\nSee live whale moves (free): ${SITE}/en/whales/\nTelegram whale alerts bot: ${BOT}\n\n` +
   `Data: real ${data.coinName || "Bitcoin"} ${({ "1d": "daily", "4h": "4-hour", "1h": "1-hour" })[data.iv]} candles from a public market data feed (${data.month} ${data.day}: low $${data.low.toLocaleString("en-US")}, close $${data.close.toLocaleString("en-US")}), ${dateLabel()}. ` +
-  `Education only, not financial advice. Every picture is drawn by our own code (no stock photos, no AI images); the narrator is a synthetic voice.` + (r.chapters ? "\n\nChapters:\n" + r.chapters : "");
+  `Education only, not financial advice. Every picture and the presenter character are drawn by our own code (no stock photos, no AI images); the narrator is a synthetic voice.` + (r.chapters ? "\n\nChapters:\n" + r.chapters : "");
 // thumbnails A/B (long): own drawing, 1280x720
 let thumbHashA = null;
 if (kind === "long") {
