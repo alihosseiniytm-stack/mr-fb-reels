@@ -1,0 +1,1 @@
+PASS shot-list out/short-hammer.meta.json: 17/17 sentences OK | max shot 5.32s (limit 6) | repeats 0

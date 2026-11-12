@@ -1,0 +1,35 @@
+PASS long-hammer: 34/34 rules | 1920x1080 High 30fps 8.2Mbps | aac 48000Hz | -14.04 LUFS TP -1.50 | 120.6s | 29 sentences
+PASS (e) container mov,mp4,m4a,3gp,3g2,mj2
+PASS (e) video h264 High
+PASS (e) chroma yuv420p
+PASS (e) frame rate constant 30/30.000 fps
+PASS (e) audio aac LC
+PASS (e) audio 48000 Hz
+PASS (e) fast start: atoms ftyp,moov,free,mdat
+PASS (e) video bitrate 8.2 Mbps (rendered at 8 Mbps target = YouTube 1080p SDR 30 fps; static frames may compress lower)
+PASS (e) long 16:9 1920x1080
+PASS (e) thumbA exists
+PASS (e) thumbA 1280x720 0.03 MB (16:9, < 2 MB)
+PASS (e) thumbB exists
+PASS (e) thumbB 1280x720 0.04 MB (16:9, < 2 MB)
+PASS (f) loudness -14.04 LUFS (target -14)
+PASS (f) true peak -1.50 dBTP (<= -1, no clipping)
+PASS (g) 29 sentences, each with its own picture key
+PASS (g) on-screen callout for every sentence (missing 0)
+PASS (g) no two sentences in a row on the same picture (repeats 0)
+PASS (g) every spoken number is on screen (missing 0)
+PASS (g) timeline ends 120.56s = video 120.6s (voice in sync)
+PASS (a) own data: 7 distinct real numbers in the narration
+PASS (a) unique pictures 29/29
+PASS (c) title 74 chars
+PASS (c) no clickbait words
+PASS (c) title not shouting (0 all-caps words)
+PASS (c) title numbers are in the video (none)
+PASS (d) "not financial advice" in description + narration
+PASS (d) no investment instructions
+PASS (b) AI disclosure line in description (synthetic voice, own drawings)
+PASS (i) shot list: 29/29 sentences with a matching tagged picture, max shot 5.36s <= 6
+PASS (i) v6: no stock photos, no AI frames, no mascot overlay
+PASS (i) description does not claim stock photos
+PASS (b) upload sets status.containsSyntheticMedia + madeForKids
+PASS (c) no venue names in title/description/voice (R53)

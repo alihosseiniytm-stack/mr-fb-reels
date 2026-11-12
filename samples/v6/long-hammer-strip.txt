@@ -1,0 +1,8 @@
+1. 2.2s | scene:hook | ONE CANDLE, BIG CLUE | "This one candle can warn you that a fall may be ending."
+2. 17.0s | diagram:anatomy | BODY = OPEN TO CLOSE | "The body runs from the open to the close."
+3. 35.0s | diagram:ratio | WICK ≥ 2× BODY | "Its lower wick is long, at least 2 times the body."
+4. 53.1s | diagram:push | BUYERS PUSHED BACK | "But buyers pushed it back up before the candle closed."
+5. 68.2s | chart:real | NOV 8: REAL BITCOIN | "Here is a real Bitcoin candle from November 8."
+6. 87.1s | chart:real | -1.4% IN 5 CANDLES | "5 candles later, Bitcoin was 1.4 percent lower."
+7. 102.2s | scene:protect | SMALL, KNOWN RISK | "Then the most you can lose is small and known."
+8. 118.4s | end:end | MARKETRADARWHALE.COM | "Watch live whale moves for free on MarketRadar Whale."

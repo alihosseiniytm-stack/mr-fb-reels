@@ -1,0 +1,581 @@
+{
+ "kind": "long",
+ "day": "hammer",
+ "topic": "hammer",
+ "title": "The Hammer Candle for Beginners: Shape, Meaning and a Real Bitcoin Example",
+ "text": "This one candle can warn you that a fall may be ending. Traders call it the hammer. Today you learn its shape, its meaning, and how to use it. First, every candle shows four prices. The body runs from the open to the close. The thin lines are wicks. They show the highest and lowest price. Each candle covers one time block, like 1 hour or 1 day. A hammer has a small body near the top. Its lower wick is long, at least 2 times the body. Here is the full shape: small body, long lower wick. A long upper wick is a different candle, not a hammer. The long wick means sellers pushed the price down hard. But buyers pushed it back up before the candle closed. So the buyers won this battle. A hammer matters most at the end of a downtrend. The same shape after a rise is a warning, not a hammer. Here is a real Bitcoin candle from November 8. It fell to 75,640 dollars. Then it closed at 75,907 dollars. Small body on top, long lower wick: a real hammer. 5 candles later, Bitcoin was 1.4 percent lower. Never act on the hammer alone. Wait for the next candle to close higher. That is confirmation. Put your stop loss just below the wick. Then the most you can lose is small and known. A hammer is a clue, never a promise. This is education, not financial advice. Big players leave clues too. We track whale moves live. Watch live whale moves for free on MarketRadar Whale.",
+ "description": "The Hammer Candle for Beginners: Shape, Meaning and a Real Bitcoin Example\n\nSee live whale moves (free): https://marketradarwhale.com/en/whales/\nTelegram whale alerts bot: https://t.me/MarketRadarWhaleBot\n\nData: real Bitcoin 4-hour candles from a public market data feed (November 8: low $75,640, close $75,907), November 12, 2026. Education only, not financial advice. Every picture is drawn by our own code (no stock photos, no AI images); the narrator is a synthetic voice.\n\nChapters:\n0:00 Intro\n0:11 Candle basics\n0:29 The shape\n0:47 What it means\n0:57 Where it counts\n1:10 Real example\n1:29 How to use it\n1:43 Recap",
+ "durationS": 120.6,
+ "style": "v6",
+ "steps": [
+  {
+   "start": 0,
+   "end": 4.43,
+   "say": "This one candle can warn you that a fall may be ending.",
+   "kw": "ONE CANDLE, BIG CLUE",
+   "sub": "",
+   "tags": [
+    "candle",
+    "fall"
+   ],
+   "chapter": "Intro",
+   "visual": {
+    "type": "scene",
+    "draw": "hook",
+    "args": {}
+   },
+   "key": "afdd407d41667e9b"
+  },
+  {
+   "start": 4.43,
+   "end": 6.89,
+   "say": "Traders call it the hammer.",
+   "kw": "HAMMER",
+   "sub": "",
+   "tags": [
+    "hammer"
+   ],
+   "chapter": "Intro",
+   "visual": {
+    "type": "card",
+    "draw": "hammer",
+    "args": {
+     "icon": "hammer"
+    }
+   },
+   "key": "fdad793e8eed092c"
+  },
+  {
+   "start": 6.89,
+   "end": 11.68,
+   "say": "Today you learn its shape, its meaning, and how to use it.",
+   "kw": "SHAPE · MEANING · USE",
+   "sub": "",
+   "tags": [
+    "shape",
+    "meaning"
+   ],
+   "chapter": "Intro",
+   "visual": {
+    "type": "card",
+    "draw": "question",
+    "args": {
+     "icon": "question"
+    }
+   },
+   "key": "70d18a33b49bcc7b"
+  },
+  {
+   "start": 11.68,
+   "end": 15.29,
+   "say": "First, every candle shows four prices.",
+   "kw": "4 PRICES",
+   "sub": "open · high · low · close",
+   "tags": [
+    "four",
+    "prices"
+   ],
+   "chapter": "Candle basics",
+   "visual": {
+    "type": "card",
+    "draw": "calendar",
+    "args": {
+     "icon": "calendar"
+    }
+   },
+   "key": "e58ae86dd251a522"
+  },
+  {
+   "start": 15.29,
+   "end": 18.66,
+   "say": "The body runs from the open to the close.",
+   "kw": "BODY = OPEN TO CLOSE",
+   "sub": "",
+   "tags": [
+    "body",
+    "open",
+    "close"
+   ],
+   "chapter": "Candle basics",
+   "visual": {
+    "type": "diagram",
+    "draw": "anatomy",
+    "args": {}
+   },
+   "key": "ac1b360493d9a2d5"
+  },
+  {
+   "start": 18.66,
+   "end": 24.02,
+   "say": "The thin lines are wicks. They show the highest and lowest price.",
+   "kw": "WICKS = HIGH AND LOW",
+   "sub": "",
+   "tags": [
+    "wicks",
+    "highest",
+    "lowest"
+   ],
+   "chapter": "Candle basics",
+   "visual": {
+    "type": "diagram",
+    "draw": "hammer",
+    "args": {
+     "part": "wick"
+    }
+   },
+   "key": "45ad89fa2e6cf8f0"
+  },
+  {
+   "start": 24.02,
+   "end": 29.29,
+   "say": "Each candle covers one time block, like 1 hour or 1 day.",
+   "kw": "1 HOUR OR 1 DAY",
+   "sub": "",
+   "tags": [
+    "hour",
+    "day"
+   ],
+   "chapter": "Candle basics",
+   "visual": {
+    "type": "scene",
+    "draw": "timeframe",
+    "args": {}
+   },
+   "key": "fb4dbc719db00d77"
+  },
+  {
+   "start": 29.29,
+   "end": 32.64,
+   "say": "A hammer has a small body near the top.",
+   "kw": "SMALL BODY ON TOP",
+   "sub": "",
+   "tags": [
+    "body",
+    "top"
+   ],
+   "chapter": "The shape",
+   "visual": {
+    "type": "diagram",
+    "draw": "hammer",
+    "args": {
+     "part": "body"
+    }
+   },
+   "key": "9a5f73651ca5e8d3"
+  },
+  {
+   "start": 32.64,
+   "end": 37.33,
+   "say": "Its lower wick is long, at least 2 times the body.",
+   "kw": "WICK ≥ 2× BODY",
+   "sub": "",
+   "tags": [
+    "wick",
+    "body"
+   ],
+   "chapter": "The shape",
+   "visual": {
+    "type": "diagram",
+    "draw": "ratio",
+    "args": {}
+   },
+   "key": "3b49575fa6e57e89"
+  },
+  {
+   "start": 37.33,
+   "end": 42.46,
+   "say": "Here is the full shape: small body, long lower wick.",
+   "kw": "THE FULL SHAPE",
+   "sub": "",
+   "tags": [
+    "shape",
+    "body",
+    "wick"
+   ],
+   "chapter": "The shape",
+   "visual": {
+    "type": "diagram",
+    "draw": "hammer",
+    "args": {
+     "part": "both"
+    }
+   },
+   "key": "725e897f77a2cc05"
+  },
+  {
+   "start": 42.46,
+   "end": 47.12,
+   "say": "A long upper wick is a different candle, not a hammer.",
+   "kw": "UPPER WICK ≠ HAMMER",
+   "sub": "",
+   "tags": [
+    "upper",
+    "wick"
+   ],
+   "chapter": "The shape",
+   "visual": {
+    "type": "diagram",
+    "draw": "lookalike",
+    "args": {
+     "which": "inverted"
+    }
+   },
+   "key": "ccc7c1fd9d598a31"
+  },
+  {
+   "start": 47.12,
+   "end": 51.14,
+   "say": "The long wick means sellers pushed the price down hard.",
+   "kw": "SELLERS PUSHED DOWN",
+   "sub": "",
+   "tags": [
+    "sellers",
+    "down"
+   ],
+   "chapter": "What it means",
+   "visual": {
+    "type": "diagram",
+    "draw": "push",
+    "args": {
+     "dir": "down"
+    }
+   },
+   "key": "cb59ba8ac14b42ff"
+  },
+  {
+   "start": 51.14,
+   "end": 55.12,
+   "say": "But buyers pushed it back up before the candle closed.",
+   "kw": "BUYERS PUSHED BACK",
+   "sub": "",
+   "tags": [
+    "buyers",
+    "back"
+   ],
+   "chapter": "What it means",
+   "visual": {
+    "type": "diagram",
+    "draw": "push",
+    "args": {
+     "dir": "up"
+    }
+   },
+   "key": "17186fd2dd03d894"
+  },
+  {
+   "start": 55.12,
+   "end": 57.77,
+   "say": "So the buyers won this battle.",
+   "kw": "BUYERS WON",
+   "sub": "",
+   "tags": [
+    "buyers",
+    "battle"
+   ],
+   "chapter": "What it means",
+   "visual": {
+    "type": "scene",
+    "draw": "battle",
+    "args": {}
+   },
+   "key": "7a7ea9010ebf60bd"
+  },
+  {
+   "start": 57.77,
+   "end": 61.43,
+   "say": "A hammer matters most at the end of a downtrend.",
+   "kw": "AFTER A DOWNTREND",
+   "sub": "",
+   "tags": [
+    "downtrend"
+   ],
+   "chapter": "Where it counts",
+   "visual": {
+    "type": "diagram",
+    "draw": "downtrend",
+    "args": {}
+   },
+   "key": "0d33ce4f0f8c6b7f"
+  },
+  {
+   "start": 61.43,
+   "end": 66.29,
+   "say": "The same shape after a rise is a warning, not a hammer.",
+   "kw": "AFTER A RISE = WARNING",
+   "sub": "",
+   "tags": [
+    "rise",
+    "warning"
+   ],
+   "chapter": "Where it counts",
+   "visual": {
+    "type": "diagram",
+    "draw": "lookalike",
+    "args": {
+     "which": "hanging"
+    }
+   },
+   "key": "2f5f8907b787b0c9"
+  },
+  {
+   "start": 66.29,
+   "end": 70.12,
+   "say": "Here is a real Bitcoin candle from November 8.",
+   "kw": "NOV 8: REAL BITCOIN",
+   "sub": "",
+   "tags": [
+    "bitcoin",
+    "candle"
+   ],
+   "chapter": "Real example",
+   "visual": {
+    "type": "chart",
+    "draw": "real",
+    "args": {
+     "mark": "none",
+     "label": "BITCOIN · 4H CANDLES"
+    }
+   },
+   "key": "2c87d22bf2cfeb53"
+  },
+  {
+   "start": 70.12,
+   "end": 74.47,
+   "say": "It fell to 75,640 dollars.",
+   "kw": "LOW $75,640",
+   "sub": "",
+   "tags": [
+    "fell"
+   ],
+   "chapter": "Real example",
+   "visual": {
+    "type": "chart",
+    "draw": "real",
+    "args": {
+     "mark": "low",
+     "label": "THE LOW"
+    }
+   },
+   "key": "2d9dc45bfd853baf"
+  },
+  {
+   "start": 74.47,
+   "end": 79.19,
+   "say": "Then it closed at 75,907 dollars.",
+   "kw": "CLOSE $75,907",
+   "sub": "",
+   "tags": [
+    "closed"
+   ],
+   "chapter": "Real example",
+   "visual": {
+    "type": "chart",
+    "draw": "real",
+    "args": {
+     "mark": "close",
+     "label": "THE CLOSE"
+    }
+   },
+   "key": "154f2a3b699c4560"
+  },
+  {
+   "start": 79.19,
+   "end": 84.5,
+   "say": "Small body on top, long lower wick: a real hammer.",
+   "kw": "A REAL HAMMER",
+   "sub": "",
+   "tags": [
+    "hammer",
+    "wick"
+   ],
+   "chapter": "Real example",
+   "visual": {
+    "type": "chart",
+    "draw": "real",
+    "args": {
+     "mark": "shape",
+     "label": "THE SHAPE"
+    }
+   },
+   "key": "6eeb38a9fc4d677e"
+  },
+  {
+   "start": 84.5,
+   "end": 89.63,
+   "say": "5 candles later, Bitcoin was 1.4 percent lower.",
+   "kw": "-1.4% IN 5 CANDLES",
+   "sub": "",
+   "tags": [
+    "bitcoin",
+    "lower"
+   ],
+   "chapter": "Real example",
+   "visual": {
+    "type": "chart",
+    "draw": "real",
+    "args": {
+     "mark": "after",
+     "label": "5 CANDLES LATER"
+    }
+   },
+   "key": "1c7fe6dad72f8735"
+  },
+  {
+   "start": 89.63,
+   "end": 92.38,
+   "say": "Never act on the hammer alone.",
+   "kw": "NOT ALONE",
+   "sub": "hammer + confirmation",
+   "tags": [
+    "alone"
+   ],
+   "chapter": "How to use it",
+   "visual": {
+    "type": "card",
+    "draw": "hammer",
+    "args": {
+     "icon": "hammer"
+    }
+   },
+   "key": "3d08959f8e4da3ba"
+  },
+  {
+   "start": 92.38,
+   "end": 97.4,
+   "say": "Wait for the next candle to close higher. That is confirmation.",
+   "kw": "WAIT FOR CONFIRMATION",
+   "sub": "",
+   "tags": [
+    "confirmation",
+    "next"
+   ],
+   "chapter": "How to use it",
+   "visual": {
+    "type": "diagram",
+    "draw": "confirm",
+    "args": {}
+   },
+   "key": "23f89f776e39f007"
+  },
+  {
+   "start": 97.4,
+   "end": 100.46,
+   "say": "Put your stop loss just below the wick.",
+   "kw": "STOP LOSS UNDER THE WICK",
+   "sub": "",
+   "tags": [
+    "stop",
+    "wick"
+   ],
+   "chapter": "How to use it",
+   "visual": {
+    "type": "diagram",
+    "draw": "stop",
+    "args": {}
+   },
+   "key": "a17174f593d4770b"
+  },
+  {
+   "start": 100.46,
+   "end": 103.86,
+   "say": "Then the most you can lose is small and known.",
+   "kw": "SMALL, KNOWN RISK",
+   "sub": "",
+   "tags": [
+    "lose",
+    "small"
+   ],
+   "chapter": "How to use it",
+   "visual": {
+    "type": "scene",
+    "draw": "protect",
+    "args": {}
+   },
+   "key": "de19886dfa4fe287"
+  },
+  {
+   "start": 103.86,
+   "end": 107.35,
+   "say": "A hammer is a clue, never a promise.",
+   "kw": "A CLUE, NOT A PROMISE",
+   "sub": "",
+   "tags": [
+    "clue"
+   ],
+   "chapter": "Recap",
+   "visual": {
+    "type": "scene",
+    "draw": "clue",
+    "args": {}
+   },
+   "key": "d44411fae5dd1e8a"
+  },
+  {
+   "start": 107.35,
+   "end": 111.28,
+   "say": "This is education, not financial advice.",
+   "kw": "NOT FINANCIAL ADVICE",
+   "sub": "",
+   "tags": [
+    "education",
+    "advice"
+   ],
+   "chapter": "Recap",
+   "visual": {
+    "type": "card",
+    "draw": "check",
+    "args": {
+     "icon": "check"
+    }
+   },
+   "key": "6233c371a933fabc"
+  },
+  {
+   "start": 111.28,
+   "end": 116.28,
+   "say": "Big players leave clues too. We track whale moves live.",
+   "kw": "WE TRACK WHALE MOVES",
+   "sub": "",
+   "tags": [
+    "whale",
+    "clues"
+   ],
+   "chapter": "Recap",
+   "visual": {
+    "type": "scene",
+    "draw": "whales",
+    "args": {}
+   },
+   "key": "8b9a6756fb3a635f"
+  },
+  {
+   "start": 116.28,
+   "end": 120.56,
+   "say": "Watch live whale moves for free on MarketRadar Whale.",
+   "kw": "MARKETRADARWHALE.COM",
+   "sub": "",
+   "tags": [
+    "whale"
+   ],
+   "chapter": "Recap",
+   "visual": {
+    "type": "end",
+    "draw": "end",
+    "args": {}
+   },
+   "key": "dbe6db3da81e8ca5"
+  }
+ ],
+ "chapters": "0:00 Intro\n0:11 Candle basics\n0:29 The shape\n0:47 What it means\n0:57 Where it counts\n1:10 Real example\n1:29 How to use it\n1:43 Recap",
+ "data": {
+  "iv": "4h",
+  "date": "November 8",
+  "low": 75640,
+  "close": 75907,
+  "pct": -1.4,
+  "after": 5
+ },
+ "thumbHashA": "30303b39373f3b30",
+ "frameHash": "785f47d4d8183808",
+ "created": "2026-11-12T17:34:13.242Z"
+}

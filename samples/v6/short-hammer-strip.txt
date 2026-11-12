@@ -1,0 +1,8 @@
+1. 2.2s | scene:hook | ONE CANDLE, BIG CLUE | "This one candle can warn you that a fall may be ending."
+2. 8.3s | diagram:hammer | SMALL BODY ON TOP | "It has a small body near the top."
+3. 20.3s | diagram:push | BUYERS PUSHED BACK | "But buyers pushed it back up before the candle closed."
+4. 26.7s | diagram:downtrend | AFTER A DOWNTREND | "A hammer matters most at the end of a downtrend."
+5. 34.6s | chart:real | LOW $75,640 | "It fell to 75,640 dollars."
+6. 44.1s | chart:real | A REAL HAMMER | "Small body on top, long lower wick: a real hammer."
+7. 58.5s | diagram:stop | STOP LOSS UNDER THE WICK | "Put your stop loss just below the wick."
+8. 65.6s | end:end | MARKETRADARWHALE.COM | "Watch live whale moves for free on MarketRadar Whale."

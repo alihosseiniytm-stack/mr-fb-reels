@@ -1,0 +1,1 @@
+PASS shot-list out/long-hammer.meta.json: 29/29 sentences OK | max shot 5.36s (limit 6) | repeats 0

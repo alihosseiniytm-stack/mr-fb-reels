@@ -1,0 +1,32 @@
+PASS short-hammer: 31/31 rules | 1080x1920 High 30fps 8.0Mbps | aac 48000Hz | -14.06 LUFS TP -1.50 | 67.8s | 17 sentences
+PASS (e) container mov,mp4,m4a,3gp,3g2,mj2
+PASS (e) video h264 High
+PASS (e) chroma yuv420p
+PASS (e) frame rate constant 30/30.000 fps
+PASS (e) audio aac LC
+PASS (e) audio 48000 Hz
+PASS (e) fast start: atoms ftyp,moov,free,mdat
+PASS (e) video bitrate 8.0 Mbps (rendered at 8 Mbps target = YouTube 1080p SDR 30 fps; static frames may compress lower)
+PASS (e) Short 9:16 1080x1920
+PASS (e) Short length 67.8 s <= 180 (answer/15424877)
+PASS (f) loudness -14.06 LUFS (target -14)
+PASS (f) true peak -1.50 dBTP (<= -1, no clipping)
+PASS (g) 17 sentences, each with its own picture key
+PASS (g) on-screen callout for every sentence (missing 0)
+PASS (g) no two sentences in a row on the same picture (repeats 0)
+PASS (g) every spoken number is on screen (missing 0)
+PASS (g) timeline ends 67.76s = video 67.8s (voice in sync)
+PASS (a) own data: 6 distinct real numbers in the narration
+PASS (a) unique pictures 17/17
+PASS (c) title 47 chars
+PASS (c) no clickbait words
+PASS (c) title not shouting (0 all-caps words)
+PASS (c) title numbers are in the video (none)
+PASS (d) "not financial advice" in description
+PASS (d) no investment instructions
+PASS (b) AI disclosure line in description (synthetic voice, own drawings)
+PASS (i) shot list: 17/17 sentences with a matching tagged picture, max shot 5.32s <= 6
+PASS (i) v6: no stock photos, no AI frames, no mascot overlay
+PASS (i) description does not claim stock photos
+PASS (b) upload sets status.containsSyntheticMedia + madeForKids
+PASS (c) no venue names in title/description/voice (R53)

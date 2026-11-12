@@ -1,0 +1,347 @@
+{
+ "kind": "short",
+ "day": "hammer",
+ "topic": "hammer",
+ "title": "Hammer Candle Explained: A Real Bitcoin Example",
+ "text": "This one candle can warn you that a fall may be ending. Traders call it the hammer. It has a small body near the top. Its lower wick is long, at least 2 times the body. That wick means sellers pushed the price down hard. But buyers pushed it back up before the candle closed. So the buyers won this battle. A hammer matters most at the end of a downtrend. Here is a real Bitcoin candle from November 8. It fell to 75,640 dollars. Then it closed at 75,907 dollars. Small body on top, long lower wick: a real hammer. 5 candles later, Bitcoin was 1.4 percent lower. Wait for the next candle to close higher. That is confirmation. Put your stop loss just below the wick. A hammer is a clue, never a promise. Watch live whale moves for free on MarketRadar Whale.",
+ "description": "Hammer Candle Explained: A Real Bitcoin Example\n\nSee live whale moves (free): https://marketradarwhale.com/en/whales/\nTelegram whale alerts bot: https://t.me/MarketRadarWhaleBot\n\nData: real Bitcoin 4-hour candles from a public market data feed (November 8: low $75,640, close $75,907), November 12, 2026. Education only, not financial advice. Every picture is drawn by our own code (no stock photos, no AI images); the narrator is a synthetic voice.",
+ "durationS": 67.8,
+ "style": "v6",
+ "steps": [
+  {
+   "start": 0,
+   "end": 4.43,
+   "say": "This one candle can warn you that a fall may be ending.",
+   "kw": "ONE CANDLE, BIG CLUE",
+   "sub": "",
+   "tags": [
+    "candle",
+    "fall"
+   ],
+   "chapter": "",
+   "visual": {
+    "type": "scene",
+    "draw": "hook",
+    "args": {}
+   },
+   "key": "caddd376cc208f4a"
+  },
+  {
+   "start": 4.43,
+   "end": 6.89,
+   "say": "Traders call it the hammer.",
+   "kw": "HAMMER",
+   "sub": "",
+   "tags": [
+    "hammer"
+   ],
+   "chapter": "",
+   "visual": {
+    "type": "card",
+    "draw": "hammer",
+    "args": {
+     "icon": "hammer"
+    }
+   },
+   "key": "e3cdf531e538977d"
+  },
+  {
+   "start": 6.89,
+   "end": 9.78,
+   "say": "It has a small body near the top.",
+   "kw": "SMALL BODY ON TOP",
+   "sub": "",
+   "tags": [
+    "body",
+    "top"
+   ],
+   "chapter": "",
+   "visual": {
+    "type": "diagram",
+    "draw": "hammer",
+    "args": {
+     "part": "body"
+    }
+   },
+   "key": "bbb1c2b0b4fde5a9"
+  },
+  {
+   "start": 9.78,
+   "end": 14.47,
+   "say": "Its lower wick is long, at least 2 times the body.",
+   "kw": "WICK ≥ 2× BODY",
+   "sub": "",
+   "tags": [
+    "wick",
+    "body"
+   ],
+   "chapter": "",
+   "visual": {
+    "type": "diagram",
+    "draw": "ratio",
+    "args": {}
+   },
+   "key": "1e13168ebb7bf3d9"
+  },
+  {
+   "start": 14.47,
+   "end": 18.28,
+   "say": "That wick means sellers pushed the price down hard.",
+   "kw": "SELLERS PUSHED DOWN",
+   "sub": "",
+   "tags": [
+    "sellers",
+    "down"
+   ],
+   "chapter": "",
+   "visual": {
+    "type": "diagram",
+    "draw": "push",
+    "args": {
+     "dir": "down"
+    }
+   },
+   "key": "e486180df9ca704a"
+  },
+  {
+   "start": 18.28,
+   "end": 22.25,
+   "say": "But buyers pushed it back up before the candle closed.",
+   "kw": "BUYERS PUSHED BACK",
+   "sub": "",
+   "tags": [
+    "buyers",
+    "back"
+   ],
+   "chapter": "",
+   "visual": {
+    "type": "diagram",
+    "draw": "push",
+    "args": {
+     "dir": "up"
+    }
+   },
+   "key": "98f241f77dabf653"
+  },
+  {
+   "start": 22.25,
+   "end": 24.9,
+   "say": "So the buyers won this battle.",
+   "kw": "BUYERS WON",
+   "sub": "",
+   "tags": [
+    "buyers",
+    "battle"
+   ],
+   "chapter": "",
+   "visual": {
+    "type": "scene",
+    "draw": "battle",
+    "args": {}
+   },
+   "key": "a9b820cbbcb3bb12"
+  },
+  {
+   "start": 24.9,
+   "end": 28.56,
+   "say": "A hammer matters most at the end of a downtrend.",
+   "kw": "AFTER A DOWNTREND",
+   "sub": "",
+   "tags": [
+    "downtrend"
+   ],
+   "chapter": "",
+   "visual": {
+    "type": "diagram",
+    "draw": "downtrend",
+    "args": {}
+   },
+   "key": "a8888c27e37dd3f2"
+  },
+  {
+   "start": 28.56,
+   "end": 32.39,
+   "say": "Here is a real Bitcoin candle from November 8.",
+   "kw": "NOV 8: REAL BITCOIN",
+   "sub": "",
+   "tags": [
+    "bitcoin",
+    "candle"
+   ],
+   "chapter": "Real example",
+   "visual": {
+    "type": "chart",
+    "draw": "real",
+    "args": {
+     "mark": "none",
+     "label": "BITCOIN · 4H CANDLES"
+    }
+   },
+   "key": "79db13c6dc922b72"
+  },
+  {
+   "start": 32.39,
+   "end": 36.74,
+   "say": "It fell to 75,640 dollars.",
+   "kw": "LOW $75,640",
+   "sub": "",
+   "tags": [
+    "fell"
+   ],
+   "chapter": "Real example",
+   "visual": {
+    "type": "chart",
+    "draw": "real",
+    "args": {
+     "mark": "low",
+     "label": "THE LOW"
+    }
+   },
+   "key": "59b1e8acb29c4418"
+  },
+  {
+   "start": 36.74,
+   "end": 41.46,
+   "say": "Then it closed at 75,907 dollars.",
+   "kw": "CLOSE $75,907",
+   "sub": "",
+   "tags": [
+    "closed"
+   ],
+   "chapter": "Real example",
+   "visual": {
+    "type": "chart",
+    "draw": "real",
+    "args": {
+     "mark": "close",
+     "label": "THE CLOSE"
+    }
+   },
+   "key": "f7a3d654069cfb9e"
+  },
+  {
+   "start": 41.46,
+   "end": 46.78,
+   "say": "Small body on top, long lower wick: a real hammer.",
+   "kw": "A REAL HAMMER",
+   "sub": "",
+   "tags": [
+    "hammer",
+    "wick"
+   ],
+   "chapter": "Real example",
+   "visual": {
+    "type": "chart",
+    "draw": "real",
+    "args": {
+     "mark": "shape",
+     "label": "THE SHAPE"
+    }
+   },
+   "key": "e6be7b66ca8868cc"
+  },
+  {
+   "start": 46.78,
+   "end": 51.9,
+   "say": "5 candles later, Bitcoin was 1.4 percent lower.",
+   "kw": "-1.4% IN 5 CANDLES",
+   "sub": "",
+   "tags": [
+    "bitcoin",
+    "lower"
+   ],
+   "chapter": "Real example",
+   "visual": {
+    "type": "chart",
+    "draw": "real",
+    "args": {
+     "mark": "after",
+     "label": "5 CANDLES LATER"
+    }
+   },
+   "key": "ab4a9abe229f58ad"
+  },
+  {
+   "start": 51.9,
+   "end": 56.93,
+   "say": "Wait for the next candle to close higher. That is confirmation.",
+   "kw": "WAIT FOR CONFIRMATION",
+   "sub": "",
+   "tags": [
+    "confirmation",
+    "next"
+   ],
+   "chapter": "",
+   "visual": {
+    "type": "diagram",
+    "draw": "confirm",
+    "args": {}
+   },
+   "key": "dd815cb1461f8764"
+  },
+  {
+   "start": 56.93,
+   "end": 59.99,
+   "say": "Put your stop loss just below the wick.",
+   "kw": "STOP LOSS UNDER THE WICK",
+   "sub": "",
+   "tags": [
+    "stop",
+    "wick"
+   ],
+   "chapter": "",
+   "visual": {
+    "type": "diagram",
+    "draw": "stop",
+    "args": {}
+   },
+   "key": "e01fb4deddb9f3b7"
+  },
+  {
+   "start": 59.99,
+   "end": 63.48,
+   "say": "A hammer is a clue, never a promise.",
+   "kw": "A CLUE, NOT A PROMISE",
+   "sub": "",
+   "tags": [
+    "clue"
+   ],
+   "chapter": "",
+   "visual": {
+    "type": "scene",
+    "draw": "clue",
+    "args": {}
+   },
+   "key": "49b6761537ef9953"
+  },
+  {
+   "start": 63.48,
+   "end": 67.76,
+   "say": "Watch live whale moves for free on MarketRadar Whale.",
+   "kw": "MARKETRADARWHALE.COM",
+   "sub": "",
+   "tags": [
+    "whale"
+   ],
+   "chapter": "",
+   "visual": {
+    "type": "end",
+    "draw": "end",
+    "args": {}
+   },
+   "key": "4a49b2a5a27d5c49"
+  }
+ ],
+ "chapters": "",
+ "data": {
+  "iv": "4h",
+  "date": "November 8",
+  "low": 75640,
+  "close": 75907,
+  "pct": -1.4,
+  "after": 5
+ },
+ "thumbHashA": null,
+ "frameHash": "2623252b5b180c00",
+ "created": "2026-11-12T17:13:24.928Z"
+}
