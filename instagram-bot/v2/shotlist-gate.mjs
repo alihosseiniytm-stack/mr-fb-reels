@@ -13,6 +13,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { KNOWN } from "./v6-draw.mjs";
 import { spokenNumbers } from "./visual.mjs";
 import { checkProof } from "./v6-patterns.mjs";
+import { checkMascot } from "./v6-mascot.mjs";
 
 export const MAX_SHOT_S = 6.0, MIN_SHOT_S = 1.0;
 // speech time estimate used BEFORE render (calibrated on the runner TTS 2026-11-12, run 43258602718: "Real example: on November 8,
@@ -45,6 +46,8 @@ export function checkShots(meta, { timed = true } = {}) {
   const proofErr = steps.some((s) => s.visual && s.visual.type === "chart" && (s.visual.args || {}).mark === "shape") ? checkProof((meta.data || {}).proof || (meta.data || {}).hammer) : "";
   steps.forEach((s, i) => {
     const v = s.visual || {};
+    const mErr = checkMascot(s.mascot);
+    if (mErr) bad(i, mErr);
     if (proofErr && v.type === "chart" && (v.args || {}).mark === "shape") bad(i, "pattern proof: " + proofErr);
     if (!s.say || !String(s.say).trim()) bad(i, "no sentence");
     if (!KNOWN[v.type]) bad(i, `visual type "${v.type}" is not a v6 type`);

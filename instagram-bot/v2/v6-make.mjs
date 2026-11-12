@@ -11,6 +11,7 @@ import { renderV6, drawFrames, svgToPng } from "./v6.mjs";
 import { hammerData, hammerLesson } from "./v6-hammer.mjs";
 import { C, T, candle } from "./v6-draw.mjs";
 import { checkShots } from "./shotlist-gate.mjs";
+import { tagMascot } from "./v6-mascot.mjs";
 import { readFileSync } from "node:fs";
 
 const here = (p) => fileURLToPath(new URL(p, import.meta.url));
@@ -23,6 +24,7 @@ await mkdir(out, { recursive: true });
 const name = `${kind}-${topic}`, work = `${out}/.work-${name}`;
 const data = await tp.data();
 const L = tp.lesson(kind, data);
+tagMascot(L.steps, topic);
 const pre = checkShots({ style: "v6", steps: L.steps, data: { hammer: data.hammer } }, { timed: false });
 if (!pre.pass) { console.log("shot plan FAIL\n" + pre.fails.join("\n")); process.exit(3); }
 
@@ -54,12 +56,12 @@ if (kind === "long") {
   thumbHashA = imageHash(`${out}/${name}-thumbA.png`);
 }
 frameAt(mp4, 2, `${out}/.f.png`);
-const meta = { kind, day: topic, topic, title: L.title, text, description, durationS: Math.round(r.durationMs / 100) / 10, style: "v6", steps: r.steps, chapters: r.chapters,
+const meta = { kind, day: topic, topic, title: L.title, text, description, durationS: Math.round(r.durationMs / 100) / 10, style: "v6", mascot: r.mascot, steps: r.steps, chapters: r.chapters,
   data: { iv: data.iv, date: `${data.month} ${data.day}`, low: data.low, close: data.close, pct: data.pct, after: data.after, hammer: data.hammer }, thumbHashA, frameHash: imageHash(`${out}/.f.png`), created: new Date().toISOString() };
 await writeFile(`${out}/${name}.meta.json`, JSON.stringify(meta, null, 1));
 // shot-list table (sentence -> keyword -> picture) for the owner/vizier review
-const md = [`# ${L.title} (${kind}, v6) - shot list`, "", "| # | time | sentence | on screen | picture (type: drawing) | tags |", "|---|---|---|---|---|---|",
-  ...r.steps.map((s, i) => `| ${i + 1} | ${s.start.toFixed(1)}-${s.end.toFixed(1)}s (${(s.end - s.start).toFixed(1)}s) | ${s.say} | ${s.kw} | ${s.visual.type}: ${s.visual.draw}${Object.keys(s.visual.args).length ? " " + JSON.stringify(s.visual.args).replace(/\|/g, "/") : ""} | ${s.tags.join(", ")} |`)].join("\n");
+const md = [`# ${L.title} (${kind}, v6) - shot list`, "", "| # | time | sentence | on screen | picture (type: drawing) | tags | mascot (pose/emotion/outfit) |", "|---|---|---|---|---|---|---|",
+  ...r.steps.map((s, i) => `| ${i + 1} | ${s.start.toFixed(1)}-${s.end.toFixed(1)}s (${(s.end - s.start).toFixed(1)}s) | ${s.say} | ${s.kw} | ${s.visual.type}: ${s.visual.draw}${Object.keys(s.visual.args).length ? " " + JSON.stringify(s.visual.args).replace(/\|/g, "/") : ""} | ${s.tags.join(", ")} | ${s.mascot ? [s.mascot.pose, s.mascot.emotion, s.mascot.outfit, s.mascot.prop].filter(Boolean).join("/") : "-"} |`)].join("\n");
 await writeFile(`${out}/${name}-shotlist.md`, md + "\n");
 // frame strip: 8 frames at the middle of evenly spread steps, 4x2 grid
 const pick = [...Array(8)].map((_, k) => r.steps[Math.round((k * (r.steps.length - 1)) / 7)]);

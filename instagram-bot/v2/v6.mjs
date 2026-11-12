@@ -12,6 +12,7 @@ import { synthesizeNarration, probeDurationMs, computeMouthEnvelope } from "../s
 import { SIZES } from "./lib.mjs";
 import { assFile, motionClip, SAFE } from "./v3.mjs";
 import { C, T, drawPicture, cardSvg, whale } from "./v6-draw.mjs";
+import { mascotSvg, mouthFrames, blinkFrames, MASCOT_BOX } from "./v6-mascot.mjs";
 
 const here = (p) => fileURLToPath(new URL(p, import.meta.url));
 const LAUNCH = process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {};
@@ -35,7 +36,7 @@ export function frameSvg(kind, st, data, lesson) {
   let s = `<rect width="${W}" height="${H}" fill="${C.navy}"/>`;
   s += T(short ? 44 : 70, short ? 120 : 62, BRAND + " · " + lesson, short ? 34 : 30, C.grey, "start", `letter-spacing="3"`);
   if (v.type === "card") {
-    s += cardSvg(W, H, { ...(v.args || {}), big: st.kw, small: st.sub || "", cx: short ? SAFE.short.right / 2 + 10 : W / 2, cy: short ? 820 : 600 });
+    s += cardSvg(W, H, { ...(v.args || {}), big: st.kw, small: st.sub || "", cx: short ? SAFE.short.right / 2 + 10 : 820, cy: short ? 820 : 600 });
   } else if (v.type === "end") {
     const cx = short ? 459 : W / 2, top = short ? 300 : 140;
     s += whale(cx, top + 220, short ? 1.2 : 1.0);
@@ -50,15 +51,15 @@ export function frameSvg(kind, st, data, lesson) {
     s += `<rect x="${P.x}" y="${P.y}" width="${P.s}" height="${P.s}" rx="34" fill="${C.cream}" stroke="${C.ink}" stroke-width="8"/>`;
     s += `<g transform="translate(${P.x} ${P.y}) scale(${P.s / 1000})">${drawPicture(v, data)}</g>`;
     if (short) {
-      const lines = wrap(st.kw, 18), sz = Math.min(...lines.map((l) => fit(l, 830, 96, 0.58)));
-      lines.forEach((l, i) => { s += T(459, 1190 + i * (sz + 12), l, sz, C.yellow); });
-      if (st.sub) s += T(459, 1190 + lines.length * (sz + 12) + 10, st.sub, 44, C.cream);
+      const lines = wrap(st.kw, 12), sz = Math.min(...lines.map((l) => fit(l, 580, 96, 0.58)));
+      lines.forEach((l, i) => { s += T(615, 1180 + i * (sz + 12), l, sz, C.yellow); });
+      if (st.sub) wrap(st.sub, 22).forEach((l, i) => { s += T(615, 1180 + lines.length * (sz + 12) + 10 + i * 52, l, 44, C.cream); });
     } else {
       const X = 940, lines = wrap(st.kw, 15), sz = Math.min(...lines.map((l) => fit(l, 880, 124, 0.6)));
       s += `<rect x="${X}" y="140" width="12" height="${lines.length * (sz + 14) + 70}" fill="${C.yellow}"/>`;
       s += T(X + 44, 200, String(st.chapter || "").toUpperCase(), 36, C.grey, "start", `letter-spacing="2"`);
       lines.forEach((l, i) => { s += T(X + 44, 220 + (i + 1) * (sz + 14), l, sz, C.white, "start"); });
-      if (st.sub) wrap(st.sub, 34).forEach((l, i) => { s += T(X + 44, 300 + lines.length * (sz + 14) + i * 60, l, 46, C.cream, "start"); });
+      if (st.sub) wrap(st.sub, 24).forEach((l, i) => { s += T(X + 44, 300 + lines.length * (sz + 14) + i * 60, l, 46, C.cream, "start"); });
     }
   }
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${s}</svg>`;
@@ -71,6 +72,35 @@ export async function svgToPng(page, svg, W, H, path, font) {
   await page.screenshot({ path });
 }
 export const sha = (buf) => createHash("sha1").update(buf).digest("hex").slice(0, 16);
+
+// MASCOT TRACK (D189/D190): per video frame the puppet of that sentence, mouth 0/1/2 from the voice loudness, blink every 3-6 s.
+// Rendered as transparent PNGs (one per used pose/mouth/blink state) + an ffmpeg concat list (m.txt) overlaid in front of the picture.
+export async function mascotTrack(kind, steps, work, total, fps = 30) {
+  const B = MASCOT_BOX[kind], w = Math.round(360 * B.scale), h = Math.round(440 * B.scale), N = Math.round(total * fps);
+  const blink = blinkFrames(N, steps.length * 13 + 5), seq = [];
+  steps.forEach((st, i) => {
+    const f0 = Math.round(st.start * fps), f1 = i === steps.length - 1 ? N : Math.round((st.start + st.dur) * fps);
+    const vals = st.env || [...Array(Math.ceil((st.dur * 1000) / 20))].map((_, j) => (j * 20) / 1000 + st.start >= st.speech[0] && (j * 20) / 1000 + st.start <= st.speech[1] ? (j % 8 < 5 ? 1 : 0.3) : 0);
+    const mouth = mouthFrames(vals, f1 - f0, 20, fps);
+    for (let f = f0; f < f1; f++) seq.push(`${i}_${mouth[f - f0]}${blink[f] ? "b" : ""}`);
+  });
+  const browser = await chromium.launch(LAUNCH), page = await browser.newPage(), font = fontUri(), done = new Set();
+  await page.setViewportSize({ width: w, height: h });
+  for (const k of new Set(seq)) {
+    const [i, m] = k.split("_"), st = steps[+i];
+    await page.setContent(`<!doctype html><html><head><style>@font-face{font-family:V;src:url(${font})}*{margin:0}html,body{background:transparent}</style></head><body><svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 360 440">${mascotSvg(st.mascot, +m[0], m.endsWith("b"))}</svg></body></html>`);
+    await page.screenshot({ path: `${work}/m${k}.png`, omitBackground: true });
+    done.add(k);
+  }
+  await browser.close();
+  const runs = [];
+  for (const k of seq) { if (runs.length && runs.at(-1).k === k) runs.at(-1).n++; else runs.push({ k, n: 1 }); }
+  const wd = work.split("\\").join("/");
+  const lines = runs.flatMap((r) => [`file '${wd}/m${r.k}.png'`, `duration ${(r.n / fps).toFixed(4)}`]);
+  lines.push(`file '${wd}/m${runs.at(-1).k}.png'`);
+  await writeFile(`${work}/m.txt`, lines.join(String.fromCharCode(10)));
+  return { x: B.x, y: B.y, states: done.size, frames: N, mouthOpen: seq.filter((k) => !/_0/.test(k)).length };
+}
 
 // draw every frame only (no audio/video): used by the local preview and by renderV6
 export async function drawFrames({ kind, steps, data, lesson, dir }) {
@@ -101,15 +131,16 @@ export async function renderV6({ kind, steps, data, lesson, outPath, work }) {
     const dur = probeDurationMs(wav) / 1000, env = computeMouthEnvelope(mp3, 20);
     let s0 = 0, s1 = nar.durationMs / 1000;
     if (env) { const v = env.values, f = v.findIndex((x) => x > 0.05), l = v.length - 1 - [...v].reverse().findIndex((x) => x > 0.05); if (f >= 0) { s0 = (f * 20) / 1000; s1 = ((l + 1) * 20) / 1000; } }
-    Object.assign(st, { start: t, dur, speech: [t + s0, t + s1], wav });
+    Object.assign(st, { start: t, dur, speech: [t + s0, t + s1], wav, env: env ? env.values : null });
     t += dur;
   }
   const total = t;
+  const mOv = await mascotTrack(kind, steps, work, total);
   const vl = steps.map((st, i) => `file '${motionClip(i, st, size, work, Math.round(st.start * 30), Math.round((st.start + st.dur) * 30)).replace(/\\/g, "/")}'`);
   await writeFile(`${work}/v.txt`, vl.join("\n"));
   await writeFile(`${work}/a.txt`, steps.map((s) => `file '${s.wav.replace(/\\/g, "/")}'`).join("\n"));
   run("ffmpeg", ["-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", `${work}/a.txt`, "-c:a", "pcm_s16le", `${work}/narration.wav`]);
-  const cap = kind === "short" ? { size: 84, marginV: 1920 - 1536 + 16, marginL: 44, marginR: 1080 - 918 + 10 } : { size: 60, marginV: 40, marginL: 48, marginR: 48 };
+  const cap = kind === "short" ? { size: 84, marginV: 1920 - 1536 + 16, marginL: 310, marginR: 1080 - 918 + 10 } : { size: 60, marginV: 40, marginL: 48, marginR: 360 };
   await writeFile(`${work}/subs.ass`, assFile(steps, size, cap, kind, true));
   const pad = "0.02*(sin(2*PI*110*t)+0.7*sin(2*PI*164.81*t)+0.5*sin(2*PI*220*t)+0.35*sin(2*PI*277.18*t)+0.25*sin(2*PI*329.63*t+2*sin(2*PI*0.1*t)))*(0.75+0.25*sin(2*PI*0.2*t))";
   await mkdir(outPath.replace(/[\\/][^\\/]+$/, ""), { recursive: true });
@@ -120,8 +151,8 @@ export async function renderV6({ kind, steps, data, lesson, outPath, work }) {
   const meas = spawnSync("ffmpeg", ["-hide_banner", "-nostats", "-i", "mix.wav", "-af", `loudnorm=${LN}:print_format=json`, "-f", "null", "-"], { cwd: work, encoding: "utf8", maxBuffer: 1 << 26 }).stderr || "";
   const lj = JSON.parse(meas.slice(meas.lastIndexOf("{"), meas.lastIndexOf("}") + 1));
   const lnf = `loudnorm=${LN}:measured_I=${lj.input_i}:measured_TP=${lj.input_tp}:measured_LRA=${lj.input_lra}:measured_thresh=${lj.input_thresh}:offset=${lj.target_offset}:linear=true,aresample=48000`;
-  run("ffmpeg", ["-y", "-v", "error", "-threads", "2", "-f", "concat", "-safe", "0", "-i", "v.txt", "-i", "mix.wav",
-    "-filter_complex", `[0:v]fps=30,scale=out_range=tv,format=yuv420p,ass=subs.ass:fontsdir=fonts,format=yuv420p[v];[1:a]${lnf}[a]`,
+  run("ffmpeg", ["-y", "-v", "error", "-threads", "2", "-f", "concat", "-safe", "0", "-i", "v.txt", "-i", "mix.wav", "-f", "concat", "-safe", "0", "-i", "m.txt",
+    "-filter_complex", `[0:v]fps=30,scale=out_range=tv,format=yuv420p[bg];[2:v]fps=30,format=rgba[mm];[bg][mm]overlay=${mOv.x}:${mOv.y}:format=auto,ass=subs.ass:fontsdir=fonts,format=yuv420p[v];[1:a]${lnf}[a]`,
     "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-profile:v", "high", "-pix_fmt", "yuv420p", "-color_range", "tv", "-preset", "veryfast", "-b:v", "8M", "-maxrate", "10M", "-bufsize", "16M",
     "-r", "30", "-fps_mode", "cfr", "-g", "15", "-keyint_min", "15", "-sc_threshold", "0", "-bf", "2", "-flags", "+cgop",
     "-c:a", "aac", "-profile:a", "aac_low", "-b:a", "192k", "-ar", "48000", "-ac", "2", "-t", total.toFixed(3), "-movflags", "+faststart", outPath.replace(/\\/g, "/")], work);
@@ -131,7 +162,7 @@ export async function renderV6({ kind, steps, data, lesson, outPath, work }) {
   if (ch.length && total - ch.at(-1).start < 10) ch.pop();
   const mmss = (s) => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
   const chapters = ch.length >= 3 ? ch.map((c, i) => `${i ? mmss(c.start) : "0:00"} ${c.title}`).join("\n") : "";
-  const stepLog = steps.map((s) => ({ start: +s.start.toFixed(2), end: +(s.start + s.dur).toFixed(2), say: s.say, kw: s.kw, sub: s.sub || "", tags: s.tags, chapter: s.chapter || "",
+  const stepLog = steps.map((s) => ({ mascot: s.mascot, start: +s.start.toFixed(2), end: +(s.start + s.dur).toFixed(2), say: s.say, kw: s.kw, sub: s.sub || "", tags: s.tags, chapter: s.chapter || "",
     visual: { type: s.visual.type, draw: s.visual.draw, args: s.visual.args || {} }, key: s.key }));
-  return { durationMs: probeDurationMs(outPath), steps: stepLog, chapters, style: "v6" };
+  return { durationMs: probeDurationMs(outPath), steps: stepLog, chapters, style: "v6", mascot: mOv };
 }

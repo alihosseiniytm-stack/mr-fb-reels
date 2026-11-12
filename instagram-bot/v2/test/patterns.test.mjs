@@ -32,7 +32,8 @@ for (const [key, [good, badKs]] of Object.entries(CASES)) {
 test("findPattern finds the hammer index in real-like data", () => { const ks = [...CASES.hammer[0], ...rise().slice(0, 5)]; assert.equal(findPattern("hammer", ks, 5), 8); });
 
 const D = { iv: "1d", month: "October", day: 11, low: 81, close: 86, pct: 6.2, after: 5 };
-const timed = (steps) => steps.map((s, i) => ({ ...s, start: i * 4, end: (i + 1) * 4, key: "k" + i }));
+import { tagMascot } from "../v6-mascot.mjs";
+const timed = (steps) => tagMascot(steps, "hammer").map((s, i) => ({ ...s, start: i * 4, end: (i + 1) * 4, key: "k" + i }));
 test("hammer video with a TRUE hammer circled passes the gate", () => {
   const r = checkShots({ style: "v6", steps: timed(hammerLesson("short", D).steps), data: { hammer: patternProof("hammer", CASES.hammer[0], 8) } });
   assert.ok(!r.fails.some((f) => /pattern proof/.test(f)), r.fails.join("\n"));

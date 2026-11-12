@@ -1,0 +1,24 @@
+// character sheet (T50-08 D189/D190): node v2/v6-mascot-sheet.mjs [out.png] -> 12 poses x 4 outfits (+ mouth/blink row) of the v6 puppet
+import { chromium } from "playwright";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { POSES, OUTFITS, PROPS, mascotSvg } from "./v6-mascot.mjs";
+const here = (p) => fileURLToPath(new URL(p, import.meta.url));
+const out = process.argv[2] || here("../../samples/v6/mascot_sheet.png");
+const poses = Object.keys(POSES), outs = Object.keys(OUTFITS), cw = 200, ch = 270;
+const cell = (x, y, m, open, blink, label) => `<g transform="translate(${x} ${y})"><rect width="${cw - 8}" height="${ch - 8}" rx="12" fill="#f6efe2" stroke="#141a2e" stroke-width="3"/><g transform="translate(6 4) scale(0.5)">${mascotSvg(m, open, blink)}</g><text x="${(cw - 8) / 2}" y="${ch - 18}" font-size="17" text-anchor="middle" font-family="V" font-weight="700" fill="#141a2e">${label}</text></g>`;
+let s = "";
+outs.forEach((o, r) => poses.forEach((p, c) => { s += cell(20 + c * cw, 80 + r * ch, { pose: p, outfit: o, emotion: POSES[p].emo }, 0, false, r ? o : p); }));
+const y5 = 80 + outs.length * ch;
+[["mouth 0", 0, false], ["mouth 1", 1, false], ["mouth 2", 2, false], ["blink", 0, true]].forEach(([l, op, bl], c) => { s += cell(20 + c * cw, y5, { pose: "talk", outfit: "jacket", emotion: "neutral" }, op, bl, l); });
+Object.keys(PROPS).filter((p) => p !== "none").forEach((p, c) => { s += cell(20 + (5 + c) * cw, y5, { pose: p === "board" ? "explain_board" : p === "phone" ? "phone" : "talk", outfit: "jacket", emotion: "happy", prop: p }, 0, false, "prop " + p); });
+const W = 40 + poses.length * cw, H = y5 + ch + 20;
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><rect width="${W}" height="${H}" fill="#1d2748"/><text x="20" y="52" font-size="34" font-family="V" font-weight="700" fill="#ffc845">MarketRadar v6 mascot (option B) - 12 poses x 4 outfits, fixed face, mouth 0/1/2 + blink, 4 props</text>${s}</svg>`;
+const font = "data:font/ttf;base64," + readFileSync(here("../templates/fonts/Vazirmatn-Bold.ttf")).toString("base64");
+const b = await chromium.launch(process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {}), page = await b.newPage();
+await page.setViewportSize({ width: W, height: H });
+await page.setContent(`<!doctype html><html><head><style>@font-face{font-family:V;src:url(${font})}*{margin:0}text{font-family:V}</style></head><body>${svg}</body></html>`);
+await page.evaluate(() => document.fonts.ready);
+await page.screenshot({ path: out });
+await b.close();
+console.log("SHEET", out, poses.length, "poses x", outs.length, "outfits");
