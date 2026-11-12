@@ -28,7 +28,7 @@ const mode = arg("mode"); // "data" | "tour"
 const dryRun = String(process.env.DRY_RUN ?? "true").toLowerCase() !== "false";
 
 if (!lang || !LANGS[lang]) throw new Error("Pass --lang=en or --lang=fa");
-if (!["data", "tour"].includes(mode)) throw new Error("Pass --mode=data or --mode=tour");
+if (!["data", "tour", "v6"].includes(mode)) throw new Error("Pass --mode=data, --mode=tour or --mode=v6 --meta=<file.meta.json>");
 
 const L = LANGS[lang];
 const outDir = fileURLToPath(new URL("../out/", import.meta.url));
@@ -58,6 +58,19 @@ function breakingIntro(lang, dateLabel) {
 const BG_PATH_BY_SOURCE = { hl: "/trade/hyperliquid", sol: "/whales-solana/" };
 
 let videoPath, caption, key, narration;
+
+// v6 (T50-08 v6c, owner D195 2026-11-12: every video on every platform = v6): the video was rendered by v2/v6-make.mjs and passed the
+// v6 shot-list gate in an earlier workflow step; here we only post it (no old-style render path is reachable in this mode).
+if (mode === "v6") {
+  const { readFileSync } = await import("node:fs");
+  const metaFile = arg("meta");
+  if (!metaFile) throw new Error("--mode=v6 needs --meta=<file.meta.json>");
+  const m = JSON.parse(readFileSync(metaFile, "utf8"));
+  if (m.style !== "v6") throw new Error("--mode=v6: meta.style is not v6, refusing to post");
+  videoPath = metaFile.replace(/\.meta\.json$/, ".mp4");
+  caption = m.title + "\n\n" + m.description.split("\n\nChapters:")[0] + "\n\n#crypto #bitcoin #trading #cryptoeducation #marketradar";
+  key = `${lang}/v6-${m.topic}-${Date.now()}.mp4`;
+}
 
 if (mode === "data") {
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 864e5);
@@ -109,7 +122,7 @@ if (mode === "data") {
   caption = dataCaption(lang, pick);
   key = `${lang}/data-${Date.now()}.mp4`;
   state.history.lastSource = pick.source;
-} else {
+} else if (mode === "tour") {
   // Site-tour lesson: the same teacher-whale-and-blackboard format as the data reels, but the cards are
   // the section's talking points, appearing one by one as the whale explains each (see config.mjs).
   const section = SECTIONS[state.history.tourIndex % SECTIONS.length];

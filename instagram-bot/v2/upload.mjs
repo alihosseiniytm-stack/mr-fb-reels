@@ -34,6 +34,6 @@ if (!short) {
 const url = (short ? "https://youtube.com/shorts/" : "https://youtube.com/watch?v=") + out.id;
 const logFile = fileURLToPath(new URL("./uploads-log.json", import.meta.url));
 const log = existsSync(logFile) ? JSON.parse(readFileSync(logFile, "utf8")) : [];
-log.unshift({ kind: meta.kind, v2: true, date: new Date().toISOString(), url, title: meta.title, text: meta.text, topic: meta.topic, thumbHashA: meta.thumbHashA, frameHash: meta.frameHash, thumb, privacy });
+log.unshift({ kind: meta.kind, v2: true, date: new Date().toISOString(), url, title: meta.title, text: meta.text, topic: meta.topic, thumbHashA: meta.thumbHashA, frameHash: meta.frameHash, thumb, privacy, test: privacy !== "public" });
 writeFileSync(logFile, JSON.stringify(log.slice(0, 200), null, 1));
 console.log("UPLOADED", url, privacy, "thumb:", thumb);

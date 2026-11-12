@@ -125,6 +125,12 @@ export function whale(x, y, s = 1) {
 }
 const screen = (x, y, w, h, inner) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="22" fill="${C.navy2}" stroke="${C.ink}" stroke-width="${SW}"/><g>${inner}</g>`;
 
+// the pattern's own candles, small (hook/clue scenes: the picture must show THIS lesson's pattern, not a hammer; v6c strip fix 2026-11-12)
+function miniPattern(key, cx, y0, y1, w) {
+  const ks = TEXTBOOK[key].ks, lo = Math.min(...ks.map((k) => k[3])), hi = Math.max(...ks.map((k) => k[2])), y = lin(lo, hi, y1, y0);
+  const ww = ks.length > 1 ? Math.min(w, 260 / ks.length) : w, dx = ww * 1.5;
+  return ks.map((k, i) => candle(cx + (i - (ks.length - 1) / 2) * dx, k[1], k[2], k[3], k[4], y, ww)).join("");
+}
 // textbook pattern picture (generic candle lessons, v6-candles.mjs): 4 trend candles + the pattern; focus = trend | shape | next
 const TB = (o, h, l, c) => [0, o, h, l, c];
 export const TEXTBOOK = {
@@ -150,9 +156,9 @@ DRAW.pattern = ({ key, focus = "shape" }) => {
 };
 const SCENE = {
   // trader surprised in front of a screen with one candle
-  hook() {
+  hook({ key } = {}) {
     const y = lin(0, 100, 620, 230);
-    return screen(380, 140, 560, 560, candle(660, 76, 86, 22, 84, y, 110) + T(660, 670, "?", 70, C.yellow)) + trader(220, 760, 1.15, { mood: "surprised", arm: "up" });
+    return screen(380, 140, 560, 560, (TEXTBOOK[key] ? miniPattern(key, 660, 230, 600, 110) : candle(660, 76, 86, 22, 84, y, 110)) + T(660, 670, "?", 70, C.yellow)) + trader(220, 760, 1.15, { mood: "surprised", arm: "up" });
   },
   // tug of war: sellers (red) vs buyers (green); winner = "buyers"
   battle({ winner = "buyers" } = {}) {
@@ -161,9 +167,9 @@ const SCENE = {
     return s + T(250, 900, "SELLERS", 54, C.red) + T(740, 900, "BUYERS", 54, C.green) + arrow(640, 380, 860, 380, C.green, 16);
   },
   // trader with magnifier finds a clue (hammer)
-  clue() {
+  clue({ key } = {}) {
     const y = lin(0, 100, 640, 300);
-    return `<rect x="560" y="230" width="340" height="480" rx="20" fill="${C.white}" stroke="${C.ink}" stroke-width="${SW}"/>` + candle(730, 76, 86, 22, 84, y, 90) + T(730, 680, "CLUE", 52, C.red) +
+    return `<rect x="560" y="230" width="340" height="480" rx="20" fill="${C.white}" stroke="${C.ink}" stroke-width="${SW}"/>` + (TEXTBOOK[key] ? miniPattern(key, 730, 300, 620, 90) : candle(730, 76, 86, 22, 84, y, 90)) + T(730, 680, "CLUE", 52, C.red) +
       trader(300, 780, 1.1, { mood: "happy", arm: "up", prop: "magnifier" });
   },
   // trader with a shield = protect money

@@ -6,6 +6,9 @@ name: Facebook Reels — English
 # English Facebook Page. Nothing is published unless dry_run is false: scheduled runs follow the repository variable
 # FB_DRY_RUN (default "true" = generate only).
 
+# T50-08 v6c 2026-11-12 (owner D195): NOW POSTS ONLY v6 (own drawings + option-B mascot); render + v6 shot-list gate BEFORE the post line
+# (R65 video-style gate checks this). Old data/tour reel version kept as facebook-en.yml.v5.disabled (plan B).
+
 on:
   # PAUSED 2026-11-03 (T10-50, lane2-video): the Make webhook answers "HTTP 400 Queue is full" since 11-02 = the Make scenario
   # "MarketRadar Reels to Facebook EN" stopped taking posts (owner: open Make, clear the queue / turn the scenario on / check ops).
@@ -59,7 +62,22 @@ jobs:
             echo "dry_run=${{ vars.FB_DRY_RUN || 'true' }}" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Generate and (maybe) publish reel
+      - name: v6 tests (bad shot list / non-pattern / missing mascot tags must FAIL)
+        working-directory: instagram-bot
+        run: node --test v2/test/*.test.mjs
+
+      - name: Render today's v6 Short (owner D195 - every video on every platform = v6)
+        working-directory: instagram-bot
+        run: |
+          T=$(node v2/v6-pick.mjs --slot=main | sed -n 's/^topic=//p'); node v2/v6-pick.mjs --slot=main | head -1
+          node v2/v6-make.mjs --kind=short --topic=$T --out=out
+
+      - name: v6 shot-list gate + standards gate (FAIL = not posted)
+        working-directory: instagram-bot
+        run: |
+          for m in out/*.meta.json; do node v2/shotlist-gate.mjs $m; n=$(basename $m .meta.json); node v2/standards-check.mjs out $n; done
+
+      - name: Post the v6 Short (Facebook via Make)
         working-directory: instagram-bot
         env:
           PLATFORM: fb
@@ -67,14 +85,19 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           MAKE_FB_WEBHOOK_URL: ${{ secrets.MAKE_FB_WEBHOOK_URL }}
-        run: node scripts/run.mjs --lang=en --mode=data
+        run: node scripts/run.mjs --lang=en --mode=v6 --meta=$(ls out/short-*.meta.json | head -1)
 
       - name: Upload generated video for review
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: facebook-en-${{ github.run_id }}
-          path: instagram-bot/out/*.mp4
+          path: |
+            instagram-bot/out/*.mp4
+            instagram-bot/out/*.meta.json
+            instagram-bot/out/*-strip.png
+            instagram-bot/out/*-shotlist.md
+            instagram-bot/out/*.txt
           if-no-files-found: ignore
           retention-days: 14
 

@@ -1,0 +1,73 @@
+name: Instagram Reels (v6, via Buffer)
+
+# T50-08 v6c (owner D196 2026-11-12): Instagram posts the same v6 Short. cron OFF until the owner connects the IG pages in Buffer
+# (owner-decision: which page = which language) and one dry_run=false dispatch is green. Secret BUFFER_API_KEY, var BUFFER_IG_CHANNEL_EN.
+# Render + v6 shot-list gate run BEFORE the post line (R65 video-style gate). Video URL = gh-pages copy (scripts/upload-video.mjs).
+on:
+  # schedule:
+  #   - cron: "45 21 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (build the Buffer request, send nothing)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ig-reels
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+      - name: Install
+        working-directory: instagram-bot
+        run: |
+          npm install
+          sudo apt-get update -y
+          sudo apt-get install -y fonts-noto-core ffmpeg espeak-ng
+          npx playwright install --with-deps chromium
+      - name: v6 tests
+        working-directory: instagram-bot
+        run: node --test v2/test/*.test.mjs
+      - name: Render today's v6 Short
+        working-directory: instagram-bot
+        run: |
+          T=$(node v2/v6-pick.mjs --slot=main | sed -n 's/^topic=//p')
+          node v2/v6-make.mjs --kind=short --topic=$T --out=out
+      - name: v6 shot-list gate + standards gate (FAIL = not posted)
+        working-directory: instagram-bot
+        run: for m in out/*.meta.json; do node v2/shotlist-gate.mjs $m; n=$(basename $m .meta.json); node v2/standards-check.mjs out $n; done
+      - name: Post to Instagram via Buffer (dry run = print the request only)
+        working-directory: instagram-bot
+        env:
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          M=$(ls out/short-*.meta.json | head -1)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.dry_run }}" = "true" ]; then
+            node v2/buffer-post.mjs --meta=$M
+          else
+            URL=$(node -e 'import("./scripts/upload-video.mjs").then(async m=>console.log(await m.uploadVideo({filePath:process.argv[1],key:"en/ig-"+Date.now()+".mp4"})))' ${M%.meta.json}.mp4)
+            node v2/buffer-post.mjs --meta=$M --video-url=$URL --channel=${{ vars.BUFFER_IG_CHANNEL_EN }} --send
+          fi
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ig-reels-${{ github.run_id }}
+          path: |
+            instagram-bot/out/*.mp4
+            instagram-bot/out/*-strip.png
+            instagram-bot/out/*.txt
+          if-no-files-found: ignore
+          retention-days: 14

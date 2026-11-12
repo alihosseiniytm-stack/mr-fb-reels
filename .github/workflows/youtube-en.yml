@@ -3,9 +3,12 @@ name: YouTube Shorts — English
 # Same teacher-whale reel, uploaded DIRECTLY to YouTube (Data API v3, no Make). Secrets: YT_CLIENT_ID, YT_CLIENT_SECRET,
 # YT_REFRESH_TOKEN. Scheduled runs follow the repository variable YT_DRY_RUN (default "true" = generate only).
 
+# T50-08 v6c 2026-11-12 (owner D195): NOW POSTS ONLY v6 (own drawings + option-B mascot); render + v6 shot-list gate BEFORE the post line
+# (R65 video-style gate checks this). Old data/tour reel version kept as youtube-en.yml.v5.disabled (plan B).
+
 on:
   schedule:
-    - cron: "45 12 * * *"
+    - cron: "0 23 * * *"   # v6c: 6 PM US Eastern, second daily Short (extra slot = a different topic than yt-v2)
     # DISABLED 2026-10-30 (T50-08, owner: no repetitive site-intro videos): - cron: "45 17 * * *"
   workflow_dispatch:
     inputs:
@@ -51,26 +54,45 @@ jobs:
             echo "dry_run=${{ vars.YT_DRY_RUN || 'true' }}" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Generate and (maybe) publish reel
+      - name: v6 tests (bad shot list / non-pattern / missing mascot tags must FAIL)
+        working-directory: instagram-bot
+        run: node --test v2/test/*.test.mjs
+
+      - name: Render today's v6 Short (owner D195 - every video on every platform = v6)
+        working-directory: instagram-bot
+        run: |
+          T=$(node v2/v6-pick.mjs --slot=extra | sed -n 's/^topic=//p'); node v2/v6-pick.mjs --slot=extra | head -1
+          node v2/v6-make.mjs --kind=short --topic=$T --out=out
+
+      - name: v6 shot-list gate + standards gate (FAIL = not posted)
+        working-directory: instagram-bot
+        run: |
+          for m in out/*.meta.json; do node v2/shotlist-gate.mjs $m; n=$(basename $m .meta.json); node v2/standards-check.mjs out $n; done
+
+      - name: Similarity gate (too close to a recent upload = not posted)
+        working-directory: instagram-bot
+        run: for m in out/*.meta.json; do node v2/similarity-gate.mjs --check=$m; done
+
+      - name: Upload the v6 Short to YouTube
+        if: ${{ steps.mode.outputs.dry_run != 'true' }}
         working-directory: instagram-bot
         env:
-          PLATFORM: yt
-          DRY_RUN: ${{ steps.mode.outputs.dry_run }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          YT_UPLOAD: "true"
-          YT_PRIVACY: ${{ vars.YT_PRIVACY || 'public' }}
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
-        run: node scripts/run.mjs --lang=en --mode=${{ github.event.schedule == '45 17 * * *' && 'tour' || 'data' }}
+        run: for m in out/short-*.meta.json; do b=${m%.meta.json}; node v2/upload.mjs --meta=$m --video=$b.mp4 --privacy=${{ vars.YT_PRIVACY || 'public' }}; done
 
       - name: Upload generated video for review
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: youtube-en-${{ github.run_id }}
-          path: instagram-bot/out/*.mp4
+          path: |
+            instagram-bot/out/*.mp4
+            instagram-bot/out/*.meta.json
+            instagram-bot/out/*-strip.png
+            instagram-bot/out/*-shotlist.md
+            instagram-bot/out/*.txt
           if-no-files-found: ignore
           retention-days: 14
 
@@ -80,7 +102,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           mkdir -p instagram-bot/state/en-fb
-          git add instagram-bot/state/en-fb
+          git add instagram-bot/state/en-fb instagram-bot/v2/uploads-log.json instagram-bot/v2/gate-log.jsonl || true
           git diff --cached --quiet || git commit -m "Facebook EN bot: update state [skip ci]"
           git pull --rebase origin "${GITHUB_REF_NAME}" || true
           git push || true

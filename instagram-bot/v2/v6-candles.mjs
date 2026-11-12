@@ -45,7 +45,7 @@ export function patternLesson(kind, D) {
     step(ch, `${D.after} ${unit} later, ${D.coinName} was ${Math.abs(D.pct)} percent ${up ? "higher" : "lower"}.`, `${up ? "+" : "-"}${Math.abs(D.pct)}% IN ${D.after} ${unit.toUpperCase()}`, [D.coinName.toLowerCase(), up ? "higher" : "lower"], "chart", "real", { mark: "after", label: `${D.after} ${unit.toUpperCase()} LATER` }),
   ];
   const hook = (ch) => [
-    step(ch, T.bull ? "This pattern can warn you that a fall may be ending." : "This pattern can warn you that a rise may be ending.", T.bull ? "A FALL MAY END" : "A RISE MAY END", ["pattern", T.bull ? "fall" : "rise"], "scene", "hook"),
+    step(ch, T.bull ? "This pattern can warn you that a fall may be ending." : "This pattern can warn you that a rise may be ending.", T.bull ? "A FALL MAY END" : "A RISE MAY END", ["pattern", T.bull ? "fall" : "rise"], "scene", "hook", { key: D.key }),
     step(ch, `Traders call it the ${T.name}.`, NAME, [first], "card", T.bull ? "up" : "down", { icon: T.bull ? "up" : "down" }),
   ];
   const shape = (c1, c2) => [
@@ -58,7 +58,7 @@ export function patternLesson(kind, D) {
     step(ch, "Wait for the next candle to confirm it.", "WAIT FOR CONFIRMATION", ["next", "confirm"], "diagram", "pattern", { key: D.key, focus: "next" }),
     step(ch, T.bull ? "Put your stop loss just below the low." : "Put your stop loss just above the high.", T.bull ? "STOP LOSS UNDER THE LOW" : "STOP LOSS ABOVE THE HIGH", ["stop", "loss"], "scene", "protect"),
   ];
-  const clue = (ch) => step(ch, `A ${T.name} is a clue, never a promise.`, "A CLUE, NOT A PROMISE", ["clue"], "scene", "clue");
+  const clue = (ch) => step(ch, `A ${T.name} is a clue, never a promise.`, "A CLUE, NOT A PROMISE", ["clue"], "scene", "clue", { key: D.key });
   const end = (ch) => step(ch, "Watch live whale moves for free on MarketRadar Whale.", "MARKETRADARWHALE.COM", ["whale"], "end", "end");
   const titleName = T.name.replace(/\b\w/g, (c) => c.toUpperCase());
   if (kind === "short") return { title: `${titleName} Candle Pattern Explained: A Real ${D.coinName} Example`, steps: [...hook(""), ...shape("", ""), ...ex(""), ...use(""), clue(""), end("")] };

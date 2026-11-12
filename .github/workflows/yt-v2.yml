@@ -1,19 +1,24 @@
 name: YouTube v2 (weekday lessons + whale-story Shorts)
 
-# T50-08 / T50-01. Cron lines are COMMENTED OUT on purpose (owner reviews the samples first). To turn on: uncomment the cron lines AND set
-# instagram-bot/v2/schedule.json "enabled": true. Every upload first passes instagram-bot/v2/similarity-gate.mjs; too similar = not uploaded.
+# T50-08 v6c (owner D195/D199, 2026-11-12): cron ON. One v6 lesson per day, topic from v2/v6-pick.mjs (weekday plan in
+# schedule.json + topic-plan.json; a type without a v6 lesson falls back to a ready v6 candle topic, never the old style).
+# Hours (MAP/50 research log 2026-11-12, documented audience data; channel has no own hour data after the 11-12 wipe):
+#   15:00 UTC long  (10 AM US Eastern, Buffer 1.8M-video study: long-form peaks in the morning)
+#   21:00 UTC Short (4 PM US Eastern, SocialPilot 301k study: Shorts peak 4-7 PM local; weekday 3-6 PM EST)
+# Scheduled runs upload PUBLIC only when instagram-bot/v2/schedule.json "enabled" is true. Every upload first passes the
+# v6 shot-list gate, similarity gate and standards gate (FAIL = not uploaded).
 on:
-  # schedule:
-  #   - cron: "0 14 * * *"    # one long video per day (type chosen by weekday in schedule.json)
-  #   - cron: "30 9,18 * * *" # Shorts (shortsPerDay)
+  schedule:
+    - cron: "0 15 * * *"   # long
+    - cron: "0 21 * * *"   # Short
   workflow_dispatch:
     inputs:
       style:
         description: "v6 (one style, own drawings; owner D178) or v5 (old doc style)"
         default: "v6"
       topic:
-        description: "v6 lesson topic (hammer)"
-        default: "hammer"
+        description: "v6 lesson topic (blank = today's pick from v6-pick.mjs)"
+        default: ""
       kind:
         description: "short, long (v6 also: both)"
         default: "long"
@@ -51,6 +56,20 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y fonts-noto-core ffmpeg espeak-ng
           npx playwright install --with-deps chromium
+      - name: Plan (topic + kind + upload for this run)
+        id: plan
+        working-directory: instagram-bot
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            K=short; [ "${{ github.event.schedule }}" = "0 15 * * *" ] && K=long
+            EN=$(node -e 'console.log(require("./v2/schedule.json").enabled===true)')
+            echo "kind=$K" >> "$GITHUB_OUTPUT"; echo "upload=$EN" >> "$GITHUB_OUTPUT"; echo "privacy=public" >> "$GITHUB_OUTPUT"; T=""
+          else
+            echo "kind=${{ inputs.kind }}" >> "$GITHUB_OUTPUT"; echo "upload=${{ inputs.upload }}" >> "$GITHUB_OUTPUT"; echo "privacy=${{ inputs.privacy }}" >> "$GITHUB_OUTPUT"; T="${{ inputs.topic }}"
+          fi
+          [ -z "$T" ] && T=$(node v2/v6-pick.mjs | sed -n 's/^topic=//p')
+          node v2/v6-pick.mjs | head -1
+          echo "topic=$T" >> "$GITHUB_OUTPUT"; echo "PLAN topic=$T"
       - name: v6 shot-list gate test (a bad shot list must FAIL)
         if: ${{ inputs.style != 'v5' }}
         working-directory: instagram-bot
@@ -59,8 +78,8 @@ jobs:
         if: ${{ inputs.style != 'v5' }}
         working-directory: instagram-bot
         run: |
-          K="${{ inputs.kind }}"; [ -z "$K" ] && K=short; [ "$K" = "both" ] && K="short long"
-          for k in $K; do node v2/v6-make.mjs --kind=$k --topic=${{ inputs.topic || 'hammer' }} --out=out; done
+          K="${{ steps.plan.outputs.kind }}"; [ -z "$K" ] && K=short; [ "$K" = "both" ] && K="short long"
+          for k in $K; do node v2/v6-make.mjs --kind=$k --topic=${{ steps.plan.outputs.topic }} --out=out; done
       - name: v6 shot-list gate (every sentence = matching tagged picture, no shot > 6 s, no repeats; FAIL = not uploaded)
         if: ${{ inputs.style != 'v5' }}
         working-directory: instagram-bot
@@ -82,14 +101,14 @@ jobs:
         run: |
           for m in out/*.meta.json; do n=$(basename $m .meta.json); node v2/standards-check.mjs out $n; done
       - name: Upload to YouTube
-        if: ${{ inputs.upload }}
+        if: ${{ steps.plan.outputs.upload == 'true' }}
         working-directory: instagram-bot
         env:
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
           YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
         run: |
-          for m in out/*.meta.json; do b=${m%.meta.json}; node v2/upload.mjs --meta=$m --video=$b.mp4 --thumbA=$b-thumbA.png --thumbB=$b-thumbB.png --privacy=${{ inputs.privacy }}; done
+          for m in out/*.meta.json; do b=${m%.meta.json}; node v2/upload.mjs --meta=$m --video=$b.mp4 --thumbA=$b-thumbA.png --thumbB=$b-thumbB.png --privacy=${{ steps.plan.outputs.privacy }}; done
       - uses: actions/upload-artifact@v7
         if: always()
         with:

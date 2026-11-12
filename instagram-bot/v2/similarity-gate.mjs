@@ -26,7 +26,7 @@ export function compare(a, b) {
   return { title, script, dist, bad };
 }
 const fmt = (r) => `title ${r.title.toFixed(2)} | script ${r.script.toFixed(2)} | picture dist ${r.dist === null ? "n/a" : r.dist + "/64"}${r.bad ? "  <-- TOO SIMILAR" : ""}`;
-const lastOf = (kind) => LOG.filter((u) => (u.kind || "short") === kind).slice(0, T.compareLastUploads);
+const lastOf = (kind) => LOG.filter((u) => !u.test && (u.kind || "short") === kind) // private/unlisted test uploads (v6c) do not block.slice(0, T.compareLastUploads);
 
 function against(meta, others) {
   let worst = null;

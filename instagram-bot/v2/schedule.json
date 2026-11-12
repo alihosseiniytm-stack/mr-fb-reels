@@ -1,6 +1,6 @@
 {
-  "_comment": "T50-01/T50-08. One lesson TYPE per weekday. Change a value on the right to switch a day (e.g. wed: 'candle' brings back the second candle lesson). Valid long types: candle, indicator, whale_week, coin, replay, safety, recap. enabled=false means the cron must not publish (owner approves samples first).",
-  "enabled": false,
+  "_comment": "T50-01/T50-08. One lesson TYPE per weekday. Change a value on the right to switch a day (e.g. wed: 'candle' brings back the second candle lesson). Valid long types: candle, indicator, whale_week, coin, replay, safety, recap. enabled=false means the cron must not publish. v6c 2026-11-12: enabled=true (owner D186/D195: v6 approved, public uploads from 2026-11-13 at the best hours, yt-v2.yml cron). Types without a v6 lesson fall back to a ready v6 candle topic (v6-pick.mjs).",
+  "enabled": true,
   "language": "en",
   "longByWeekday": { "sat": "candle", "sun": "indicator", "mon": "whale_week", "tue": "coin", "wed": "replay", "thu": "safety", "fri": "recap" },
   "longPerWeek": 7,
