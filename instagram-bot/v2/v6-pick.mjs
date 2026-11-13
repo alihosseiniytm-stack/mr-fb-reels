@@ -17,7 +17,8 @@ export const DATA_TYPES = new Set(["whale_week", "replay", "recap"]); // live da
 // NOT_YET = ids whose last Actions render FAILED (t50-08-v6e): out of READY until a green re-render. whale_week: run 43365855092 Short shot 6.06 s > 6 s (fixed wording, re-render pending)
 // coin_*: run 43368862405 long FAILED (fact sentence "Bitcoin launched in 2009, made by someone called Satoshi Nakamoto." 6.56 s); no coin has a green render -> all coins out
 // replay: run 43372133433 Short step "Step three: danger line at 2,176 dollars." 6.11 s -> shorter wording, out until green
-export const NOT_YET = new Set(["whale_week", "replay", ...COIN_KEYS]);
+// v6f 2026-11-13: whale_week GREEN run 43381625664 (25/25 + 15/15, max 5.67 s, standards 34/34 + 31/31, strips read); coin_btc GREEN run 43384501037 (23/23 + 15/15, max 5.48 s, 34/34 + 31/31, strips read) -> coins back (one shared lesson; all 8 coin plans fit 6 s with a +17% name/year margin)
+export const NOT_YET = new Set(["replay"]);
 export const READY = new Set(["hammer", ...CANDLE_KEYS, ...IND_KEYS, ...COIN_KEYS, ...DATA_TYPES].filter((x) => !NOT_YET.has(x))); // SAFETY_KEYS not ready yet: re-rendering with sourced numbers (v6e); run 43351814952 failed rule a
 export const CANDLE_ORDER = ["hammer", ...CANDLE_KEYS];
 const DAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
