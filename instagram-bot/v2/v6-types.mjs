@@ -401,7 +401,7 @@ export function safetyLesson(kind, D) {
     ...(kind === "long" ? [advice("Recap"), whalesEnd("Recap")] : []),
     end("Recap")];
   if (kind === "short") steps.forEach((s) => (s.chapter = ""));
-  return { title: kind === "short" ? `${S.title}: Crypto Safety in 60 Seconds` : `${S.title}: How the Trick Works and How to Stay Safe`, steps };
+  return { title: kind === "short" ? `${S.title}: Crypto Safety in One Minute` : `${S.title}: How the Trick Works and How to Stay Safe`, steps };
 }
 
 // topic id -> { data, lesson, label } (v6-make.mjs TOPICS)
