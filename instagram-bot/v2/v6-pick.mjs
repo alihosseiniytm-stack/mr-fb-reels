@@ -20,7 +20,8 @@ export const DATA_TYPES = new Set(["whale_week", "replay", "recap"]); // live da
 // v6f 2026-11-13: whale_week GREEN run 43381625664 (25/25 + 15/15, max 5.67 s, standards 34/34 + 31/31, strips read); coin_btc GREEN run 43384501037 (23/23 + 15/15, max 5.48 s, 34/34 + 31/31, strips read) -> coins back (one shared lesson; all 8 coin plans fit 6 s with a +17% name/year margin)
 // v6f: replay GREEN run 43395660247 (22/22 + 15/15, max 5.77 s, 34/34 + 31/31, strips read)
 export const NOT_YET = new Set([]);
-export const READY = new Set(["hammer", ...CANDLE_KEYS, ...IND_KEYS, ...COIN_KEYS, ...DATA_TYPES].filter((x) => !NOT_YET.has(x))); // SAFETY_KEYS not ready yet: re-rendering with sourced numbers (v6e); run 43351814952 failed rule a
+// v6f: safety GREEN run 43400257723 phishing_links (21/21 + 15/15, max 5.01 s, standards 34/34 + 31/31 incl. rule a sourced numbers + rule c title, strips read) -> SAFETY_KEYS ready (one shared lesson builder)
+export const READY = new Set(["hammer", ...CANDLE_KEYS, ...IND_KEYS, ...COIN_KEYS, ...SAFETY_KEYS, ...DATA_TYPES].filter((x) => !NOT_YET.has(x)));
 export const CANDLE_ORDER = ["hammer", ...CANDLE_KEYS];
 const DAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
