@@ -44,3 +44,16 @@ test("READY holds every new topic id and the new pictures are known drawings", (
   for (const d of ["ind", "price", "whales", "split", "movers"]) assert.ok(KNOWN.chart.includes(d));
   assert.ok(KNOWN.scene.includes("obj") && KNOWN.diagram.includes("ind"));
 });
+// v6e: standards rule (a) needs >= 3 distinct real numbers in the narration. Run 43351814952 (phishing_links) failed it because
+// safety lessons had none. Every safety lesson now carries 2 sourced fact lines; without them rule (a) must FAIL.
+import { spokenNumbers } from "../visual.mjs";
+import { SAFETY } from "../v6-types.mjs";
+const ruleA = (L) => new Set(spokenNumbers(L.steps.map((s) => s.say).join(" "))).size >= 3;
+test("every safety lesson passes standards rule (a); a safety lesson without its sourced facts fails it", () => {
+  for (const key of SAFETY_KEYS) for (const kind of ["short", "long"]) {
+    assert.ok(ruleA(safetyLesson(kind, { key })), key + " " + kind + " has >= 3 real numbers");
+    assert.ok(SAFETY[key].facts.length >= 2, key + " has sourced fact lines");
+  }
+  const keep = SAFETY.phishing_links.facts; SAFETY.phishing_links.facts = [];
+  try { assert.equal(ruleA(safetyLesson("short", { key: "phishing_links" })), false, "no facts -> rule (a) FAIL"); } finally { SAFETY.phishing_links.facts = keep; }
+});
