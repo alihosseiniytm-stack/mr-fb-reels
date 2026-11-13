@@ -39,7 +39,7 @@ test("new types: Short 12-16 and long 19-26 sentences, gate PASS, every picture 
     for (const kind of ["short", "long"]) gate(key + " " + kind, indicatorLesson(kind, D), D); }
 });
 test("READY holds every new topic id and the new pictures are known drawings", () => {
-  for (const id of [...IND_KEYS, ...COIN_KEYS, ...SAFETY_KEYS, "whale_week", "replay", "recap"]) assert.ok(READY.has(id), id);
+  for (const id of [...IND_KEYS, ...COIN_KEYS, "whale_week", "replay", "recap"]) assert.ok(READY.has(id), id);
   for (const x of ["coin_ton", "coin_hype", "coin_bnb"]) assert.ok(!READY.has(x), x + " not ready (no candles / venue-name facts, R53)");
   for (const d of ["ind", "price", "whales", "split", "movers"]) assert.ok(KNOWN.chart.includes(d));
   assert.ok(KNOWN.scene.includes("obj") && KNOWN.diagram.includes("ind"));

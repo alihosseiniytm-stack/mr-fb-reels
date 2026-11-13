@@ -14,7 +14,7 @@ const here = (p) => fileURLToPath(new URL(p, import.meta.url));
 // v6 lessons that exist (make.mjs TOPICS). Add a type's keys here only when its v6 lesson + gate test exist.
 // v6d 2026-11-13: + indicator (5), coin (9), safety (10), whale_week, replay, recap (gate test test/types.test.mjs)
 export const DATA_TYPES = new Set(["whale_week", "replay", "recap"]); // live data: new content each week, never "used"
-export const READY = new Set(["hammer", ...CANDLE_KEYS, ...IND_KEYS, ...COIN_KEYS, ...SAFETY_KEYS, ...DATA_TYPES]);
+export const READY = new Set(["hammer", ...CANDLE_KEYS, ...IND_KEYS, ...COIN_KEYS, ...DATA_TYPES]); // SAFETY_KEYS not ready: standards rule (a) needs real numbers in the narration (run 43351814952)
 export const CANDLE_ORDER = ["hammer", ...CANDLE_KEYS];
 const DAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
