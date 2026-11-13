@@ -55,7 +55,7 @@ export function frameSvg(kind, st, data, lesson) {
       lines.forEach((l, i) => { s += T(615, 1180 + i * (sz + 12), l, sz, C.yellow); });
       if (st.sub) wrap(st.sub, 22).forEach((l, i) => { s += T(615, 1180 + lines.length * (sz + 12) + 10 + i * 52, l, 44, C.cream); });
     } else {
-      const X = 940, lines = wrap(st.kw, 15), sz = Math.min(...lines.map((l) => fit(l, 880, 124, 0.6)));
+      const X = 940, lines = wrap(st.kw, 15), sz = Math.min(...lines.map((l) => fit(l, 880, 124, 0.68))); // v6f: 0.6 let wide caps run off the edge (replay 43395660247 "BORROWED MONEY")
       s += `<rect x="${X}" y="140" width="12" height="${lines.length * (sz + 14) + 70}" fill="${C.yellow}"/>`;
       s += T(X + 44, 200, String(st.chapter || "").toUpperCase(), 36, C.grey, "start", `letter-spacing="2"`);
       lines.forEach((l, i) => { s += T(X + 44, 220 + (i + 1) * (sz + 14), l, sz, C.white, "start"); });
