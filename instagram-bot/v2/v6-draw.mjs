@@ -6,6 +6,7 @@
 
 export const C = { navy: "#1d2748", navy2: "#26335c", cream: "#f6efe2", ink: "#121826", green: "#2fbf86", red: "#ef5b5b", yellow: "#ffc845",
   blue: "#5aa9ff", skin: "#f2c8a0", shirt: "#3bb3a6", grey: "#9aa3b8", white: "#ffffff", whale: "#4f7fd9" };
+import { closes as _cl, sma as _sma, rsi as _rsi, macd as _macd, bollinger as _bb, volAvg as _va, findEvent as _fe } from "./v6-ind.mjs";
 const SW = 7; // outline width (fixed style)
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 export const T = (x, y, s, size = 44, fill = C.ink, anchor = "middle", extra = "") =>
@@ -154,6 +155,7 @@ DRAW.pattern = ({ key, focus = "shape" }) => {
   if (focus === "next") s += arrow(90 + dx * (ks.length - 1.5), 140, 90 + dx * (ks.length - 0.5), 200, C.ink, 10);
   return s;
 };
+const CHART = {}; // v6d chart pictures (filled at the end of the file)
 const SCENE = {
   // trader surprised in front of a screen with one candle
   hook({ key } = {}) {
@@ -221,7 +223,134 @@ export function drawPicture(v, data) {
   if (v.type === "diagram") return DRAW[v.draw](v.args || {});
   if (v.type === "scene") return SCENE[v.draw](v.args || {});
   // real chart: before the reveal only candles up to the hammer are shown; "after" adds the next data.after candles
+  if (v.type === "chart" && v.draw !== "real") return CHART[v.draw](v.args || {}, data);
   if (v.type === "chart") { const a = v.args || {}, end = data.hi + (a.mark === "after" ? data.after : 0) + 1; return realChart({ ...a, candles: data.candles.slice(0, end), hi: data.hi, after: data.after, n: data.n || 1, name: a.name || data.name || "HAMMER" }); }
   throw new Error("v6: unknown picture " + JSON.stringify(v));
 }
-export const KNOWN = { diagram: Object.keys(DRAW), scene: Object.keys(SCENE), chart: ["real"], card: Object.keys(ICON), end: ["end"] };
+// getters: the v6d pictures below are added after this line (v6d 2026-11-13)
+export const KNOWN = { get diagram() { return Object.keys(DRAW); }, get scene() { return Object.keys(SCENE); }, get chart() { return ["real", ...Object.keys(CHART)]; }, get card() { return Object.keys(ICON); }, end: ["end"] };
+
+// ======================= v6d (T50-08 2026-11-13): pictures for the other weekday lesson types =======================
+// indicator (diagram/chart "ind"), whale_week + replay + coin + recap (chart whales/split/price/movers), safety (scene "obj").
+// Same fixed flat style: thick ink outlines, flat colours, no gradients, own trader + whale; every picture = the sentence's noun.
+const usd = (p) => { p = +p; const a = Math.abs(p); return a >= 1e9 ? "$" + (a / 1e9).toFixed(1) + "B" : a >= 1e6 ? "$" + (a / 1e6).toFixed(1) + "M" : a >= 1e4 ? "$" + Math.round(a).toLocaleString("en-US") : a >= 10 ? "$" + a.toFixed(2) : "$" + a.toPrecision(3); };
+const pillAt = (x, y, t, col, size = 38) => `<rect x="${x}" y="${y - size - 6}" width="${String(t).length * size * 0.62 + 34}" height="${size + 22}" rx="12" fill="${C.white}" stroke="${col}" stroke-width="5"/>` + T(x + 17, y, t, size, col, "start");
+const path = (pts, col, w = 7, dash = "") => { const d = pts.filter((p) => p[1] !== null && !isNaN(p[1])).map((p, j) => (j ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(""); return d ? `<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round" ${dash ? `stroke-dasharray="${dash}"` : ""}/>` : ""; };
+const hline = (x1, x2, yy, col, w = 6) => `<line x1="${x1}" y1="${yy}" x2="${x2}" y2="${yy}" stroke="${col}" stroke-width="${w}" stroke-dasharray="18 12"/>`;
+// one candle chart with the lesson's indicator. full = all candles (warm-up incl.), w0 = first shown index, w1 = last shown index
+export function indChart(full, key, { w0, w1, ring = -1, pills = [], after = -1, labels = false } = {}) {
+  const v = _cl(full), panel = ["rsi", "macd", "volume"].includes(key), ks = full.slice(w0, w1 + 1), n = w1 - w0 + 1;
+  const ov = key === "moving_average" ? [[_sma(v, 20), C.yellow, "20 AVG"], [_sma(v, 50), C.blue, "50 AVG"]] : key === "bollinger" ? (() => { const b = _bb(v); return [[b.up, C.blue, "UPPER"], [b.mid, C.grey, "MIDDLE"], [b.lo, C.blue, "LOWER"]]; })() : [];
+  const seen = [...ks.flatMap((k) => [k[2], k[3]]), ...ov.flatMap(([a]) => a.slice(w0, w1 + 1).filter((x) => x !== null))], lo = Math.min(...seen), hi = Math.max(...seen), pad = (hi - lo) * 0.08;
+  const y = lin(lo - pad, hi + pad, panel ? 600 : 880, 200), dx = 840 / n, x = (i) => 80 + dx * (i - w0 + 0.5), w = Math.max(8, dx * 0.62);
+  let s = `<rect x="40" y="110" width="920" height="850" rx="18" fill="${C.white}" stroke="${C.ink}" stroke-width="5"/>`;
+  s += ks.map((k, j) => candle(x(w0 + j), k[1], k[2], k[3], k[4], y, w, { fade: after >= 0 && w0 + j < ring })).join("");
+  ov.forEach(([a, col, lab]) => { s += path(a.slice(w0, w1 + 1).map((p, j) => [x(w0 + j), p === null ? null : y(p)]), col, 8, lab === "MIDDLE" ? "14 10" : ""); if (labels) { const last = a[w1]; if (last !== null) s += pillAt(Math.min(760, x(w1) - 200), y(last) + (lab === "LOWER" || lab === "50 AVG" ? 64 : -18), lab, col === C.yellow ? C.ink : col, 32); } });
+  if (panel) {
+    s += `<line x1="60" y1="640" x2="940" y2="640" stroke="${C.ink}" stroke-width="4"/>`;
+    if (key === "rsi") { const r = _rsi(v), py = lin(0, 100, 920, 660); s += hline(70, 930, py(70), C.red, 5) + hline(70, 930, py(30), C.green, 5) + path(r.slice(w0, w1 + 1).map((p, j) => [x(w0 + j), p === null ? null : py(p)]), C.blue, 7) + T(930, py(70) - 10, "70", 32, C.red, "end") + T(930, py(30) + 36, "30", 32, C.green, "end"); if (labels) s += T(80, py(70) - 10, "TOO HOT", 30, C.red, "start") + T(80, py(30) + 36, "TOO COLD", 30, C.green, "start"); }
+    if (key === "macd") { const m = _macd(v), seg = (a) => a.slice(w0, w1 + 1), all = [...seg(m.macd), ...seg(m.signal), ...seg(m.hist)].filter((q) => q !== null), mx = Math.max(1e-9, ...all.map(Math.abs)), py = lin(-mx, mx, 920, 660);
+      s += seg(m.hist).map((h, j) => (h === null ? "" : `<rect x="${x(w0 + j) - w / 2}" y="${Math.min(py(0), py(h))}" width="${w}" height="${Math.max(2, Math.abs(py(h) - py(0)))}" fill="${h >= 0 ? C.green : C.red}" opacity="0.6"/>`)).join("") + path(seg(m.macd).map((p, j) => [x(w0 + j), p === null ? null : py(p)]), C.blue, 7) + path(seg(m.signal).map((p, j) => [x(w0 + j), p === null ? null : py(p)]), C.yellow, 7);
+      if (labels) s += T(80, 690, "MACD", 32, C.blue, "start") + T(220, 690, "SIGNAL", 32, "#b8860b", "start"); }
+    if (key === "volume") { const a = _va(full), vs = ks.map((k) => +k[5] || 0), mx = Math.max(...vs, 1), py = lin(0, mx, 920, 670);
+      s += vs.map((q, j) => `<rect x="${x(w0 + j) - w / 2}" y="${py(q)}" width="${w}" height="${920 - py(q)}" fill="${w0 + j === ring ? C.yellow : C.grey}" stroke="${C.ink}" stroke-width="2"/>`).join("") + path(a.slice(w0, w1 + 1).map((p, j) => [x(w0 + j), p === null ? null : py(p)]), C.ink, 5, "12 8");
+      if (labels) s += T(80, 700, "VOLUME", 32, C.ink, "start") + T(260, 700, "- - AVERAGE", 30, C.ink, "start"); }
+  }
+  if (ring >= w0 && ring <= w1) { const K = full[ring]; s += `<ellipse cx="${x(ring)}" cy="${(y(K[2]) + y(K[3])) / 2}" rx="${Math.max(40, dx * 1.2)}" ry="${(y(K[3]) - y(K[2])) / 2 + 40}" fill="none" stroke="${C.yellow}" stroke-width="12"/>`; if (panel) s += `<line x1="${x(ring)}" y1="620" x2="${x(ring)}" y2="930" stroke="${C.yellow}" stroke-width="8" stroke-dasharray="14 10"/>`; }
+  if (after >= 0 && ring >= 0) { const A = full[Math.min(w1, ring + after)], H = full[ring]; s += arrow(x(ring) + 30, y(H[4]), x(Math.min(w1, ring + after)), y(A[4]), A[4] >= H[4] ? C.green : C.red, 12); }
+  pills.forEach((p, k) => (s += pillAt(p.x ?? 70, p.y ?? 180 + k * 70, p.t, p.col || C.ink)));
+  return s;
+}
+// textbook series per indicator (synthetic, drawn with the real formulas): a slow wave, a sharp fall, then a rebound
+function bookSeries(key) {
+  const ks = []; let p = 100;
+  for (let i = 0; i < 110; i++) {
+    const d = key === "moving_average" ? (i < 70 ? -0.55 + 0.9 * Math.sin(i / 4) : 0.9 + 0.7 * Math.sin(i / 3)) : (i < 84 ? 0.25 * Math.sin(i / 5) + 0.05 : i < 93 ? -2.1 : 1.3 + 0.4 * Math.sin(i));
+    const o = p; p = Math.max(20, p + d); const vol = key === "volume" && i === 92 ? 900 : 200 + 60 * Math.sin(i * 1.7) + (i > 84 && i < 93 ? 120 : 0);
+    ks.push([i, o, Math.max(o, p) + 0.6, Math.min(o, p) - 0.6, p, vol]);
+  }
+  return ks;
+}
+DRAW.ind = ({ key, focus = "line" }) => {
+  const ks = bookSeries(key), e = _fe(key, ks, 3), sig = focus === "signal" || focus === "next", w1 = sig ? ks.length - 1 : (e ? Math.min(ks.length - 1, e.i + 1) : ks.length - 1), w0 = Math.max(0, w1 - 44);
+  return indChart(ks, key, { w0, w1, ring: sig && e ? e.i : -1, labels: focus !== "line", after: focus === "next" && e ? 3 : -1 });
+};
+// real chart with the lesson's indicator (data.ind = { full, key, i, after, w0 }); mark none | event | value | after
+CHART.ind = ({ mark = "none", label = "", pill = "" }, data) => {
+  const D = data.ind, w1 = mark === "after" ? Math.min(D.full.length - 1, D.i + D.after) : D.i;
+  return indChart(D.full, D.key, { w0: D.w0, w1, ring: mark === "none" ? -1 : D.i, after: mark === "after" ? D.after : -1, labels: mark === "value", pills: pill ? [{ t: pill, col: C.ink, y: 190 }] : [] }) + T(60, 80, label, 40, C.ink, "start");
+};
+// plain real candles + named price lines (data.price = { ks, lines: { name: { p, text, col } } }); args.lines = names to show
+CHART.price = ({ lines = [], label = "", upto = 1 }, data) => {
+  const D = data.price, ks = D.ks.slice(0, Math.max(2, Math.round(D.ks.length * upto))), L = lines.map((k) => D.lines[k]).filter(Boolean);
+  const all = [...ks.flatMap((k) => [k[2], k[3]]), ...L.map((l) => l.p)], lo = Math.min(...all), hi = Math.max(...all), pad = (hi - lo) * 0.1, y = lin(lo - pad, hi + pad, 880, 220), dx = 840 / ks.length, w = Math.max(8, dx * 0.62);
+  let s = `<rect x="40" y="110" width="920" height="850" rx="18" fill="${C.white}" stroke="${C.ink}" stroke-width="5"/>` + ks.map((k, j) => candle(80 + dx * (j + 0.5), k[1], k[2], k[3], k[4], y, w)).join("");
+  L.forEach((l, j) => { s += hline(70, 930, y(l.p), l.col, 7) + pillAt(j % 2 ? 520 : 70, y(l.p) + (y(l.p) > 800 ? -24 : 60), l.text, l.col, 36); });
+  return s + T(60, 80, label, 40, C.ink, "start");
+};
+// top whale positions as bars (data.whales = [{ coin, side, value, lev }]); args.i = highlighted row (-1 none)
+CHART.whales = ({ i = -1, label = "" }, data) => {
+  const W = data.whales.slice(0, 5), mx = Math.max(...W.map((w) => w.value));
+  let s = `<rect x="40" y="110" width="920" height="850" rx="18" fill="${C.white}" stroke="${C.ink}" stroke-width="5"/>`;
+  W.forEach((w, j) => { const yy = 200 + j * 150, bw = 120 + 480 * (w.value / mx), col = w.side === "long" ? C.green : C.red;
+    s += T(80, yy + 70, "#" + (j + 1), 44, C.grey, "start") + `<rect x="170" y="${yy}" width="${bw}" height="100" rx="16" fill="${col}" stroke="${j === i ? C.yellow : C.ink}" stroke-width="${j === i ? 14 : 6}"/>` + T(190, yy + 66, w.coin + " " + w.side.toUpperCase(), 40, C.white, "start") + T(Math.min(780, 190 + bw), yy + 66, usd(w.value), 40, C.ink, "start"); });
+  return s + T(60, 80, label, 40, C.ink, "start");
+};
+// long vs short crowd (data.crowd = { nL, nS, longV, shortV }); args.by = "count" | "money"
+CHART.split = ({ by = "count", label = "" }, data) => {
+  const c = data.crowd, a = by === "count" ? c.nL : c.longV, b = by === "count" ? c.nS : c.shortV, f = a / Math.max(1e-9, a + b), xm = 80 + 840 * f;
+  const fa = by === "count" ? c.nL + " LONG" : usd(c.longV), fb = by === "count" ? c.nS + " SHORT" : usd(c.shortV);
+  return `<rect x="40" y="110" width="920" height="850" rx="18" fill="${C.white}" stroke="${C.ink}" stroke-width="5"/><rect x="80" y="420" width="${xm - 80}" height="200" fill="${C.green}" stroke="${C.ink}" stroke-width="6"/><rect x="${xm}" y="420" width="${920 - xm}" height="200" fill="${C.red}" stroke="${C.ink}" stroke-width="6"/>` +
+    T(80, 380, "LONGS", 52, C.green, "start") + T(920, 380, "SHORTS", 52, C.red, "end") + T(80, 720, fa, 56, C.ink, "start") + T(920, 720, fb, 56, C.ink, "end") + T(500, 850, Math.round(f * 100) + "% LONG", 64, f >= 0.5 ? C.green : C.red) + T(60, 80, label, 40, C.ink, "start");
+};
+// weekly % change bars (data.movers = [{ coin, pct }]); args.i = highlighted bar
+CHART.movers = ({ i = -1, label = "" }, data) => {
+  const M = data.movers, mx = Math.max(1, ...M.map((m) => Math.abs(m.pct))), y = lin(-mx, mx, 860, 240), dx = 840 / M.length;
+  let s = `<rect x="40" y="110" width="920" height="850" rx="18" fill="${C.white}" stroke="${C.ink}" stroke-width="5"/><line x1="70" y1="${y(0)}" x2="930" y2="${y(0)}" stroke="${C.ink}" stroke-width="5"/>`;
+  M.forEach((m, j) => { const x0 = 80 + dx * j + dx * 0.15, bw = dx * 0.7; s += `<rect x="${x0}" y="${Math.min(y(0), y(m.pct))}" width="${bw}" height="${Math.max(4, Math.abs(y(m.pct) - y(0)))}" fill="${m.pct >= 0 ? C.green : C.red}" stroke="${j === i ? C.yellow : C.ink}" stroke-width="${j === i ? 12 : 5}"/>` +
+    T(x0 + bw / 2, m.pct >= 0 ? y(0) + 50 : y(0) - 20, m.coin, Math.min(36, dx * 0.4), C.ink) + T(x0 + bw / 2, m.pct >= 0 ? y(m.pct) - 16 : y(m.pct) + 44, (m.pct >= 0 ? "+" : "") + m.pct.toFixed(1) + "%", Math.min(32, dx * 0.36), C.ink); });
+  return s + T(60, 80, label, 40, C.ink, "start");
+};
+
+// object library for safety / whale / coin scenes (own flat drawings, centred at 0,0, ~300 px)
+const R = (x, y, w, h, f, rx = 18) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${f}" stroke="${C.ink}" stroke-width="${SW}"/>`;
+export const OBJ = {
+  phone: () => R(-90, -160, 180, 320, C.ink, 26) + R(-72, -130, 144, 240, C.blue, 10) + `<circle cy="135" r="10" fill="${C.grey}"/>`,
+  seed: () => R(-130, -160, 260, 320, C.white, 10) + [...Array(6)].map((_, j) => T(-100, -110 + j * 50, (j + 1) + ". ●●●●", 30, C.ink, "start")).join("") + T(0, 150, "12 WORDS", 30, C.red),
+  lock: () => `<path d="M-60 -20V-70Q-60 -130 0 -130Q60 -130 60 -70V-20" fill="none" stroke="${C.ink}" stroke-width="26"/>` + R(-100, -30, 200, 170, C.yellow, 20) + `<circle cy="40" r="20" fill="${C.ink}"/><rect x="-7" y="40" width="14" height="50" fill="${C.ink}"/>`,
+  link: () => R(-170, -50, 340, 100, C.white, 50) + T(-140, 14, "https://binnance-…", 34, C.red, "start"),
+  hook: () => `<path d="M0 -150V60Q0 120 -60 120Q-110 120 -110 60" fill="none" stroke="${C.grey}" stroke-width="22" stroke-linecap="round"/><path d="M-110 60l-26 -40" stroke="${C.grey}" stroke-width="22" stroke-linecap="round"/><line x1="0" y1="-150" x2="0" y2="-260" stroke="${C.ink}" stroke-width="6"/>`,
+  mail: () => R(-160, -100, 320, 210, C.white, 12) + `<path d="M-160 -96L0 30L160 -96" fill="none" stroke="${C.ink}" stroke-width="${SW}"/>`,
+  chat: () => `<path d="M-160 -110H160Q180 -110 180 -90V50Q180 70 160 70H-40L-110 130V70H-160Q-180 70 -180 50V-90Q-180 -110 -160 -110Z" fill="${C.white}" stroke="${C.ink}" stroke-width="${SW}"/>` + T(0, -30, "\"ADMIN\"", 44, C.red) + T(0, 30, "send me your key", 30, C.ink),
+  gift: () => R(-120, -40, 240, 170, C.red, 10) + R(-140, -90, 280, 60, C.red, 10) + `<rect x="-18" y="-90" width="36" height="220" fill="${C.yellow}" stroke="${C.ink}" stroke-width="5"/>` + `<path d="M0 -90Q-70 -170 -80 -110Q-80 -90 0 -90Q80 -90 80 -110Q70 -170 0 -90" fill="${C.yellow}" stroke="${C.ink}" stroke-width="5"/>`,
+  rug: () => `<path d="M-200 60Q-60 20 80 60Q160 80 200 20L210 110L-200 120Z" fill="${C.red}" stroke="${C.ink}" stroke-width="${SW}"/>` + arrow(140, 40, 260, -10, C.ink, 12) + T(-40, 100, "RUG", 44, C.white),
+  rocket: () => `<path d="M0 -170Q70 -90 60 60H-60Q-70 -90 0 -170Z" fill="${C.white}" stroke="${C.ink}" stroke-width="${SW}"/><circle cy="-60" r="28" fill="${C.blue}" stroke="${C.ink}" stroke-width="5"/><path d="M-60 20L-110 90L-55 70M60 20L110 90L55 70" fill="${C.red}" stroke="${C.ink}" stroke-width="5"/><path d="M-30 64Q0 160 30 64" fill="${C.yellow}" stroke="${C.ink}" stroke-width="5"/>`,
+  bank: () => `<path d="M-180 -60L0 -160L180 -60Z" fill="${C.cream}" stroke="${C.ink}" stroke-width="${SW}"/>` + [-130, -45, 45, 130].map((x) => R(x - 22, -50, 44, 160, C.white, 4)).join("") + R(-190, 110, 380, 40, C.cream, 4),
+  key: () => `<circle cx="-90" cy="0" r="60" fill="${C.yellow}" stroke="${C.ink}" stroke-width="${SW}"/><circle cx="-90" cy="0" r="20" fill="${C.cream}" stroke="${C.ink}" stroke-width="5"/>` + R(-34, -18, 230, 36, C.yellow, 8) + R(140, 10, 22, 50, C.yellow, 4) + R(100, 10, 22, 40, C.yellow, 4),
+  shield: () => `<path d="M0 -150L120 -110V0Q120 100 0 160Q-120 100 -120 0V-110Z" fill="${C.blue}" stroke="${C.ink}" stroke-width="${SW}"/>` + check(0, 0, 0.9),
+  coins: () => [[-70, 60], [0, 30], [70, 0], [0, -30]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="80" ry="34" fill="${C.yellow}" stroke="${C.ink}" stroke-width="${SW}"/>`).join("") + T(0, -20, "$", 44, C.ink),
+  hacker: () => `<path d="M-120 160V40Q-120 -150 0 -150Q120 -150 120 40V160Z" fill="${C.ink}" stroke="${C.ink}" stroke-width="${SW}"/><ellipse cy="-30" rx="70" ry="80" fill="#2a2f3d"/><circle cx="-26" cy="-40" r="10" fill="${C.red}"/><circle cx="26" cy="-40" r="10" fill="${C.red}"/>`,
+  clock: () => `<circle r="140" fill="${C.white}" stroke="${C.ink}" stroke-width="${SW}"/><path d="M0 0V-90M0 0H70" stroke="${C.ink}" stroke-width="14" stroke-linecap="round"/>`,
+  code: () => R(-170, -70, 340, 140, C.white, 20) + T(0, 26, "482 913", 76, C.ink) + T(0, -88, "2FA CODE", 34, C.green),
+  chart_up: () => R(-170, -140, 340, 280, C.white, 16) + path([[-140, 100], [-70, 40], [0, 70], [70, -20], [140, -100]], C.green, 14),
+  chart_down: () => R(-170, -140, 340, 280, C.white, 16) + path([[-140, -100], [-70, -30], [0, -60], [70, 40], [140, 110]], C.red, 14),
+  warn: () => `<path d="M0 -150L160 130H-160Z" fill="${C.yellow}" stroke="${C.ink}" stroke-width="${SW}" stroke-linejoin="round"/>` + T(0, 90, "!", 170, C.ink),
+  seesaw: () => `<path d="M-40 120L0 40L40 120Z" fill="${C.grey}" stroke="${C.ink}" stroke-width="${SW}"/><line x1="-200" y1="80" x2="200" y2="0" stroke="${C.ink}" stroke-width="20" stroke-linecap="round"/>` + R(-190, 0, 70, 60, C.green, 8) + R(120, -120, 90, 110, C.red, 8) + T(165, -50, "×10", 34, C.white),
+  wallet: () => R(-170, -100, 340, 210, "#8a5a2b", 24) + R(60, -30, 130, 70, "#a8743d", 16) + `<circle cx="100" cy="5" r="12" fill="${C.yellow}"/>`,
+  whale: () => whale(0, 0, 0.8),
+  crowd: () => [-120, 0, 120].map((x) => `<circle cx="${x}" cy="-60" r="44" fill="${C.skin}" stroke="${C.ink}" stroke-width="${SW}"/><path d="M${x - 60} 120V20Q${x - 60} -10 ${x} -10Q${x + 60} -10 ${x + 60} 20V120Z" fill="${C.shirt}" stroke="${C.ink}" stroke-width="${SW}"/>`).join(""),
+  calendar: () => R(-150, -130, 300, 260, C.white, 18) + R(-150, -130, 300, 70, C.red, 18) + [...Array(6)].map((_, j) => `<rect x="${-120 + (j % 3) * 85}" y="${-30 + Math.floor(j / 3) * 70}" width="60" height="44" rx="6" fill="${j === 4 ? C.yellow : C.cream}" stroke="${C.ink}" stroke-width="4"/>`).join(""),
+  coin: () => `<circle r="140" fill="${C.yellow}" stroke="${C.ink}" stroke-width="${SW}"/><circle r="100" fill="none" stroke="${C.ink}" stroke-width="5"/>`,
+  magnifier: () => `<circle cx="-30" cy="-30" r="110" fill="#dff1ff" stroke="${C.ink}" stroke-width="${SW * 1.5}"/><path d="M50 50L150 150" stroke="${C.ink}" stroke-width="34" stroke-linecap="round"/>`,
+};
+const MARK = { cross: (x, y) => cross(x, y, 1.1), check: (x, y) => check(x, y, 1.1), warn: (x, y) => `<g transform="translate(${x} ${y}) scale(0.5)">${OBJ.warn()}</g>` };
+// trader + one or two objects (+ a red cross / green check / warning), args: { a, b, mark, mood, label, text }
+SCENE.obj = ({ a, b, mark, mood = "happy", label = "", text = "" } = {}) => {
+  let s = trader(220, 800, 1.0, { mood, arm: mood === "worried" ? "down" : "up" });
+  const put = (k, x, y, sc) => `<g transform="translate(${x} ${y}) scale(${sc})">${(OBJ[k] || OBJ.warn)()}</g>`;
+  s += b ? put(a, 600, 330, 0.95) + put(b, 720, 650, 0.95) : put(a, 650, 440, 1.35);
+  if (text) s += T(650, b ? 870 : 760, text, 40, C.ink);
+  if (mark) s += MARK[mark](880, 170);
+  return s + (label ? T(640, 950, label, 52, C.ink) : "");
+};
+for (const k of Object.keys(OBJ)) if (!ICON[k]) ICON[k] = () => `<g transform="scale(0.5)">${OBJ[k]()}</g>`;

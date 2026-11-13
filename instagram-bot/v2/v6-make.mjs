@@ -10,7 +10,8 @@ import { SITE, BOT, dateLabel, imageHash, frameAt, cleanup } from "./lib.mjs";
 import { renderV6, drawFrames, svgToPng } from "./v6.mjs";
 import { hammerData, hammerLesson } from "./v6-hammer.mjs";
 import { CANDLE_KEYS, patternData, patternLesson } from "./v6-candles.mjs";
-import { C, T, candle } from "./v6-draw.mjs";
+import { C, T, candle, OBJ } from "./v6-draw.mjs";
+import { TYPE_TOPICS } from "./v6-types.mjs";
 import { checkShots } from "./shotlist-gate.mjs";
 import { tagMascot } from "./v6-mascot.mjs";
 import { readFileSync } from "node:fs";
@@ -19,7 +20,7 @@ const here = (p) => fileURLToPath(new URL(p, import.meta.url));
 const arg = (n, d) => { const h = process.argv.find((a) => a.startsWith("--" + n + "=")); return h ? h.split("=")[1] : d; };
 const kind = arg("kind", "short"), topic = arg("topic", "hammer"), out = resolve(arg("out", here("../out"))), framesOnly = process.argv.includes("--frames-only");
 const TOPICS = { hammer: { data: hammerData, lesson: hammerLesson, label: "CANDLE SCHOOL" },
-  ...Object.fromEntries(CANDLE_KEYS.map((k) => [k, { data: () => patternData(k), lesson: patternLesson, label: "CANDLE SCHOOL" }])) };
+  ...Object.fromEntries(CANDLE_KEYS.map((k) => [k, { data: () => patternData(k), lesson: patternLesson, label: "CANDLE SCHOOL" }])), ...TYPE_TOPICS }; // v6d: + indicator/coin/safety/whale_week/replay/recap
 const tp = TOPICS[topic];
 if (!tp) throw new Error("unknown v6 topic " + topic);
 await mkdir(out, { recursive: true });
@@ -40,8 +41,8 @@ if (framesOnly) {
 const mp4 = `${out}/${name}.mp4`;
 const r = await renderV6({ kind, steps: L.steps, data, lesson: tp.label, outPath: mp4, work });
 const text = L.steps.map((s) => s.say).join(" ");
-const description = `${L.title}\n\nSee live whale moves (free): ${SITE}/en/whales/\nTelegram whale alerts bot: ${BOT}\n\n` +
-  `Data: real ${data.coinName || "Bitcoin"} ${({ "1d": "daily", "4h": "4-hour", "1h": "1-hour" })[data.iv]} candles from a public market data feed (${data.month} ${data.day}: low $${data.low.toLocaleString("en-US")}, close $${data.close.toLocaleString("en-US")}), ${dateLabel()}. ` +
+const description = `${L.title}\n\nSee live whale moves (free): ${SITE}/en/whales/\nTelegram whale alerts bot: ${BOT}\n\n` + (data.desc ? data.desc + " " :
+  `Data: real ${data.coinName || "Bitcoin"} ${({ "1d": "daily", "4h": "4-hour", "1h": "1-hour" })[data.iv]} candles from a public market data feed (${data.month} ${data.day}: low $${data.low.toLocaleString("en-US")}, close $${data.close.toLocaleString("en-US")}), ${dateLabel()}. `) +
   `Education only, not financial advice. Every picture and the presenter character are drawn by our own code (no stock photos, no AI images); the narrator is a synthetic voice.` + (r.chapters ? "\n\nChapters:\n" + r.chapters : "");
 // thumbnails A/B (long): own drawing, 1280x720
 let thumbHashA = null;
@@ -49,9 +50,9 @@ if (kind === "long") {
   const browser = await chromium.launch(process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {}), page = await browser.newPage();
   const font = "data:font/ttf;base64," + readFileSync(here("../templates/fonts/Vazirmatn-Bold.ttf")).toString("base64");
   const y = (p) => 640 - p * 5.4;
-  for (const [ab, l1, l2, acc] of (topic === "hammer" ? [["A", "HAMMER", "CANDLE", C.yellow], ["B", "WICK ≥ 2×", "BODY", C.green]] : [["A", data.name.split(" ")[0], data.name.split(" ").slice(1).join(" ") || "CANDLE", C.yellow], ["B", data.name.split(" ")[0], "PATTERN", C.green]])) {
+  for (const [ab, l1, l2, acc] of (data.thumb ? [["A", data.thumb[0], data.thumb[1], C.yellow], ["B", data.thumb[1], data.thumb[0], C.green]] : topic === "hammer" ? [["A", "HAMMER", "CANDLE", C.yellow], ["B", "WICK ≥ 2×", "BODY", C.green]] : [["A", data.name.split(" ")[0], data.name.split(" ").slice(1).join(" ") || "CANDLE", C.yellow], ["B", data.name.split(" ")[0], "PATTERN", C.green]])) {
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"><rect width="1280" height="720" fill="${C.navy}"/><rect x="40" y="40" width="460" height="640" rx="30" fill="${C.cream}" stroke="${C.ink}" stroke-width="8"/>` +
-      candle(270, 76, 86, 18, 84, y, 150) + T(560, 300, l1, 150, acc, "start") + T(560, 450, l2, 150, C.white, "start") + T(560, 560, "Real " + (data.coinName || "Bitcoin") + " example", 52, C.cream, "start") + `</svg>`;
+      (data.thumb ? `<g transform="translate(270 360) scale(${ab === "A" ? 1.1 : 0.9})">${OBJ[data.thumb[2]]()}</g>` : candle(270, 76, 86, 18, 84, y, 150)) + T(560, 300, l1, 150, acc, "start") + T(560, 450, l2, 150, C.white, "start") + T(560, 560, data.thumb ? (data.coinName ? "Real " + data.coinName + " data" : "Crypto safety") : "Real " + (data.coinName || "Bitcoin") + " example", 52, C.cream, "start") + `</svg>`;
     await svgToPng(page, svg, 1280, 720, `${out}/${name}-thumb${ab}.png`, font);
   }
   await browser.close();
