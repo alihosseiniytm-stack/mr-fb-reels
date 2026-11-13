@@ -143,7 +143,7 @@ export function whaleWeekLesson(kind, D) {
     st(chs[1], `This whale is ${roi >= 0 ? "up" : "down"} ${Math.abs(roi)} percent on its money.`, `${sg(roi)}% ON ITS MONEY`, ["whale", "money"], "card", roi >= 0 ? "up" : "down", { icon: roi >= 0 ? "up" : "down" }),
   ];
   const crowd = (ch) => [
-    st(ch, `In the top ${c.n}, ${c.nL} are long and ${c.nS} are short.`, `${c.nL} LONG · ${c.nS} SHORT (TOP ${c.n})`, ["long", "short"], "chart", "split", { by: "count", label: `TOP ${c.n} WHALE POSITIONS` }),
+    st(ch, `Top ${c.n} whales: ${c.nL} long, ${c.nS} short.`, `${c.nL} LONG · ${c.nS} SHORT (TOP ${c.n})`, ["long", "short"], "chart", "split", { by: "count", label: `TOP ${c.n} WHALE POSITIONS` }),
     moneySide(ch, c),
     st(ch, `So big money leans ${lean} right now.`, `MONEY LEANS ${lean.toUpperCase()}`, ["money", "leans"], "scene", "obj", obj("whale", lean === "long" ? "chart_up" : "chart_down")),
   ];
