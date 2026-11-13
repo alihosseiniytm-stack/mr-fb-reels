@@ -139,7 +139,7 @@ export function whaleWeekLesson(kind, D) {
     row(chs[1], 0),
     st(chs[1], `It entered near ${p(t.entryPx)} dollars.`, `ENTRY $${p(t.entryPx)}`, ["entered"], "chart", "price", { lines: ["entry"], label: lbl }),
     st(chs[1], `It uses ${t.leverage} times leverage.`, `${t.leverage}× LEVERAGE`, ["leverage"], "card", "seesaw", { icon: "seesaw" }),
-    st(chs[1], `Now ${t.coin} trades at ${p(D.now)} dollars.`, `NOW $${p(D.now)}`, [t.coin.toLowerCase(), "trades"], "chart", "price", { lines: ["entry", "now"], label: lbl }),
+    st(chs[1], `${t.coin} now: ${p(D.now)} dollars.`, `NOW $${p(D.now)}`, [t.coin.toLowerCase(), "now"], "chart", "price", { lines: ["entry", "now"], label: lbl }),
     st(chs[1], `This whale is ${roi >= 0 ? "up" : "down"} ${Math.abs(roi)} percent on its money.`, `${sg(roi)}% ON ITS MONEY`, ["whale", "money"], "card", roi >= 0 ? "up" : "down", { icon: roi >= 0 ? "up" : "down" }),
   ];
   const crowd = (ch) => [

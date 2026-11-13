@@ -53,3 +53,8 @@ Education (candles, indicators, risk), whale stories (whale = recurring characte
 ## v6c additions (t50-08-v6c, 2026-11-12)
 - Strip review of run 43315493450: hook/clue scenes showed a hammer in a shooting-star lesson (picture did not match the voice). Rule: a scene showing "this pattern" draws the lesson's own pattern (scene args.key, v6-draw.mjs miniPattern).
 - Non-candle types (indicator, whale_week, coin, replay, safety, recap) still need v6 lessons, same pattern as v6-candles.mjs; then add their keys to READY in v6-pick.mjs.
+## v6d/v6e additions (t50-08-v6d + t50-08-v6e, 2026-11-13)
+- v6d built the other weekday lessons in v2/v6-types.mjs + indicator maths in v2/v6-ind.mjs (pictures: chart ind/price/whales/split/movers, scene obj with ~30 own objects). Venue names never in voice/description (recap run 43351781506 failed standards rule c).
+- v6e strip review of recap run 43355811587: the NOW price pill was hidden under the WEEK LOW pill (price near the low) and mover % labels ran together -> fixed in v6-draw.mjs (label collision avoidance, font fits slot). Live-data plan check found 2 sentences that broke the 6 s limit only for some numbers (recap + whale_week long/short counts) -> shorter wording.
+- Safety lessons failed standards rule a (no real numbers, run 43351814952) -> each now says 2-3 public, sourced numbers (FBI IC3 2024 report, Scam Sniffer 2024, Chainalysis 2025, CoinGlass 2025-10-10 liquidations, Microsoft Research 2023 MFA study).
+- Actions lesson: yt-v2 has concurrency group yt-v2 (cancel-in-progress false) = 1 running + 1 pending; a NEW dispatch replaces (cancels) the pending one. Dispatch the next render only when nothing is pending, and never near the 15:00Z/21:00Z crons (a dispatch then would cancel the pending cron run).

@@ -14,7 +14,9 @@ const here = (p) => fileURLToPath(new URL(p, import.meta.url));
 // v6 lessons that exist (make.mjs TOPICS). Add a type's keys here only when its v6 lesson + gate test exist.
 // v6d 2026-11-13: + indicator (5), coin (9), safety (10), whale_week, replay, recap (gate test test/types.test.mjs)
 export const DATA_TYPES = new Set(["whale_week", "replay", "recap"]); // live data: new content each week, never "used"
-export const READY = new Set(["hammer", ...CANDLE_KEYS, ...IND_KEYS, ...COIN_KEYS, ...DATA_TYPES]); // SAFETY_KEYS not ready: standards rule (a) needs real numbers in the narration (run 43351814952)
+// NOT_YET = ids whose last Actions render FAILED (t50-08-v6e): out of READY until a green re-render. whale_week: run 43365855092 Short shot 6.06 s > 6 s (fixed wording, re-render pending)
+export const NOT_YET = new Set(["whale_week"]);
+export const READY = new Set(["hammer", ...CANDLE_KEYS, ...IND_KEYS, ...COIN_KEYS, ...DATA_TYPES].filter((x) => !NOT_YET.has(x))); // SAFETY_KEYS not ready yet: re-rendering with sourced numbers (v6e); run 43351814952 failed rule a
 export const CANDLE_ORDER = ["hammer", ...CANDLE_KEYS];
 const DAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 

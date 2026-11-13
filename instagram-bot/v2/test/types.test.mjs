@@ -7,7 +7,7 @@ import { IND_KEYS, findEvent } from "../v6-ind.mjs";
 import { checkShots } from "../shotlist-gate.mjs";
 import { tagMascot } from "../v6-mascot.mjs";
 import { drawPicture, KNOWN } from "../v6-draw.mjs";
-import { READY } from "../v6-pick.mjs";
+import { READY, NOT_YET } from "../v6-pick.mjs";
 
 const ks = (n, f) => [...Array(n)].map((_, i) => { const o = f(i), c = f(i + 1); return [i * 864e5, o, Math.max(o, c) * 1.01, Math.min(o, c) * 0.99, c, 100 + (i === n - 8 ? 900 : 30 * Math.sin(i))]; });
 const wave = (i) => 50000 + 4000 * Math.sin(i / 7) + (i > 200 && i < 215 ? -(i - 200) * 600 : 0) + (i >= 215 ? -9000 + (i - 215) * 300 : 0);
@@ -39,7 +39,7 @@ test("new types: Short 12-16 and long 19-26 sentences, gate PASS, every picture 
     for (const kind of ["short", "long"]) gate(key + " " + kind, indicatorLesson(kind, D), D); }
 });
 test("READY holds every new topic id and the new pictures are known drawings", () => {
-  for (const id of [...IND_KEYS, ...COIN_KEYS, "whale_week", "replay", "recap"]) assert.ok(READY.has(id), id);
+  for (const id of [...IND_KEYS, ...COIN_KEYS, "whale_week", "replay", "recap"]) assert.ok(READY.has(id) !== NOT_YET.has(id), id + " ready unless its last render failed");
   for (const x of ["coin_ton", "coin_hype", "coin_bnb"]) assert.ok(!READY.has(x), x + " not ready (no candles / venue-name facts, R53)");
   for (const d of ["ind", "price", "whales", "split", "movers"]) assert.ok(KNOWN.chart.includes(d));
   assert.ok(KNOWN.scene.includes("obj") && KNOWN.diagram.includes("ind"));
