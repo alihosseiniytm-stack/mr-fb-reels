@@ -1,5 +1,19 @@
 [
  {
+  "kind": "short",
+  "v2": true,
+  "date": "2026-11-13T03:20:58.574Z",
+  "url": "https://youtube.com/shorts/0nE-rw83I1k",
+  "title": "Hammer Candle Explained: A Real Bitcoin Example",
+  "text": "This one candle can warn you that a fall may be ending. Traders call it the hammer. It has a small body near the top. Its lower wick is long, at least 2 times the body. That wick means sellers pushed the price down hard. But buyers pushed it back up before the candle closed. So the buyers won this battle. A hammer matters most at the end of a downtrend. Here is a real Bitcoin candle from September 28. It fell to 82,562 dollars. Then it closed at 83,068 dollars. Small body on top, long lower wick: a real hammer. 5 candles later, Bitcoin was 1 percent higher. Wait for the next candle to close higher. That is confirmation. Put your stop loss just below the wick. A hammer is a clue, never a promise. Watch live whale moves for free on MarketRadar Whale.",
+  "topic": "hammer",
+  "thumbHashA": null,
+  "frameHash": "5663252b17460600",
+  "thumb": "none",
+  "privacy": "public",
+  "test": false
+ },
+ {
   "kind": "long",
   "v2": true,
   "date": "2026-11-12T23:20:00Z",
