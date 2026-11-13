@@ -16,7 +16,8 @@ const here = (p) => fileURLToPath(new URL(p, import.meta.url));
 export const DATA_TYPES = new Set(["whale_week", "replay", "recap"]); // live data: new content each week, never "used"
 // NOT_YET = ids whose last Actions render FAILED (t50-08-v6e): out of READY until a green re-render. whale_week: run 43365855092 Short shot 6.06 s > 6 s (fixed wording, re-render pending)
 // coin_*: run 43368862405 long FAILED (fact sentence "Bitcoin launched in 2009, made by someone called Satoshi Nakamoto." 6.56 s); no coin has a green render -> all coins out
-export const NOT_YET = new Set(["whale_week", ...COIN_KEYS]);
+// replay: run 43372133433 Short step "Step three: danger line at 2,176 dollars." 6.11 s -> shorter wording, out until green
+export const NOT_YET = new Set(["whale_week", "replay", ...COIN_KEYS]);
 export const READY = new Set(["hammer", ...CANDLE_KEYS, ...IND_KEYS, ...COIN_KEYS, ...DATA_TYPES].filter((x) => !NOT_YET.has(x))); // SAFETY_KEYS not ready yet: re-rendering with sourced numbers (v6e); run 43351814952 failed rule a
 export const CANDLE_ORDER = ["hammer", ...CANDLE_KEYS];
 const DAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];

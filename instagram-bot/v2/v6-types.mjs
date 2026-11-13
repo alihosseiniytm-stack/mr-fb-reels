@@ -187,12 +187,12 @@ export function replayLesson(kind, D) {
     st(c[0], "Let us replay a real whale trade, step by step.", "REPLAY A REAL WHALE TRADE", ["replay", "whale"], "scene", "obj", obj("whale", "magnifier")),
     st(c[0], `The player: a wallet starting with ${a6}.`, `WALLET ${a6.toUpperCase()}`, ["wallet", "player"], "card", "wallet", { icon: "wallet" }),
     st(c[0], `The game: a ${sayUsdAdj(t.value)} ${sd} on ${t.coin}.`, `${kwUsd(t.value)} ${t.coin} ${sd.toUpperCase()}`, [sd, t.coin.toLowerCase()], "chart", "price", { lines: [], label: lbl }),
-    st(c[1], `Step one: entry at ${p(t.entryPx)} dollars.`, `1. ENTRY $${p(t.entryPx)}`, ["entry"], "chart", "price", { lines: ["entry"], label: lbl }),
+    st(c[1], `First, entry: ${p(t.entryPx)} dollars.`, `1. ENTRY $${p(t.entryPx)}`, ["entry"], "chart", "price", { lines: ["entry"], label: lbl }),
     st(c[1], `Step two: ${t.leverage} times leverage.`, `2. ${t.leverage}× LEVERAGE`, ["leverage"], "card", "seesaw", { icon: "seesaw" }),
     st(c[1], `So a 1 percent move becomes ${t.leverage} percent on its money.`, `1% MOVE = ${t.leverage}%`, ["move", "money"], "scene", "obj", obj("seesaw", null, "warn")),
-    t.liqPx ? st(c[1], `Step three: danger line at ${p(t.liqPx)} dollars.`, `3. LIQUIDATION $${p(t.liqPx)}`, ["danger", "line"], "chart", "price", { lines: ["entry", "liq"], label: lbl })
+    t.liqPx ? st(c[1], `Danger line: ${p(t.liqPx)} dollars.`, `3. LIQUIDATION $${p(t.liqPx)}`, ["danger", "line"], "chart", "price", { lines: ["entry", "liq"], label: lbl })
       : st(c[1], "Step three: there is no close danger line yet.", "3. NO CLOSE DANGER LINE", ["danger", "line"], "card", "shield", { icon: "shield" }),
-    st(c[1], `Step four: now ${p(D.now)} dollars.`, `4. NOW $${p(D.now)}`, ["now"], "chart", "price", { lines: ["entry", "now"], label: lbl }),
+    st(c[1], `Now: ${p(D.now)} dollars.`, `4. NOW $${p(D.now)}`, ["now"], "chart", "price", { lines: ["entry", "now"], label: lbl }),
     st(c[1], `That is ${roi >= 0 ? "plus" : "minus"} ${Math.abs(roi)} percent on the whale's own money.`, `${sg(roi)}% ON ITS MONEY`, ["whale", "money"], "card", roi >= 0 ? "up" : "down", { icon: roi >= 0 ? "up" : "down" }),
     st(c[1], `Without leverage, it would be only ${Math.abs(D.move)} percent.`, `${Math.abs(D.move)}% WITHOUT LEVERAGE`, ["leverage"], "card", "coins", { icon: "coins" }),
   ];
