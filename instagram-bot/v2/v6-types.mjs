@@ -298,7 +298,7 @@ export function recapLesson(kind, D) {
     mv(ch[2], "ETH"), mv(ch[2], "SOL"),
     st(ch[2], `The best was ${nm(D.best.coin)}, ${w(D.best.pct)} ${Math.abs(D.best.pct)} percent.`, `BEST: ${D.best.coin} ${sg(D.best.pct)}%`, ["best"], "chart", "movers", { i: iOf(D.best.coin), label: "BEST OF THE WEEK" }),
     st(ch[2], `The worst was ${nm(D.worst.coin)}, ${w(D.worst.pct)} ${Math.abs(D.worst.pct)} percent.`, `WORST: ${D.worst.coin} ${sg(D.worst.pct)}%`, ["worst"], "chart", "movers", { i: iOf(D.worst.coin), label: "WORST OF THE WEEK" }),
-    st(ch[3], `On our tracker, ${c.nL} big whales are long and ${c.nS} are short.`, `${c.nL} LONG · ${c.nS} SHORT`, ["whales", "long"], "chart", "split", { by: "count", label: `TOP ${c.n} WHALE POSITIONS` }),
+    st(ch[3], `Top whales: ${c.nL} long, ${c.nS} short.`, `${c.nL} LONG · ${c.nS} SHORT`, ["whales", "long"], "chart", "split", { by: "count", label: `TOP ${c.n} WHALE POSITIONS` }),
     st(ch[3], `So whales lean ${lean} going into next week.`, `WHALES LEAN ${lean.toUpperCase()}`, ["whales", "lean"], "scene", "obj", obj("whale", lean === "long" ? "chart_up" : "chart_down")),
     st(ch[4], "One week is noise. Trends need more time.", "ONE WEEK = NOISE", ["week", "noise"], "scene", "obj", obj("clock", null, "warn")),
   ].filter(Boolean);

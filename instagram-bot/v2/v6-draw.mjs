@@ -285,7 +285,13 @@ CHART.price = ({ lines = [], label = "", upto = 1 }, data) => {
   const D = data.price, ks = D.ks.slice(0, Math.max(2, Math.round(D.ks.length * upto))), L = lines.map((k) => D.lines[k]).filter(Boolean);
   const all = [...ks.flatMap((k) => [k[2], k[3]]), ...L.map((l) => l.p)], lo = Math.min(...all), hi = Math.max(...all), pad = (hi - lo) * 0.1, y = lin(lo - pad, hi + pad, 880, 220), dx = 840 / ks.length, w = Math.max(8, dx * 0.62);
   let s = `<rect x="40" y="110" width="920" height="850" rx="18" fill="${C.white}" stroke="${C.ink}" stroke-width="5"/>` + ks.map((k, j) => candle(80 + dx * (j + 0.5), k[1], k[2], k[3], k[4], y, w)).join("");
-  L.forEach((l, j) => { s += hline(70, 930, y(l.p), l.col, 7) + pillAt(j % 2 ? 520 : 70, y(l.p) + (y(l.p) > 800 ? -24 : 60), l.text, l.col, 36); });
+  // label places: never let two pills overlap (e.g. NOW close to WEEK LOW) - try the other column, then the other side of the line
+  const placed = [];
+  L.forEach((l, j) => { const ly = y(l.p), up = ly - 24, dn = ly + 60, c0 = j % 2 ? 520 : 70, c1 = j % 2 ? 70 : 520;
+    const cand = [[c0, ly > 800 ? up : dn], [c1, ly > 800 ? up : dn], [c0, ly > 800 ? dn : up], [c1, ly > 800 ? dn : up]].filter(([, py]) => py > 150 && py < 950);
+    const [px, py] = cand.find(([cx, cy]) => !placed.some((p) => p[0] === cx && Math.abs(p[1] - cy) < 66)) || cand[0] || [c0, dn];
+    placed.push([px, py]); s += hline(70, 930, ly, l.col, 7); l._pill = pillAt(px, py, l.text, l.col, 36); });
+  s += L.map((l) => l._pill).join("");
   return s + T(60, 80, label, 40, C.ink, "start");
 };
 // top whale positions as bars (data.whales = [{ coin, side, value, lev }]); args.i = highlighted row (-1 none)
@@ -306,9 +312,11 @@ CHART.split = ({ by = "count", label = "" }, data) => {
 // weekly % change bars (data.movers = [{ coin, pct }]); args.i = highlighted bar
 CHART.movers = ({ i = -1, label = "" }, data) => {
   const M = data.movers, mx = Math.max(1, ...M.map((m) => Math.abs(m.pct))), y = lin(-mx, mx, 860, 240), dx = 840 / M.length;
+  // font size so a label never wider than its bar slot (old: "-11.6%-11.5%" and "DOGEHYPE" ran together)
+  const pt = (p) => (p >= 0 ? "+" : "") + p.toFixed(1) + "%", fit = (t, mxs) => Math.min(mxs, (dx * 0.92) / (String(t).length * 0.6));
   let s = `<rect x="40" y="110" width="920" height="850" rx="18" fill="${C.white}" stroke="${C.ink}" stroke-width="5"/><line x1="70" y1="${y(0)}" x2="930" y2="${y(0)}" stroke="${C.ink}" stroke-width="5"/>`;
   M.forEach((m, j) => { const x0 = 80 + dx * j + dx * 0.15, bw = dx * 0.7; s += `<rect x="${x0}" y="${Math.min(y(0), y(m.pct))}" width="${bw}" height="${Math.max(4, Math.abs(y(m.pct) - y(0)))}" fill="${m.pct >= 0 ? C.green : C.red}" stroke="${j === i ? C.yellow : C.ink}" stroke-width="${j === i ? 12 : 5}"/>` +
-    T(x0 + bw / 2, m.pct >= 0 ? y(0) + 50 : y(0) - 20, m.coin, Math.min(36, dx * 0.4), C.ink) + T(x0 + bw / 2, m.pct >= 0 ? y(m.pct) - 16 : y(m.pct) + 44, (m.pct >= 0 ? "+" : "") + m.pct.toFixed(1) + "%", Math.min(32, dx * 0.36), C.ink); });
+    T(x0 + bw / 2, m.pct >= 0 ? y(0) + 50 : y(0) - 20, m.coin, fit(m.coin, 36), C.ink) + T(x0 + bw / 2, m.pct >= 0 ? y(m.pct) - 16 : y(m.pct) + 44, pt(m.pct), fit(pt(m.pct), 32), C.ink); });
   return s + T(60, 80, label, 40, C.ink, "start");
 };
 
