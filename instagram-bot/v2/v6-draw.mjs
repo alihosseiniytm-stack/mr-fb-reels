@@ -299,7 +299,8 @@ CHART.whales = ({ i = -1, label = "" }, data) => {
   const W = data.whales.slice(0, 5), mx = Math.max(...W.map((w) => w.value));
   let s = `<rect x="40" y="110" width="920" height="850" rx="18" fill="${C.white}" stroke="${C.ink}" stroke-width="5"/>`;
   W.forEach((w, j) => { const yy = 200 + j * 150, bw = 120 + 480 * (w.value / mx), col = w.side === "long" ? C.green : C.red;
-    s += T(80, yy + 70, "#" + (j + 1), 44, C.grey, "start") + `<rect x="170" y="${yy}" width="${bw}" height="100" rx="16" fill="${col}" stroke="${j === i ? C.yellow : C.ink}" stroke-width="${j === i ? 14 : 6}"/>` + T(190, yy + 66, w.coin + " " + w.side.toUpperCase(), 40, C.white, "start") + T(Math.min(780, 190 + bw), yy + 66, usd(w.value), 40, C.ink, "start"); });
+    const lab = w.coin + " " + w.side.toUpperCase(), fits = lab.length * 25 + 40 <= bw; // v6f: short bars clipped "BTC SHO" -> label outside the bar
+    s += T(80, yy + 70, "#" + (j + 1), 44, C.grey, "start") + `<rect x="170" y="${yy}" width="${bw}" height="100" rx="16" fill="${col}" stroke="${j === i ? C.yellow : C.ink}" stroke-width="${j === i ? 14 : 6}"/>` + (fits ? T(190, yy + 66, lab, 40, C.white, "start") + T(Math.min(780, 190 + bw), yy + 66, usd(w.value), 40, C.ink, "start") : T(190 + bw, yy + 66, lab + "  " + usd(w.value), 40, C.ink, "start")); });
   return s + T(60, 80, label, 40, C.ink, "start");
 };
 // long vs short crowd (data.crowd = { nL, nS, longV, shortV }); args.by = "count" | "money"
@@ -343,7 +344,7 @@ export const OBJ = {
   chart_up: () => R(-170, -140, 340, 280, C.white, 16) + path([[-140, 100], [-70, 40], [0, 70], [70, -20], [140, -100]], C.green, 14),
   chart_down: () => R(-170, -140, 340, 280, C.white, 16) + path([[-140, -100], [-70, -30], [0, -60], [70, 40], [140, 110]], C.red, 14),
   warn: () => `<path d="M0 -150L160 130H-160Z" fill="${C.yellow}" stroke="${C.ink}" stroke-width="${SW}" stroke-linejoin="round"/>` + T(0, 90, "!", 170, C.ink),
-  seesaw: () => `<path d="M-40 120L0 40L40 120Z" fill="${C.grey}" stroke="${C.ink}" stroke-width="${SW}"/><line x1="-200" y1="80" x2="200" y2="0" stroke="${C.ink}" stroke-width="20" stroke-linecap="round"/>` + R(-190, 0, 70, 60, C.green, 8) + R(120, -120, 90, 110, C.red, 8) + T(165, -50, "×10", 34, C.white),
+  seesaw: () => `<path d="M-40 120L0 40L40 120Z" fill="${C.grey}" stroke="${C.ink}" stroke-width="${SW}"/><line x1="-200" y1="80" x2="200" y2="0" stroke="${C.ink}" stroke-width="20" stroke-linecap="round"/>` + R(-190, 0, 70, 60, C.green, 8) + R(120, -120, 90, 110, C.red, 8),
   wallet: () => R(-170, -100, 340, 210, "#8a5a2b", 24) + R(60, -30, 130, 70, "#a8743d", 16) + `<circle cx="100" cy="5" r="12" fill="${C.yellow}"/>`,
   whale: () => whale(0, 0, 0.8),
   crowd: () => [-120, 0, 120].map((x) => `<circle cx="${x}" cy="-60" r="44" fill="${C.skin}" stroke="${C.ink}" stroke-width="${SW}"/><path d="M${x - 60} 120V20Q${x - 60} -10 ${x} -10Q${x + 60} -10 ${x + 60} 20V120Z" fill="${C.shirt}" stroke="${C.ink}" stroke-width="${SW}"/>`).join(""),
