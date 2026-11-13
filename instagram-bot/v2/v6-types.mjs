@@ -11,7 +11,7 @@ const end = (ch) => st(ch, "Watch live whale moves for free on MarketRadar Whale
 const advice = (ch) => st(ch, "This is education, not financial advice.", "NOT FINANCIAL ADVICE", ["education", "advice"], "card", "check", { icon: "check" }, "learn first");
 const whalesEnd = (ch) => st(ch, "Big players leave clues too. We track whale moves live.", "WE TRACK WHALE MOVES", ["whale", "clues"], "scene", "whales");
 const obj = (a, b, mark, mood, extra = {}) => ({ a, ...(b ? { b } : {}), ...(mark ? { mark } : {}), ...(mood ? { mood } : {}), ...extra });
-const NAMES = { BTC: "Bitcoin", ETH: "Ethereum", SOL: "Solana", XRP: "XRP", DOGE: "Dogecoin", HYPE: "Hyperliquid", BNB: "BNB", LINK: "Chainlink", AVAX: "Avalanche", TON: "Toncoin" };
+const NAMES = { BTC: "Bitcoin", ETH: "Ethereum", SOL: "Solana", XRP: "XRP", DOGE: "Dogecoin", HYPE: "HYPE", BNB: "BNB", LINK: "Chainlink", AVAX: "Avalanche", TON: "Toncoin" };
 export const p = (x) => { x = +x; return x >= 1000 ? Math.round(x).toLocaleString("en-US") : x >= 100 ? x.toFixed(1) : x >= 10 ? x.toFixed(2) : x >= 1 ? x.toFixed(3) : String(+x.toPrecision(3)); };
 const big = (x) => (x >= 1e9 ? [(x / 1e9).toFixed(1), "billion", "B"] : x >= 1e8 ? [String(Math.round(x / 1e6)), "million", "M"] : x >= 1e6 ? [(x / 1e6).toFixed(1), "million", "M"] : [String(Math.round(x / 1e3)), "thousand", "K"]);
 export const sayUsd = (x) => { const [a, w] = big(x); return `${a} ${w} dollars`; };
@@ -62,7 +62,7 @@ export async function indicatorData(key, after = 5) {
     const H = full[e.i], A = full[e.i + after], d = dateOf(H[0]), I = IND[key];
     return { key, type: "indicator", name: I.name.toUpperCase(), coin, coinName: NAMES[coin] || coin, iv, after, e, month: d.month, day: d.day, close: +H[4], pct: pct(H[4], A[4]),
       ind: { full, key, i: e.i, after, w0: Math.max(0, e.i - 34) }, thumb: [I.name.toUpperCase(), "EXPLAINED", "chart_up"],
-      desc: `Data: real ${NAMES[coin] || coin} ${iv === "1d" ? "daily" : "4-hour"} candles from Hyperliquid's public market data; the ${I.name} is computed by our own code from the same candles (signal on ${d.month} ${d.day}).` };
+      desc: `Data: real ${NAMES[coin] || coin} ${iv === "1d" ? "daily" : "4-hour"} candles from a public market data feed; the ${I.name} is computed by our own code from the same candles (signal on ${d.month} ${d.day}).` };
   }
   throw new Error("no " + key + " signal in BTC/ETH/SOL candles");
 }
@@ -125,7 +125,7 @@ export async function whaleWeekData() {
   const W = await whaleRows(), top = W.rows.slice(0, 5), t = top[0], now = +W.mids[t.coin];
   return { type: "whale_week", name: "WHALE WEEK", coin: t.coin, coinName: NAMES[t.coin] || t.coin, top, crowd: W.crowd, now, move: movePct(t, now), price: await priceSet(t, now),
     whales: top.map((r) => ({ coin: r.coin, side: side(r), value: r.value, lev: r.leverage })), thumb: [kwUsd(t.value), t.coin + " " + side(t).toUpperCase(), "whale"],
-    desc: `Data: the biggest open positions on the MarketRadar whale tracker (public Hyperliquid wallets) and Hyperliquid prices, ${today()}.` };
+    desc: `Data: the biggest open positions on the MarketRadar whale tracker (public on-chain wallets) and public market prices, ${today()}.` };
 }
 export function whaleWeekLesson(kind, D) {
   const t = D.top[0], c = D.crowd, roi = r1(D.move * t.leverage), lean = c.longV >= c.shortV ? "long" : "short", total = D.top.reduce((s, r) => s + r.value, 0), N = ["one", "two", "three", "four", "five"];
@@ -153,7 +153,7 @@ export function whaleWeekLesson(kind, D) {
   const steps = kind === "short" ? [...core(["", ""]), ...(n > 1 ? [row("", 1)] : []), ...(n > 2 ? [row("", 2)] : []), ...crowd(""), ...lessons(""), end("")] : [
     ...core(["Intro", "Number one"]).slice(0, 2),
     st("Intro", "Every week we look at the biggest positions on our tracker.", "EVERY WEEK, REAL DATA", ["week", "positions"], "card", "calendar", { icon: "calendar" }),
-    st("Intro", "The data is public. Hyperliquid shows every big wallet.", "PUBLIC WALLET DATA", ["public", "wallet"], "scene", "obj", obj("magnifier", "wallet")),
+    st("Intro", "The data is public. Every big wallet is visible on chain.", "PUBLIC WALLET DATA", ["public", "wallet"], "scene", "obj", obj("magnifier", "wallet")),
     st("Intro", "A whale is a wallet with a very big position.", "WHALE = BIG WALLET", ["whale", "wallet"], "scene", "obj", obj("whale", "coins")),
     ...core(["Intro", "Number one"]).slice(2),
     t.liqPx ? st("Number one", `It is liquidated at ${p(t.liqPx)}.`, `LIQUIDATION $${p(t.liqPx)}`, ["liquidated"], "chart", "price", { lines: ["entry", "now", "liq"], label: lbl })
@@ -177,7 +177,7 @@ export async function replayData() {
     const ei = ps.ks.findLastIndex((x) => x[3] <= r.entryPx && x[2] >= r.entryPx);
     if (ei < 0) continue;
     return { type: "replay", name: "WHALE TRADE REPLAY", coin: r.coin, coinName: NAMES[r.coin] || r.coin, t: r, now, move: movePct(r, now), hoursAgo: ps.ks.length - 1 - ei, price: ps,
-      thumb: ["REPLAY", r.coin + " " + side(r).toUpperCase(), "whale"], desc: `Data: one real open position from the MarketRadar whale tracker (public Hyperliquid wallet ${r.address.slice(0, 6)}…) replayed on real Hyperliquid 1-hour candles, ${today()}.` };
+      thumb: ["REPLAY", r.coin + " " + side(r).toUpperCase(), "whale"], desc: `Data: one real open position from the MarketRadar whale tracker (public on-chain wallet ${r.address.slice(0, 6)}…) replayed on real public 1-hour candles, ${today()}.` };
   }
   throw new Error("no whale position with an entry inside the last 72 hours");
 }
@@ -230,7 +230,7 @@ export const COINS = {
   TON: { facts: [["TON stands for The Open Network.", "THE OPEN NETWORK", ["ton", "network"], "crowd"], ["It was first designed by the Telegram team in 2018.", "TELEGRAM TEAM · 2018", ["telegram", "team"], "phone", "calendar"], ["Today it powers wallets and mini apps inside Telegram.", "WALLETS + MINI APPS", ["wallets", "apps"], "wallet", "phone"]], risk: ["Its fate is closely tied to Telegram.", "TIED TO TELEGRAM", ["telegram"]] },
 };
 // TON: Hyperliquid has no TON candles (2026-11-13 check) -> text kept, not READY until a data source exists
-export const COIN_KEYS = Object.keys(COINS).filter((c) => c !== "TON").map((c) => "coin_" + c.toLowerCase());
+export const COIN_KEYS = Object.keys(COINS).filter((c) => !["TON", "HYPE", "BNB"].includes(c)).map((c) => "coin_" + c.toLowerCase());
 export async function coinData(sym) {
   const [ks, W] = await Promise.all([getCandles(sym, "1d", 31), whaleRows()]), now = +W.mids[sym] || +ks[ks.length - 1][4], last = ks.slice(-30);
   const hi = Math.max(...last.map((k) => +k[2])), lo = Math.min(...last.map((k) => +k[3])), mine = W.rows.filter((r) => r.coin === sym);
@@ -238,7 +238,7 @@ export async function coinData(sym) {
   return { type: "coin", name: (NAMES[sym] || sym).toUpperCase(), coin: sym, coinName: NAMES[sym] || sym, now, hi, lo, m30: pct(+last[0][1], now), gap: pct(lo, hi), mine: mine.length, mv: sum(mine),
     crowd: { n: mine.length, nL, nS, longV: sum(mine.filter((r) => r.szi > 0)), shortV: sum(mine.filter((r) => r.szi < 0)) },
     price: { ks: last, lines: { now: { p: now, text: `NOW $${p(now)}`, col: "#121826" }, hi: { p: hi, text: `30-DAY HIGH $${p(hi)}`, col: "#2fbf86" }, lo: { p: lo, text: `30-DAY LOW $${p(lo)}`, col: "#ef5b5b" } } },
-    thumb: [`WHAT IS`, (NAMES[sym] || sym).toUpperCase() + "?", "coin"], desc: `Data: real ${NAMES[sym] || sym} daily candles and price from Hyperliquid's public market data, whale positions from the MarketRadar tracker, ${today()}. Coin facts: public project history.` };
+    thumb: [`WHAT IS`, (NAMES[sym] || sym).toUpperCase() + "?", "coin"], desc: `Data: real ${NAMES[sym] || sym} daily candles and price from a public market data feed, whale positions from the MarketRadar tracker, ${today()}. Coin facts: public project history.` };
 }
 export function coinLesson(kind, D) {
   const F = COINS[D.coin], N = D.coinName, NU = N.toUpperCase(), up = D.m30 >= 0, lbl = `${D.coin} · DAILY CANDLES · LAST 30 DAYS`;
@@ -281,7 +281,7 @@ export async function recapData() {
   const sorted = [...movers].sort((a, b) => b.pct - a.pct);
   return { type: "recap", name: "WEEKLY RECAP", coin: "BTC", coinName: "Bitcoin", movers, best: sorted[0], worst: sorted[sorted.length - 1], btc: movers.find((m) => m.coin === "BTC"), hi, lo, now, crowd: W.crowd,
     price: { ks: wk, lines: { hi: { p: hi, text: `WEEK HIGH $${p(hi)}`, col: "#2fbf86" }, lo: { p: lo, text: `WEEK LOW $${p(lo)}`, col: "#ef5b5b" }, now: { p: now, text: `NOW $${p(now)}`, col: "#121826" } } },
-    thumb: ["CRYPTO WEEK", "RECAP", "calendar"], desc: `Data: Hyperliquid daily candles (7-day change of 10 big coins), Bitcoin 4-hour candles, and the MarketRadar whale tracker, week ending ${today()}.` };
+    thumb: ["CRYPTO WEEK", "RECAP", "calendar"], desc: `Data: public market daily candles (7-day change of 10 big coins), Bitcoin 4-hour candles, and the MarketRadar whale tracker, week ending ${today()}.` };
 }
 export function recapLesson(kind, D) {
   const c = D.crowd, lean = c.longV >= c.shortV ? "long" : "short", b = D.btc || { pct: pct(+D.price.ks[0][1], D.now) }, lbl = "BITCOIN · 4H CANDLES · LAST 7 DAYS";
