@@ -59,8 +59,10 @@ if (kind === "long") {
   thumbHashA = imageHash(`${out}/${name}-thumbA.png`);
 }
 frameAt(mp4, 2, `${out}/.f.png`);
+// T50-15: content frames for the similarity gate (the 2 s hook frame looks the same in every v6 Short)
+const contentHashes = [0.3, 0.45, 0.6].map((p) => { frameAt(mp4, ((r.durationMs / 1000) * p).toFixed(2), `${out}/.c.png`); return imageHash(`${out}/.c.png`); });
 const meta = { kind, day: topic, topic, title: L.title, text, description, durationS: Math.round(r.durationMs / 100) / 10, style: "v6", mascot: r.mascot, steps: r.steps, chapters: r.chapters,
-  data: { iv: data.iv, date: `${data.month} ${data.day}`, low: data.low, close: data.close, pct: data.pct, after: data.after, hammer: data.hammer, proof: data.proof, coin: data.coin || "BTC" }, thumbHashA, frameHash: imageHash(`${out}/.f.png`), created: new Date().toISOString() };
+  data: { iv: data.iv, date: `${data.month} ${data.day}`, low: data.low, close: data.close, pct: data.pct, after: data.after, hammer: data.hammer, proof: data.proof, coin: data.coin || "BTC" }, thumbHashA, frameHash: imageHash(`${out}/.f.png`), contentHashes, created: new Date().toISOString() };
 await writeFile(`${out}/${name}.meta.json`, JSON.stringify(meta, null, 1));
 // shot-list table (sentence -> keyword -> picture) for the owner/vizier review
 const md = [`# ${L.title} (${kind}, v6) - shot list`, "", "| # | time | sentence | on screen | picture (type: drawing) | tags | mascot (pose/emotion/outfit) |", "|---|---|---|---|---|---|---|",

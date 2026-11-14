@@ -39,7 +39,13 @@
   "frameHash": "5663252b17460600",
   "thumb": "none",
   "privacy": "public",
-  "test": false
+  "test": false,
+  "contentHashes": [
+   "22535353074b0600",
+   "2243331b134e0600",
+   "2303331b074e0e00"
+  ],
+  "contentHashesSrc": "T50-15 backfill 2026-11-14: OpenCV dHash 9x8 of run 43356859497 artifact at 30/45/60%"
  },
  {
   "kind": "long",

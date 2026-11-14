@@ -1,0 +1,41 @@
+{
+ "_comment": "T50-15: real v6 Short metas (runs 43356859497 hammer = public 0nE-rw83I1k, 43538682737 shooting_star, 43548782609 doji). frameHash = 2 s hook frame (ffmpeg, from meta); contentHashes = 30/45/60% frames measured with OpenCV dHash 9x8 (same method as lib.mjs imageHash) on the run artifacts.",
+ "metas": [
+  {
+   "kind": "short",
+   "topic": "hammer",
+   "title": "Hammer Candle Explained: A Real Bitcoin Example",
+   "text": "This one candle can warn you that a fall may be ending. Traders call it the hammer. It has a small body near the top. Its lower wick is long, at least 2 times the body. That wick means sellers pushed the price down hard. But buyers pushed it back up before the candle closed. So the buyers won this battle. A hammer matters most at the end of a downtrend. Here is a real Bitcoin candle from September 28. It fell to 82,562 dollars. Then it closed at 83,068 dollars. Small body on top, long lower wick: a real hammer. 5 candles later, Bitcoin was 1 percent higher. Wait for the next candle to close higher. That is confirmation. Put your stop loss just below the wick. A hammer is a clue, never a promise. Watch live whale moves for free on MarketRadar Whale.",
+   "frameHash": "5663252b17460600",
+   "contentHashes": [
+    "22535353074b0600",
+    "2243331b134e0600",
+    "2303331b074e0e00"
+   ]
+  },
+  {
+   "kind": "short",
+   "topic": "shooting_star",
+   "title": "Shooting Star Candle Pattern Explained: A Real Bitcoin Example",
+   "text": "This pattern can warn you that a rise may be ending. Traders call it the shooting star. It shows up after prices rose for a while. It has a small body near the bottom. Its upper wick is long, at least 2 times the body. Buyers pushed up, but sellers pushed it back down. Here is a real Bitcoin chart from May 6. It reached 82,799 dollars. Then it closed at 81,401 dollars. This is a real shooting star. 5 days later, Bitcoin was 0.4 percent higher. Wait for the next candle to confirm it. Put your stop loss just above the high. A shooting star is a clue, never a promise. Watch live whale moves for free on MarketRadar Whale.",
+   "frameHash": "466321ab07440600",
+   "contentHashes": [
+    "6618185200400000",
+    "532f3b6313c60000",
+    "260f1b2707460000"
+   ]
+  },
+  {
+   "kind": "short",
+   "topic": "doji",
+   "title": "Doji Candle Pattern Explained: A Real Bitcoin Example",
+   "text": "This pattern can warn you that a fall may be ending. Traders call it the doji. It shows up after prices fell for a while. The open and the close are almost the same. So the body is a thin line, with wicks on both sides. Buyers and sellers ended the fight in a draw. Here is a real Bitcoin chart from September 30. It dipped to 82,914 dollars. Then it closed at 83,607 dollars. This is a real doji. 5 days later, Bitcoin was 2.5 percent higher. Wait for the next candle to confirm it. Put your stop loss just below the low. A doji is a clue, never a promise. Watch live whale moves for free on MarketRadar Whale.",
+   "frameHash": "466321ab0b440400",
+   "contentHashes": [
+    "2618186a00400c00",
+    "13030b2b13460000",
+    "2e03131b074e0e00"
+   ]
+  }
+ ]
+}

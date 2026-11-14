@@ -6,6 +6,6 @@
   "longPerWeek": 7,
   "shortsPerDay": 2,
   "shortsRule": "one real whale story each (different coin each time), 6 rotating layouts, new hook text, 5 s result hook first",
-  "thresholds": { "titleJaccard": 0.6, "scriptJaccard": 0.45, "thumbMinHashDistance": 10, "compareLastUploads": 14 },
+  "thresholds": { "titleJaccard": 0.6, "scriptJaccard": 0.45, "thumbMinHashDistance": 10, "nearDupHashDistance": 3, "pictureNeedsTitle": 0.5, "compareLastUploads": 14, "_t50_15": "2026-11-14 picture = Shorts content frames (not hook); picture blocks only with title >= pictureNeedsTitle x titleJaccard (same topic) or near-copy (all frames <= nearDupHashDistance bits)" },
   "thumbnailAB": ["A: big number + headline", "B: different wording + accent colour"]
 }
