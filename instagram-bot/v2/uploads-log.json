@@ -1,5 +1,24 @@
 [
  {
+  "kind": "long",
+  "v2": true,
+  "date": "2026-11-15T20:33:41.438Z",
+  "url": "https://youtube.com/watch?v=YezI0q8SjOs",
+  "title": "The Moving Average for Beginners: How to Read It, With a Real Ethereum Chart",
+  "text": "Two simple lines can show you when a trend turns. Traders call it the moving average. Today: how to read it, with a real example. An indicator is simple math done on past prices. It does not see the future. It sums up the past. Each candle covers one time block, like 1 hour or 1 day. A moving average is the average close of recent candles. The 20 average is fast. The 50 average is slow. When the fast line crosses the slow line, the trend may turn. Fast below slow means sellers are taking over. Here is a real Ethereum chart from October 19. The 20 average crossed below the 50 average. That candle closed at 2,407 dollars. 5 days later, Ethereum was 2 percent lower. This time the signal worked. Never act on the moving average alone. Wait for price to confirm before you act. Always set a stop loss before you enter. Then the most you can lose is small and known. The moving average is a clue, never a promise. This is education, not financial advice. Big players leave clues too. We track whale moves live. Watch live whale moves for free on MarketRadar Whale.",
+  "topic": "moving_average",
+  "thumbHashA": "30307b74283b3730",
+  "frameHash": "505d555630101818",
+  "contentHashes": [
+   "581d173838583918",
+   "701f753430303818",
+   "181d115878181818"
+  ],
+  "thumb": "A set",
+  "privacy": "public",
+  "test": false
+ },
+ {
   "kind": "short",
   "v2": true,
   "date": "2026-11-15T02:34:08.485Z",
