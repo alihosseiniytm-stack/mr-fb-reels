@@ -1,5 +1,24 @@
 [
  {
+  "kind": "short",
+  "v2": true,
+  "date": "2026-11-15T00:43:46.174Z",
+  "url": "https://youtube.com/shorts/MR-cU_4Snp8",
+  "title": "Moving Average Crossover Explained: A Real Ethereum Example",
+  "text": "Two simple lines can show you when a trend turns. Traders call it the moving average. A moving average is the average close of recent candles. The 20 average is fast. The 50 average is slow. When the fast line crosses the slow line, the trend may turn. Fast below slow means sellers are taking over. Here is a real Ethereum chart from October 19. The 20 average crossed below the 50 average. That candle closed at 2,407 dollars. 5 days later, Ethereum was 2 percent lower. This time the signal worked. Wait for price to confirm before you act. Always set a stop loss before you enter. The moving average is a clue, never a promise. Watch live whale moves for free on MarketRadar Whale.",
+  "topic": "moving_average",
+  "thumbHashA": null,
+  "frameHash": "52333b971b460e00",
+  "contentHashes": [
+   "12073b4b13c40600",
+   "222f131f13c60600",
+   "620f131f0b400e00"
+  ],
+  "thumb": "none",
+  "privacy": "public",
+  "test": false
+ },
+ {
   "kind": "long",
   "v2": true,
   "date": "2026-11-14T20:08:11.967Z",
