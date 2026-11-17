@@ -1,5 +1,24 @@
 [
  {
+  "kind": "long",
+  "v2": true,
+  "date": "2026-11-17T00:02:17.599Z",
+  "url": "https://youtube.com/watch?v=k1rfCXDNMtU",
+  "title": "Whale of the Week: a $155M BTC Short and Where Big Money Leans",
+  "text": "Who are the biggest whales this week? Together, the top 5 hold 299 million dollars. Every week we look at the biggest positions on our tracker. The data is public. Every big wallet is visible on chain. A whale is a wallet with a very big position. Number one: a 155 million dollar BTC short. It entered near 77,924 dollars. It uses 5 times leverage. BTC now: 64,797 dollars. This whale is up 84 percent on its money. It is liquidated at 118,886. Number two: a 70.7 million dollar HYPE short. Number three: a 57.0 million dollar ZEC short. Number four: a 9.6 million dollar BTC short. Number five: a 6.5 million dollar ETH short. Top 50 whales: 9 long, 41 short. Shorts hold 336 million dollars of it. So big money leans short right now. What can you learn from this? Many whales on one side can push the price that way. But crowded trades can also flip fast. Whales lose too. Big size is not skill. Use whale data as one clue, and keep your stop loss. This is education, not financial advice. Watch live whale moves for free on MarketRadar Whale.",
+  "topic": "whale_week",
+  "thumbHashA": "30383bbfa83f3e30",
+  "frameHash": "301b979590103018",
+  "contentHashes": [
+   "5008101406000010",
+   "309797b4b0303018",
+   "501f971410103800"
+  ],
+  "thumb": "A set",
+  "privacy": "public",
+  "test": false
+ },
+ {
   "kind": "short",
   "v2": true,
   "date": "2026-11-16T02:44:31.679Z",
