@@ -1,5 +1,24 @@
 [
  {
+  "kind": "long",
+  "v2": true,
+  "date": "2026-11-17T23:06:29.036Z",
+  "url": "https://youtube.com/watch?v=WVeYUVBxNyM",
+  "title": "Bitcoin (BTC) Explained for Beginners: What It Is, Its Real Price and What Whales Do",
+  "text": "What is Bitcoin, and what are whales doing with it? Bitcoin trades under the ticker BTC. Today: what it is, its real price, and the whale view. A coin is a digital token that lives on a blockchain. A blockchain is a shared record that nobody edits alone. Bitcoin launched in 2009. Only 21 million bitcoin will ever exist. Many people hold it as digital gold. Here is the real Bitcoin price for the last 30 days. Today it trades at 64,741 dollars. The 30 day high was 84,850 dollars. The low was 61,970 dollars. That is down 21.1 percent in 30 days. Our tracker sees 8 big whale positions on BTC. 2 are long and 6 are short. From low to high, the gap was 36.9 percent. Together they are worth 168 million dollars. A whale is a wallet with a very big position. Its price can still drop by half in a bad year. Never invest money you cannot afford to lose. This is education, not financial advice. Big players leave clues too. We track whale moves live. Watch live whale moves for free on MarketRadar Whale.",
+  "topic": "coin_btc",
+  "thumbHashA": "30303d75693e3e30",
+  "frameHash": "785a565330303818",
+  "contentHashes": [
+   "705d555050103818",
+   "701d155630303818",
+   "705f575330101818"
+  ],
+  "thumb": "A set",
+  "privacy": "public",
+  "test": false
+ },
+ {
   "kind": "short",
   "v2": true,
   "date": "2026-11-17T05:08:20.256Z",
