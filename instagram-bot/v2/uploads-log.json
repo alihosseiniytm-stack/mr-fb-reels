@@ -1,5 +1,24 @@
 [
  {
+  "kind": "short",
+  "v2": true,
+  "date": "2026-11-18T02:51:16.300Z",
+  "url": "https://youtube.com/shorts/yY0PiIc6hYA",
+  "title": "Whale Trade Replay: $83K DOGE Short, Step by Step",
+  "text": "Let us replay a real whale trade, step by step. The player: a wallet starting with 0xbf73. The game: a 83 thousand dollar short on DOGE. First, entry: 0.0583 dollars. Step two: 10 times leverage. So a 1 percent move becomes 10 percent on its money. Danger line: 1.111 dollars. Now: 0.0592 dollars. That is minus 17 percent on the whale's own money. Without leverage, it would be only 1.7 percent. Lesson one: big money can still be liquidated. Lesson two: the entry price decides everything. Lesson three: small leverage keeps you in the game. Copying whales blindly is not a plan. Watch live whale moves for free on MarketRadar Whale.",
+  "topic": "replay",
+  "thumbHashA": null,
+  "frameHash": "4633331b0f470e00",
+  "contentHashes": [
+   "0604142600400000",
+   "46431303074f0600",
+   "26100c1600400400"
+  ],
+  "thumb": "none",
+  "privacy": "public",
+  "test": false
+ },
+ {
   "kind": "long",
   "v2": true,
   "date": "2026-11-17T23:06:29.036Z",
