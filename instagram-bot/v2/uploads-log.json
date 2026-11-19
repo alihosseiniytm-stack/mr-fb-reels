@@ -1,5 +1,24 @@
 [
  {
+  "kind": "short",
+  "v2": true,
+  "date": "2026-11-19T02:19:12.934Z",
+  "url": "https://youtube.com/shorts/qC1zBdRwc7E",
+  "title": "Phishing Links in Crypto: Crypto Safety in One Minute",
+  "text": "One wrong click can drain your wallet. This is the phishing link trap. A phishing link looks like a real site. One letter in the address is different. It comes in emails, ads and chat messages. Phishing drained 494 million dollars. About 332,000 wallets were hit. That was in 2024 alone. Here is how to stay safe. Bookmark the real sites and only use those. Check every letter of the address. Never click links in surprise messages. Type the address yourself. Do not click. Share this with a friend who is new to crypto. Watch live whale moves for free on MarketRadar Whale.",
+  "topic": "phishing_links",
+  "thumbHashA": null,
+  "frameHash": "2a372b93934e0400",
+  "contentHashes": [
+   "462b2b8b9b460000",
+   "43373b1b0f4b0e00",
+   "530723031b5b0600"
+  ],
+  "thumb": "none",
+  "privacy": "public",
+  "test": false
+ },
+ {
   "kind": "long",
   "v2": true,
   "date": "2026-11-18T22:49:02.862Z",
