@@ -1,5 +1,24 @@
 [
  {
+  "kind": "short",
+  "v2": true,
+  "date": "2026-11-20T02:09:02.061Z",
+  "url": "https://youtube.com/shorts/Ockg1s89Lm0",
+  "title": "Crypto Week Recap: Bitcoin -9.8%, Best and Worst Coins, Whale Positions",
+  "text": "What happened in crypto this week? Bitcoin went down 9.8 percent in 7 days. The week high was 70,214 dollars. Its low was 61,207 dollars. Now it trades at 61,651 dollars. Here are 9 big coins over the same 7 days. Ethereum: down 9.9 percent. Solana: down 7.8 percent. The best was XRP, down 5.7 percent. The worst was Avalanche, down 16.2 percent. Top whales: 22 long, 28 short. So whales lean short going into next week. One week is noise. Trends need more time. This is education, not financial advice. Watch live whale moves for free on MarketRadar Whale.",
+  "topic": "recap",
+  "thumbHashA": null,
+  "frameHash": "2633339797440e00",
+  "contentHashes": [
+   "460313531b400600",
+   "47032b2f1b400c00",
+   "2e4333af1b460000"
+  ],
+  "thumb": "none",
+  "privacy": "public",
+  "test": false
+ },
+ {
   "kind": "long",
   "v2": true,
   "date": "2026-11-19T22:53:27.992Z",
