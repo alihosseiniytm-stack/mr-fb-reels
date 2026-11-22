@@ -2,6 +2,25 @@
  {
   "kind": "short",
   "v2": true,
+  "date": "2026-11-22T00:59:23.939Z",
+  "url": "https://youtube.com/shorts/s53aC1Hal-M",
+  "title": "MACD Indicator Explained: A Real Bitcoin Example",
+  "text": "This tool shows when the push behind a move changes. Traders call it the MACD. MACD compares a fast average with a slow average. The blue line is MACD. The yellow line is its signal. When blue crosses yellow, the push behind the move changes. Blue below yellow means the push is turning down. Here is a real Bitcoin chart from September 29. The MACD line crossed below its signal line. That candle closed at 83,620 dollars. 5 days later, Bitcoin was 3.4 percent higher. This time the signal failed. That happens a lot. Wait for price to confirm before you act. Always set a stop loss before you enter. The MACD is a clue, never a promise. Watch live whale moves for free on MarketRadar Whale.",
+  "topic": "macd",
+  "thumbHashA": null,
+  "frameHash": "52333b9703460e00",
+  "contentHashes": [
+   "1247335713460600",
+   "536b132313460e00",
+   "420b5323074e0c00"
+  ],
+  "thumb": "none",
+  "privacy": "public",
+  "test": false
+ },
+ {
+  "kind": "short",
+  "v2": true,
   "date": "2026-11-21T03:56:31.252Z",
   "url": "https://youtube.com/shorts/TE3EPQCLDUo",
   "title": "Three White Soldiers Candle Pattern Explained: A Real Bitcoin Example",
