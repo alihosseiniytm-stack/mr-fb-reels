@@ -65,7 +65,8 @@ export const ARTICLE_DEFAULT = "https://marketradarwhale.com/en/tradingview-draw
 export async function tv30Data() {
   const url = process.env.ARTICLE_URL || ARTICLE_DEFAULT;
   return { type: "tv30", key: "tv30", name: "30 DRAWINGS", coin: "", url,
-    descTop: `Full guide in 7 languages + the free Pine script (8 levels + 4 zones in one indicator): ${url}`,
+    descTop: url === ARTICLE_DEFAULT || /tradingview-drawing-limit/.test(url) ? `Full guide in 7 languages + the free Pine script (8 levels + 4 zones in one indicator): ${url}`
+      : `The full guide (7 languages) + the free Pine script (8 levels + 4 zones in one indicator) are being published on MarketRadar Whale: ${url}`,
     desc: "Facts: TradingView pricing page (Basic: 30 drawings per chart) and TradingView help article on removing drawings, both checked 24 Nov 2026; user reports since 17 Nov 2026. TradingView has not published an announcement. Not affiliated with TradingView." };
 }
 
