@@ -2,6 +2,25 @@
  {
   "kind": "short",
   "v2": true,
+  "date": "2026-11-24T22:51:13.644Z",
+  "url": "https://youtube.com/shorts/s3QlhLuPP_E",
+  "title": "TradingView Free Plan: Why an Empty Chart Says 33 Drawings (Fix)",
+  "text": "Your chart is empty, but it says 33 drawings. Since November 17, free users report a 30 cap. The free plan lists 30 drawings per chart. But hidden drawings still count. So do drawings on other symbols. The fix, step 1: open the Object tree. Step 2: click Manage layout drawings. Step 3: clear old lines in all 3 tabs. Careful: their alerts get deleted too. Write your alerts down first. Bonus: our free script draws 8 levels and 4 zones. It uses one indicator slot, not drawings. Full guide in 7 languages, link below. Free guides and whale moves on MarketRadar Whale.",
+  "topic": "tv30",
+  "thumbHashA": null,
+  "frameHash": "446773871b460600",
+  "contentHashes": [
+   "0407530707460600",
+   "242333130b470e00",
+   "140733131b460400"
+  ],
+  "thumb": "none",
+  "privacy": "public",
+  "test": false
+ },
+ {
+  "kind": "short",
+  "v2": true,
   "date": "2026-11-24T06:54:48.150Z",
   "url": "https://youtube.com/shorts/p16jnkEdVoU",
   "title": "Shooting Star Candle Pattern Explained: A Real Bitcoin Example",
