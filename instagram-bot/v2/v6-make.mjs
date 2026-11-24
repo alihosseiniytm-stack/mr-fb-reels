@@ -12,6 +12,7 @@ import { hammerData, hammerLesson } from "./v6-hammer.mjs";
 import { CANDLE_KEYS, patternData, patternLesson } from "./v6-candles.mjs";
 import { C, T, candle, OBJ } from "./v6-draw.mjs";
 import { TYPE_TOPICS } from "./v6-types.mjs";
+import { TV30_TOPIC } from "./v6-tv30.mjs"; // T40-24 one-off Short (owner D330, t40-24-video)
 import { checkShots } from "./shotlist-gate.mjs";
 import { tagMascot } from "./v6-mascot.mjs";
 import { readFileSync } from "node:fs";
@@ -20,7 +21,7 @@ const here = (p) => fileURLToPath(new URL(p, import.meta.url));
 const arg = (n, d) => { const h = process.argv.find((a) => a.startsWith("--" + n + "=")); return h ? h.split("=")[1] : d; };
 const kind = arg("kind", "short"), topic = arg("topic", "hammer"), out = resolve(arg("out", here("../out"))), framesOnly = process.argv.includes("--frames-only");
 const TOPICS = { hammer: { data: hammerData, lesson: hammerLesson, label: "CANDLE SCHOOL" },
-  ...Object.fromEntries(CANDLE_KEYS.map((k) => [k, { data: () => patternData(k), lesson: patternLesson, label: "CANDLE SCHOOL" }])), ...TYPE_TOPICS }; // v6d: + indicator/coin/safety/whale_week/replay/recap
+  ...Object.fromEntries(CANDLE_KEYS.map((k) => [k, { data: () => patternData(k), lesson: patternLesson, label: "CANDLE SCHOOL" }])), ...TYPE_TOPICS, ...TV30_TOPIC }; // v6d: + indicator/coin/safety/whale_week/replay/recap
 const tp = TOPICS[topic];
 if (!tp) throw new Error("unknown v6 topic " + topic);
 await mkdir(out, { recursive: true });
@@ -41,7 +42,7 @@ if (framesOnly) {
 const mp4 = `${out}/${name}.mp4`;
 const r = await renderV6({ kind, steps: L.steps, data, lesson: tp.label, outPath: mp4, work });
 const text = L.steps.map((s) => s.say).join(" ");
-const description = `${L.title}\n\nSee live whale moves (free): ${SITE}/en/whales/\nTelegram whale alerts bot: ${BOT}\n\n` + (data.desc ? data.desc + " " :
+const description = `${L.title}\n\n${data.descTop ? data.descTop + "\n\n" : ""}See live whale moves (free): ${SITE}/en/whales/\nTelegram whale alerts bot: ${BOT}\n\n` + (data.desc ? data.desc + " " :
   `Data: real ${data.coinName || "Bitcoin"} ${({ "1d": "daily", "4h": "4-hour", "1h": "1-hour" })[data.iv]} candles from a public market data feed (${data.month} ${data.day}: low $${data.low.toLocaleString("en-US")}, close $${data.close.toLocaleString("en-US")}), ${dateLabel()}. `) +
   `Education only, not financial advice. Every picture and the presenter character are drawn by our own code (no stock photos, no AI images); the narrator is a synthetic voice.` + (r.chapters ? "\n\nChapters:\n" + r.chapters : "");
 // thumbnails A/B (long): own drawing, 1280x720

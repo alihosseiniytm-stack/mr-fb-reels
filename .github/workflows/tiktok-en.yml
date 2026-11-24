@@ -16,6 +16,14 @@ on:
         description: "Dry run (generate only, do not publish)"
         type: boolean
         default: true
+      topic:
+        description: "One-off v6 topic id (empty = daily picker), e.g. tv30"
+        type: string
+        default: ""
+      article_url:
+        description: "One-off: article URL for the description (tv30)"
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -61,8 +69,8 @@ jobs:
       - name: Render today's v6 Short (owner D195 - every video on every platform = v6)
         working-directory: instagram-bot
         run: |
-          T=$(node v2/v6-pick.mjs --slot=main | sed -n 's/^topic=//p'); node v2/v6-pick.mjs --slot=main | head -1
-          node v2/v6-make.mjs --kind=short --topic=$T --out=out
+          T="${{ inputs.topic }}"; if [ -z "$T" ]; then T=$(node v2/v6-pick.mjs --slot=main | sed -n "s/^topic=//p"); node v2/v6-pick.mjs --slot=main | head -1; else echo "one-off topic=$T"; fi
+          ARTICLE_URL="${{ inputs.article_url }}" node v2/v6-make.mjs --kind=short --topic=$T --out=out
 
       - name: v6 shot-list gate + standards gate (FAIL = not posted)
         working-directory: instagram-bot
