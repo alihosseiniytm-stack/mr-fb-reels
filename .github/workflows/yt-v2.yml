@@ -1,4 +1,7 @@
 name: YouTube v2 (weekday lessons + whale-story Shorts)
+# CI-RED FIX 2026-11-25 (T10-02 #ci-reds): runs 45513213479 + 45542918543 failed (morning_star had no strict real example in today's
+# candles; a replay Short was blocked as too similar) -> v2/v6-auto.mjs now skips such a topic and renders the next ready one
+# (gates unchanged). Long-video cron OFF (owner D347: no long YouTube video).
 
 # T50-08 v6c (owner D195/D199, 2026-11-12): cron ON. One v6 lesson per day, topic from v2/v6-pick.mjs (weekday plan in
 # schedule.json + topic-plan.json; a type without a v6 lesson falls back to a ready v6 candle topic, never the old style).
@@ -9,7 +12,7 @@ name: YouTube v2 (weekday lessons + whale-story Shorts)
 # v6 shot-list gate, similarity gate and standards gate (FAIL = not uploaded).
 on:
   schedule:
-    - cron: "0 15 * * *"   # long
+    # OFF 2026-11-25 (owner D347: no long YouTube video): - cron: "0 15 * * *"   # long
     - cron: "0 21 * * *"   # Short
   workflow_dispatch:
     inputs:
@@ -21,7 +24,7 @@ on:
         default: ""
       kind:
         description: "short, long (v6 also: both)"
-        default: "long"
+        default: "short"
       day:
         description: "sun mon tue wed thu fri sat (blank = today)"
         default: ""
@@ -67,21 +70,20 @@ jobs:
           else
             echo "kind=${{ inputs.kind }}" >> "$GITHUB_OUTPUT"; echo "upload=${{ inputs.upload }}" >> "$GITHUB_OUTPUT"; echo "privacy=${{ inputs.privacy }}" >> "$GITHUB_OUTPUT"; T="${{ inputs.topic }}"
           fi
-          [ -z "$T" ] && T=$(node v2/v6-pick.mjs | sed -n 's/^topic=//p')
-          node v2/v6-pick.mjs | head -1
-          echo "topic=$T" >> "$GITHUB_OUTPUT"; echo "PLAN topic=$T"
+          echo "topic=$T" >> "$GITHUB_OUTPUT"; echo "PLAN topic=${T:-<picker in render step>}"
       - name: v6 shot-list gate test (a bad shot list must FAIL)
         if: ${{ inputs.style != 'v5' }}
         working-directory: instagram-bot
         run: node --test v2/test/*.test.mjs
-      - name: Render v6 (own drawings, one picture per sentence)
+      - name: Render v6 (own drawings, one picture per sentence; no-example / too-similar topic -> next ready topic)
+        id: render
         if: ${{ inputs.style != 'v5' }}
         working-directory: instagram-bot
         run: |
           K="${{ steps.plan.outputs.kind }}"; [ -z "$K" ] && K=short; [ "$K" = "both" ] && K="short long"
-          for k in $K; do node v2/v6-make.mjs --kind=$k --topic=${{ steps.plan.outputs.topic }} --out=out; done
+          node v2/v6-auto.mjs --slot=main --kinds="$K" --topic="${{ steps.plan.outputs.topic }}" --out=out
       - name: v6 shot-list gate (every sentence = matching tagged picture, no shot > 6 s, no repeats; FAIL = not uploaded)
-        if: ${{ inputs.style != 'v5' }}
+        if: ${{ inputs.style != 'v5' && steps.render.outputs.topic != 'none' }}
         working-directory: instagram-bot
         run: |
           for m in out/*.meta.json; do node v2/shotlist-gate.mjs $m; done
@@ -93,15 +95,17 @@ jobs:
           PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
         run: node v2/make.mjs --kind=${{ inputs.kind }} --out=out ${{ inputs.day != '' && format('--day={0}', inputs.day) || '' }}
       - name: Similarity gate
+        if: ${{ steps.render.outputs.topic != 'none' }}
         working-directory: instagram-bot
         run: |
           for m in out/*.meta.json; do node v2/similarity-gate.mjs --check=$m; done
       - name: YouTube standards gate (YOUTUBE_STANDARDS.md; FAIL = not uploaded)
+        if: ${{ steps.render.outputs.topic != 'none' }}
         working-directory: instagram-bot
         run: |
           for m in out/*.meta.json; do n=$(basename $m .meta.json); node v2/standards-check.mjs out $n; done
       - name: Upload to YouTube
-        if: ${{ steps.plan.outputs.upload == 'true' }}
+        if: ${{ steps.plan.outputs.upload == 'true' && steps.render.outputs.topic != 'none' }}
         working-directory: instagram-bot
         env:
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}

@@ -23,3 +23,20 @@ test("same-day upload does not change the day's topic (long + Short share it)", 
   const a = pickTopic({ date: "2026-11-13", schedule, plan }).topic;
   assert.equal(pickTopic({ date: "2026-11-13", schedule, plan, log: [{ topic: a, date: "2026-11-13T09:00:00Z", privacy: "public" }] }).topic, a);
 });
+test("ci-reds 2026-11-25: --skip (topics v6-auto already tried) is never picked again; all tried -> null", () => {
+  for (const slot of ["main", "extra"]) {
+    const tried = [];
+    for (let n = 0; n < 40; n++) {
+      const t = pickTopic({ date: "2026-11-25", slot, schedule, plan, skip: tried }).topic;
+      if (t === null) break;
+      assert.ok(!tried.includes(t), slot + " re-picked " + t); tried.push(t);
+    }
+    assert.equal(pickTopic({ date: "2026-11-25", slot, schedule, plan, skip: tried }).topic, null, slot);
+    assert.ok(tried.length >= 5, slot + " only " + tried.length + " fallbacks");
+  }
+});
+test("ci-reds 2026-11-25: a data-type day (wed replay) blocked as too similar falls back to a ready candle topic", () => {
+  assert.equal(pickTopic({ date: "2026-11-25", schedule, plan }).topic, "replay");
+  const t = pickTopic({ date: "2026-11-25", schedule, plan, skip: ["replay"] }).topic;
+  assert.ok(READY.has(t) && t !== "replay", t);
+});

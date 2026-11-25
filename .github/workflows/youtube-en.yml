@@ -1,4 +1,6 @@
 name: YouTube Shorts — English
+# CI-RED FIX 2026-11-25 (T10-02 #ci-reds): run 45552084352 failed (extra-slot topic morning_star had no strict real example in
+# today's candles) -> v2/v6-auto.mjs now skips such a topic (or a too-similar one) and renders the next ready one; gates unchanged.
 
 # Same teacher-whale reel, uploaded DIRECTLY to YouTube (Data API v3, no Make). Secrets: YT_CLIENT_ID, YT_CLIENT_SECRET,
 # YT_REFRESH_TOKEN. Scheduled runs follow the repository variable YT_DRY_RUN (default "true" = generate only).
@@ -67,22 +69,25 @@ jobs:
         run: node --test v2/test/*.test.mjs
 
       - name: Render today's v6 Short (owner D195 - every video on every platform = v6)
+        id: render
         working-directory: instagram-bot
         run: |
-          T="${{ inputs.topic }}"; if [ -z "$T" ]; then T=$(node v2/v6-pick.mjs --slot=extra | sed -n "s/^topic=//p"); node v2/v6-pick.mjs --slot=extra | head -1; else echo "one-off topic=$T"; fi
-          ARTICLE_URL="${{ inputs.article_url }}" node v2/v6-make.mjs --kind=short --topic=$T --out=out
+          T="${{ inputs.topic }}"; [ -n "$T" ] && echo "one-off topic=$T"
+          ARTICLE_URL="${{ inputs.article_url }}" node v2/v6-auto.mjs --slot=extra --kinds=short --topic="$T" --out=out
 
       - name: v6 shot-list gate + standards gate (FAIL = not posted)
+        if: ${{ steps.render.outputs.topic != 'none' }}
         working-directory: instagram-bot
         run: |
           for m in out/*.meta.json; do node v2/shotlist-gate.mjs $m; n=$(basename $m .meta.json); node v2/standards-check.mjs out $n; done
 
       - name: Similarity gate (too close to a recent upload = not posted)
+        if: ${{ steps.render.outputs.topic != 'none' }}
         working-directory: instagram-bot
         run: for m in out/*.meta.json; do node v2/similarity-gate.mjs --check=$m; done
 
       - name: Upload the v6 Short to YouTube
-        if: ${{ steps.mode.outputs.dry_run != 'true' }}
+        if: ${{ steps.mode.outputs.dry_run != 'true' && steps.render.outputs.topic != 'none' }}
         working-directory: instagram-bot
         env:
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
